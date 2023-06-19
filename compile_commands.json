@@ -1,0 +1,22 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/c++",
+      "-O3",
+      "-c",
+      "-Wall",
+      "-Werror",
+      "-Wextra",
+      "-std=c++17",
+      "-ferror-limit=0",
+      "-I",
+      "/opt/homebrew/include",
+      "-o",
+      "out/main.o",
+      "main.cpp"
+    ],
+    "directory": "/Users/jeremyperras/Desktop/GameEngine",
+    "file": "/Users/jeremyperras/Desktop/GameEngine/main.cpp",
+    "output": "/Users/jeremyperras/Desktop/GameEngine/out/main.o"
+  }
+]
