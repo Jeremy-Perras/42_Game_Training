@@ -1,6 +1,6 @@
 NAME = library
 
-SRCS = main.cpp window.cpp app.cpp device.cpp
+SRCS = main.cpp window.cpp app.cpp device.cpp swap_chain.cpp pipeline.cpp
 
 INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi 
 
@@ -8,7 +8,7 @@ CXXFLAGS = -O3
 
 CC = g++
 
-FLAGS = -Wall -Werror -Wextra -std=c++17 -ferror-limit=0 
+FLAGS = -Wall -Werror -Wextra -std=c++17 -ferror-limit=0 -g
 
 MKDIR = mkdir -p
 OUT_DIR := out

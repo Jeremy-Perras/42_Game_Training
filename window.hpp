@@ -6,14 +6,17 @@ namespace ve {
   public:
     Window();
     ~Window();
-
-    void initWindow();
     bool shouldClose();
-    GLFWwindow* getWindow() { return window; }
+    GLFWwindow* getWindow() { return _window; }
+    VkExtent2D getExtent() const {
+      return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+    }
 
   private:
-    const int WIDTH = 800;
-    const int HEIGHT = 600;
-    GLFWwindow* window;
+    int width = 800;
+    int height = 600;
+    void initWindow();
+
+    GLFWwindow* _window;
   };
 }  // namespace ve

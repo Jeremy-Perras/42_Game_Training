@@ -1,5 +1,6 @@
 #pragma once
 #include "device.hpp"
+#include "swap_chain.hpp"
 
 namespace ve {
   class Application {
@@ -11,6 +12,9 @@ namespace ve {
     void initVulkan();
     void mainLoop();
     Window window;
+
     Device device{window};
+
+    SwapChain _swapChain{window.getExtent(), device};
   };
 }  // namespace ve
