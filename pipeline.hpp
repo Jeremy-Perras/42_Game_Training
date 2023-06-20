@@ -1,4 +1,11 @@
-namespace identifier {
-  class Pipeline {};
+namespace ve {
+  class Pipeline {
+  public:
+    Pipeline();
+    ~Pipeline();
 
-}  // namespace identifier
+  private:
+    void createGraphicsPipeline();
+  };
+
+}  // namespace ve
