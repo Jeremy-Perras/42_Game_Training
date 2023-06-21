@@ -9,9 +9,12 @@ namespace ve {
   void Application::mainLoop() {
     while (static_cast<int>(window.shouldClose()) == 0) {
       glfwPollEvents();
+      drawFrame();
     }
   }
 
   void Application::initVulkan(){};
+
+  void Application::drawFrame(){};
 
 }  // namespace ve

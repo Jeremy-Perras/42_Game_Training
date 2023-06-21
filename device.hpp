@@ -38,10 +38,14 @@ namespace ve {
     Device &operator=(Device const &src) = delete;
 
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
-    VkSurfaceKHR getSurface() { return _surface; }
-    VkDevice getDevice() { return _device; }
+
     VkPhysicalDevice getPhysicalDevice() { return _physicalDevice; }
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+    void createCommandPool();
+
+    VkCommandPool &getCommandPool() { return _commandPool; }
+    VkSurfaceKHR getSurface() { return _surface; }
+    VkDevice getDevice() { return _device; }
 
   private:
     void createInstance();
@@ -49,10 +53,11 @@ namespace ve {
     void setupDebugMessenger();
     void static populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
     void pickPhysicalDevice();
-
     bool isDeviceSuitable(VkPhysicalDevice device);
     void createLogicalDevice();
     void createSurface();
+    bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+
     VkDevice _device;
     Window &_window;
     const std::vector<const char *> _validationLayers = {"VK_LAYER_KHRONOS_validation"};
@@ -62,7 +67,7 @@ namespace ve {
     VkQueue _graphicsQueue;
     VkSurfaceKHR _surface;
     VkQueue _presentQueue;
-    bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+    VkCommandPool _commandPool;
     const std::vector<const char *> _deviceExtensions
         = {VK_KHR_SWAPCHAIN_EXTENSION_NAME, "VK_KHR_portability_subset"};
   };

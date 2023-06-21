@@ -1,6 +1,6 @@
 NAME = library
 
-SRCS = main.cpp window.cpp app.cpp device.cpp swap_chain.cpp pipeline.cpp
+SRCS = main.cpp window.cpp app.cpp device.cpp swap_chain.cpp pipeline.cpp render.cpp
 
 INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi 
 
@@ -28,7 +28,7 @@ $(DEBUG_DIR)/%.o: %.cpp
 $(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(FLAGS) $(OBJS) $(INCLUDES) -o $(NAME)
 
-all : $(NAME)
+all : $(NAME) gl
 
 debug: CXXFLAGS = -gdwarf-4 -fsanitize=address 
 
@@ -44,10 +44,9 @@ debug_fclean: debug_clean
 debug_re: debug_fclean debug
 
 gl: 
-	glslc shaders/simple_shader.frag -o shaders/simple_shader.frag.spv
-	glslc shaders/simple_shader.vert -o shaders/simple_shader.vert.spv
-	# glslc shaders/point_light.vert -o shaders/point_light.vert.spv
-	# glslc shaders/point_light.frag -o shaders/point_light.frag.spv
+	glslc shaders/shader.frag -o shaders/shader.frag.spv
+	glslc shaders/shader.vert -o shaders/shader.vert.spv
+
 
 clean :
 	rm -rf $(OBJS)

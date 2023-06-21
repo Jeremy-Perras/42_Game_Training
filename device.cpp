@@ -50,6 +50,7 @@ namespace ve {
   }
 
   Device::~Device() {
+    vkDestroyCommandPool(_device, _commandPool, nullptr);
     vkDestroyDevice(_device, nullptr);
     if (enableValidationLayers) {
       DestroyDebugUtilsMessengerEXT(_instance, _callback, nullptr);
@@ -310,6 +311,20 @@ namespace ve {
                                                 details.presentModes.data());
     }
     return details;
+  }
+
+  void Device::createCommandPool() {
+    QueueFamilyIndices queueFamilyIndices = findQueueFamilies(_physicalDevice);
+    if (queueFamilyIndices.graphicsFamily.has_value()) {
+      VkCommandPoolCreateInfo poolInfo{};
+      poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+      poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+      poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+
+      if (vkCreateCommandPool(_device, &poolInfo, nullptr, &_commandPool) != VK_SUCCESS) {
+        throw std::runtime_error("échec de la création d'une command pool!");
+      }
+    }
   }
 
 }  // namespace ve
