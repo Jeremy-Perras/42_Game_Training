@@ -1,25 +1,34 @@
+#include <_types/_uint32_t.h>
+
+#include <string>
+
+#include "vulkan/vulkan_core.h"
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 namespace ve {
+
   class Window {
   public:
-    Window();
+    Window(int w, int h, std::string name);
     ~Window();
     Window(Window const &rhs) = delete;
     Window &operator=(Window const &src) = delete;
 
     bool shouldClose();
-    GLFWwindow *getWindow() { return _window; }
+    void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);
+
+    GLFWwindow *getWindow() { return window_; }
     VkExtent2D getExtent() const {
-      return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+      return {static_cast<uint32_t>(width_), static_cast<uint32_t>(height_)};
     }
 
   private:
-    int width = 800;
-    int height = 600;
-    void initWindow();
+    const int width_;
+    const int height_;
+    std::string name_;
+    GLFWwindow *window_;
 
-    GLFWwindow *_window;
+    void initWindow();
   };
 }  // namespace ve

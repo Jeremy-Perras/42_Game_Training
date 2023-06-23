@@ -8,7 +8,7 @@
 int main() {
   ve::Application app;
   try {
-    app.run();
+    app.mainLoop();
   } catch (const std::exception& e) {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
