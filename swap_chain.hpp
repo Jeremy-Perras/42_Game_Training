@@ -11,6 +11,7 @@
 #include <cstring>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -23,6 +24,7 @@ namespace ve {
     static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
     SwapChain(Device &deviceRef, VkExtent2D windowExtent);
+    SwapChain(Device &deviceRef, VkExtent2D windowExtent, std::shared_ptr<SwapChain> previous);
     ~SwapChain();
 
     SwapChain(const SwapChain &) = delete;
@@ -48,6 +50,7 @@ namespace ve {
     size_t getImageCount() { return swapChainImages_.size(); }
 
   private:
+    void init();
     void createSwapChain();
     void createImageViews();
     void createDepthResources();
@@ -78,6 +81,7 @@ namespace ve {
     VkExtent2D windowExtent_;
 
     VkSwapchainKHR swapChain_;
+    std::shared_ptr<SwapChain> oldSwapChain_;
 
     std::vector<VkSemaphore> imageAvailableSemaphores_;
     std::vector<VkSemaphore> renderFinishedSemaphores_;

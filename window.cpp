@@ -1,5 +1,6 @@
 #include "window.hpp"
 
+#include <sstream>
 #include <stdexcept>
 #include <utility>
 
@@ -21,13 +22,33 @@ namespace ve {
   void Window::initWindow() {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     window_ = glfwCreateWindow(width_, height_, name_.c_str(), nullptr, nullptr);
+    glfwSetWindowUserPointer(window_, this);
+    glfwSetFramebufferSizeCallback(window_, framebufferResizeCallback);
   }
+
   void Window::createWindowSurface(VkInstance instance, VkSurfaceKHR *surface) {
     if (glfwCreateWindowSurface(instance, window_, nullptr, surface) != VK_SUCCESS) {
       throw std::runtime_error("failed to create surface");
     }
+  }
+
+  void Window::updateFrame(unsigned int fps) {
+    std::stringstream newTitle;
+
+    newTitle << "GameEngine"
+             << " "
+             << " [" << fps << " FPS]";
+
+    glfwSetWindowTitle(window_, newTitle.str().c_str());
+  }
+
+  void Window::framebufferResizeCallback(GLFWwindow *window, int width, int height) {
+    auto *newWindow = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
+    newWindow->frameBufferResized_ = true;
+    newWindow->width_ = width;
+    newWindow->height_ = height;
   }
 
 }  // namespace ve

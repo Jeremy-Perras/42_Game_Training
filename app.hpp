@@ -1,12 +1,13 @@
 #pragma once
-#include <memory>
-#include <stdexcept>
-#include <vector>
+#include <_types/_uint32_t.h>
+#include <sys/time.h>
 
-#include "device.hpp"
+#include <stdexcept>
+
+#include "game_object.hpp"
 #include "pipeline.hpp"
 #include "swap_chain.hpp"
-#include "vulkan/vulkan_core.h"
+
 namespace ve {
   class Application {
   public:
@@ -20,16 +21,27 @@ namespace ve {
     void mainLoop();
 
   private:
+    void loadGameObjects();
     void createPipelineLayout();
     void createPipeline();
     void createCommandBuffers();
+    void freeCommandBuffers();
     void drawFrame();
+    static long double getElapsedTime(struct timeval end, struct timeval begin);
+    void recreateSwapChain();
+    void recordCommandBuffer(int imageIndex);
+    void renderGameObjects(VkCommandBuffer commandBuffer);
 
     Window window_{WIDTH, HEIGHT, "GameEngine"};
     Device device_{window_};
-    SwapChain swapChain_{device_, window_.getExtent()};
+    std::unique_ptr<SwapChain> swapChain_;
     std::unique_ptr<Pipeline> pipeline_;
     VkPipelineLayout pipelineLayout_;
     std::vector<VkCommandBuffer> commandBuffers_;
+    std::vector<GameObject> gameObjects_;
+
+    unsigned int m_fpscount_;
+    struct timeval start_;
+    struct timeval end_;
   };
 }  // namespace ve

@@ -22,12 +22,18 @@ namespace ve {
     VkExtent2D getExtent() const {
       return {static_cast<uint32_t>(width_), static_cast<uint32_t>(height_)};
     }
+    void updateFrame(unsigned int fps);
+
+    bool wasWindowResized() const { return frameBufferResized_; }
+    void resetWindowResizedFlag() { frameBufferResized_ = false; }
 
   private:
-    const int width_;
-    const int height_;
+    static void framebufferResizeCallback(GLFWwindow *window, int width, int height);
+    int width_;
+    int height_;
     std::string name_;
     GLFWwindow *window_;
+    bool frameBufferResized_ = false;
 
     void initWindow();
   };

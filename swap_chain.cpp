@@ -1,11 +1,27 @@
 #include "swap_chain.hpp"
 
+#include <memory>
+#include <utility>
+
+#include "vulkan/vulkan_core.h"
+
 // std
 
 namespace ve {
 
   SwapChain::SwapChain(Device &deviceRef, VkExtent2D extent)
       : device_{deviceRef}, windowExtent_{extent} {
+    init();
+  }
+
+  SwapChain::SwapChain(Device &deviceRef, VkExtent2D extent, std::shared_ptr<SwapChain> previous)
+      : device_{deviceRef}, windowExtent_{extent}, oldSwapChain_(std::move(previous)) {
+    init();
+
+    oldSwapChain_ = nullptr;
+  }
+
+  void SwapChain::init() {
     createSwapChain();
     createImageViews();
     createRenderPass();
@@ -148,7 +164,7 @@ namespace ve {
     createInfo.presentMode = presentMode;
     createInfo.clipped = VK_TRUE;
 
-    createInfo.oldSwapchain = VK_NULL_HANDLE;
+    createInfo.oldSwapchain = oldSwapChain_ == nullptr ? VK_NULL_HANDLE : oldSwapChain_->swapChain_;
 
     if (vkCreateSwapchainKHR(device_.getDevice(), &createInfo, nullptr, &swapChain_)
         != VK_SUCCESS) {
@@ -349,7 +365,7 @@ namespace ve {
   VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(
       const std::vector<VkSurfaceFormatKHR> &availableFormats) {
     for (const auto &availableFormat : availableFormats) {
-      if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM
+      if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB
           && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
         return availableFormat;
       }

@@ -1,7 +1,5 @@
 #include "device.hpp"
 
-// std headers
-
 namespace ve {
 
   // local callback functions
