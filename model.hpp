@@ -17,7 +17,7 @@ namespace ve {
   public:
     struct Vertex {
       glm::vec2 position;
-      glm::vec3 color;
+      // glm::vec3 color;
 
       // getters
       static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
@@ -28,6 +28,7 @@ namespace ve {
     Model &operator=(const Model &rhs) = delete;
     ~Model();
     static std::unique_ptr<Model> createCircleModel(Device &device, unsigned int numSides);
+    static std::unique_ptr<Model> createSquareModel(Device &device, glm::vec2 offset);
     void bind(VkCommandBuffer commandBuffer);
     void draw(VkCommandBuffer commandBuffer);
 

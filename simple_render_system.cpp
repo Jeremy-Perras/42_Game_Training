@@ -55,13 +55,13 @@ namespace ve {
                                              std::vector<GameObject>& gameObjects) {
     pipeline_->bind(commandBuffer);
     for (auto& obj : gameObjects) {
-      obj.transform2d.rotation = glm::mod(obj.transform2d.rotation + 0.01F, glm::two_pi<float>());
+      obj.transform.rotation = glm::mod(obj.transform.rotation + 0.01F, glm::two_pi<float>());
 
       SimplePushConstantData push{};
-      push.offset = obj.transform2d.translation;
+      push.offset = obj.transform.translation;
 
       push.color = obj.color;
-      push.transform = obj.transform2d.mat2();
+      push.transform = obj.transform.mat2();
 
       vkCmdPushConstants(commandBuffer, pipelineLayout_,
                          VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,

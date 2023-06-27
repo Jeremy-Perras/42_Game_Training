@@ -46,16 +46,16 @@ namespace ve {
   }
 
   std::vector<VkVertexInputAttributeDescription> Model::Vertex::getAttributeDescriptions() {
-    std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
+    std::vector<VkVertexInputAttributeDescription> attributeDescriptions(1);
     attributeDescriptions[0].binding = 0;
     attributeDescriptions[0].location = 0;
     attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
     attributeDescriptions[0].offset = offsetof(Vertex, position);
 
-    attributeDescriptions[1].binding = 0;
-    attributeDescriptions[1].location = 1;
-    attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-    attributeDescriptions[1].offset = offsetof(Vertex, color);
+    // attributeDescriptions[1].binding = 0;
+    // attributeDescriptions[1].location = 1;
+    // attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+    // attributeDescriptions[1].offset = offsetof(Vertex, color);
     return attributeDescriptions;
   }
 
@@ -63,7 +63,7 @@ namespace ve {
     std::vector<Model::Vertex> uniqueVertices{};
     for (int i = 0; i < static_cast<int>(numSides); i++) {
       float angle = static_cast<float>(i) * glm::two_pi<float>() / static_cast<float>(numSides);
-      uniqueVertices.push_back({{glm::cos(angle), glm::sin(angle)}, {1.0F, 0.0F, 0.0F}});
+      uniqueVertices.push_back({{glm::cos(angle), glm::sin(angle)}});
     }
     uniqueVertices.push_back({});  // adds center vertex at 0, 0
 
@@ -73,6 +73,15 @@ namespace ve {
       vertices.push_back(uniqueVertices[(i + 1) % numSides]);
       vertices.push_back(uniqueVertices[numSides]);
     }
+    return std::make_unique<Model>(device, vertices);
+  }
+
+  std::unique_ptr<Model> Model::createSquareModel(Device &device, glm::vec2 offset) {
+    (void)offset;
+    std::vector<Model::Vertex> vertices = {
+        {{-0.5F, -0.5F}}, {{0.5F, 0.5F}},  {{-0.5F, 0.5F}},
+        {{-0.5F, -0.5F}}, {{0.5F, -0.5F}}, {{0.5F, 0.5F}},  //
+    };
     return std::make_unique<Model>(device, vertices);
   }
 }  // namespace ve

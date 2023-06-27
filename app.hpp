@@ -2,12 +2,17 @@
 #include <_types/_uint32_t.h>
 #include <sys/time.h>
 
+#include <map>
 #include <stdexcept>
 
 #include "game_object.hpp"
 #include "renderer.hpp"
 
 namespace ve {
+  // struct Point {
+  //   double x, y;
+  // };
+
   class Application {
   public:
     Application();
@@ -21,7 +26,7 @@ namespace ve {
 
   private:
     void loadGameObjects();
-
+    void gameLife();
     static long double getElapsedTime(struct timeval end, struct timeval begin);
 
     Window window_{WIDTH, HEIGHT, "GameEngine"};
@@ -29,8 +34,11 @@ namespace ve {
     Renderer renderer_{window_, device_};
     std::vector<GameObject> gameObjects_;
 
+    std::map<std::pair<float, float>, float> life_;
     unsigned int m_fpscount_;
     struct timeval start_;
     struct timeval end_;
+    float xMax_;
+    float yMax_;
   };
 }  // namespace ve

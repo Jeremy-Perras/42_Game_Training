@@ -16,7 +16,7 @@ namespace ve {
         glm::mat2 rotMatrix{{c, s}, {-s, c}};
         glm::mat2 scaleMat{{scale.x, 0.0F}, {0.0F, scale.y}};
 
-        return rotMatrix * scaleMat;
+        return glm::mat2{1.0F} * scaleMat;
       }
     };
 
@@ -36,7 +36,7 @@ namespace ve {
 
     std::shared_ptr<Model> model{};
     glm::vec3 color{};
-    Transform2dComponent transform2d{};
+    Transform2dComponent transform{};
 
     // Getter
     id_t getId() const { return id_; }

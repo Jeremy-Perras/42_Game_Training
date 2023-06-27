@@ -1,9 +1,12 @@
 #include "app.hpp"
 
+#include <algorithm>
 #include <glm/gtc/constants.hpp>
 #include <memory>
+#include <utility>
 
 #include "game_object.hpp"
+#include "keyboard_movement_controller.hpp"
 #include "model.hpp"
 #include "rainbow.hpp"
 #include "simple_render_system.hpp"
@@ -18,50 +21,59 @@ namespace ve {
   Application::~Application() {}
 
   void Application::mainLoop() {
-    RainbowSystem rainbow(10);
     SimpleRenderSystem simpleRenderSystem(device_, renderer_.getSwapChainRenderPass());
-    while (static_cast<int>(window_.shouldClose()) == 0) {
-      m_fpscount_++;
-      if (getElapsedTime(end_, start_) >= 1000) {
-        window_.updateFrame(m_fpscount_);
-        m_fpscount_ = 0;
-        gettimeofday(&start_, NULL);
-      }
+    // KeyboardMovementController playerController{};
+
+    while (static_cast<int>(window_.shouldClose()) == 0
+           && static_cast<int>(glfwGetKey(window_.getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
+                  == 0) {
       glfwPollEvents();
+      m_fpscount_++;
+
+      // playerController.moveInPlaneXZ(window_.getGLFWwindow(), gameObjects_[0]);
+
       if (auto* commandBuffer = renderer_.beginFrame()) {
         renderer_.beginSwapChainRenderPass(commandBuffer);
         simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects_);
         renderer_.endSwapChainRenderPass(commandBuffer);
         renderer_.endFrame();
       }
+      if (getElapsedTime(end_, start_) >= 1000) {
+        window_.updateFrame(m_fpscount_);
+        m_fpscount_ = 0;
+        gettimeofday(&start_, NULL);
+        Application::gameLife();
+      }
+
       gettimeofday(&end_, NULL);
     }
     vkDeviceWaitIdle(device_.getDevice());
   }
 
   void Application::loadGameObjects() {
-    std::vector<Model::Vertex> vertices = {
-        {{-1.F, -1.F}, {1.0F, 0.0F, 0.0F}}, {{1.F, 1.F}, {1.0F, 0.0F, 0.0F}},
-        {{1.F, -1.F}, {1.0F, 0.0F, 0.0F}},  {{-1.F, -1.F}, {1.0F, 0.0F, 0.0F}},
-        {{1.F, 1.F}, {1.0F, 0.0F, 0.0F}},   {{-1.F, 1.F}, {1.0F, 0.0F, 0.0F}},  //
-    };
-    auto model_ = std::make_shared<Model>(device_, vertices);
-    auto triangle = GameObject::createGameObject();
-
-    triangle.model = model_;
-    triangle.color = {0.1F, 0.8F, 0.1F};
-    triangle.transform2d.translation.x = 0.0F;
-    triangle.transform2d.scale = {1.0F, 1.0F};
-    triangle.transform2d.rotation = 0.0F * glm ::two_pi<float>();
-
-    // gameObjects_.push_back(std::move(triangle));
-
-    auto circle = GameObject::createGameObject();
-    circle.transform2d.scale = glm::vec2{.05f};
-    circle.transform2d.translation = {.5f, .5f};
-    circle.color = {1.F, 0.F, 0.F};
-    circle.model = Model::createCircleModel(device_, 64);
-    gameObjects_.push_back(std::move(circle));
+    float x = 0;
+    float y = 0;
+    float scale = 0.01;
+    while (-1 + scale * y < 1.0F) {
+      while (-1 + scale * x < 1.0F) {
+        life_.insert(std::pair<std::pair<float, float>, float>({x, y}, 0));
+        x++;
+        auto square = GameObject::createGameObject();
+        square.transform.scale = glm::vec2(scale);
+        square.transform.translation = {x * scale - 1, y * scale - 1};
+        square.color = {1.F, 0.F, 0.F};
+        square.model = Model::createSquareModel(device_, {.5f, .0f});
+        gameObjects_.push_back(std::move(square));
+      }
+      xMax_ = x;
+      x = 0;
+      y++;
+    }
+    yMax_ = y;
+    std::cout << xMax_ << " " << yMax_ << std::endl;
+    life_.find({100 - 1, 100})->second = 1;
+    life_.find({100, 100})->second = 1;
+    life_.find({100 + 1, 100})->second = 1;
   }
 
   long double Application::getElapsedTime(struct timeval end, struct timeval begin) {
@@ -71,4 +83,105 @@ namespace ve {
     return (elapsed);
   }
 
+  // void Application::gameLife() {
+  //   int countOne = 0;
+  //   float scale = 0.01;
+
+  //   for (auto p : life_) {
+  //     if (p.second == 0) {
+  //       countOne = life_.find({p.first.first - 1, p.first.second - 1})->second == 1 ? countOne
+  //       + 1
+  //                                                                                   : countOne;
+  //       countOne = life_.find({p.first.first, p.first.second - 1})->second == 1 ? countOne + 1
+  //                                                                               : countOne;
+
+  //       countOne = life_.find({p.first.first + 1, p.first.second - 1})->second == 1 ? countOne
+  //       + 1
+  //                                                                                   : countOne;
+  //       countOne = life_.find({p.first.first - 1, p.first.second})->second == 1 ? countOne + 1
+  //                                                                               : countOne;
+
+  //       countOne = life_.find({p.first.first + 1, p.first.second})->second == 1 ? countOne + 1
+  //                                                                               : countOne;
+
+  //       countOne = life_.find({p.first.first - 1, p.first.second + 1})->second == 1 ? countOne
+  //       + 1
+  //                                                                                   : countOne;
+
+  //       countOne = life_.find({p.first.first, p.first.second + 1})->second == 1 ? countOne + 1
+  //                                                                               : countOne;
+
+  //       countOne = life_.find({p.first.first + 1, p.first.second + 1})->second == 1 ? countOne
+  //       + 1
+  //                                                                                   : countOne;
+  //       if (countOne == 3) {
+  //         p.second = 1;
+  //         std::cout << "1 : " << p.first.first * scale - 1 << " " << p.first.second * scale - 1
+  //                   << std::endl;
+  //         auto square = GameObject::createGameObject();
+  //         square.transform.scale = glm::vec2(scale);
+  //         square.transform.translation = {
+  //             p.first.first * scale - 1,
+  //             p.first.second * scale - 1,
+  //         };
+  //         square.color = {1.F, 0.F, 0.F};
+  //         square.model = Model::createSquareModel(device_, {.5f, .0f});
+  //         gameObjects_.push_back(std::move(square));
+
+  //       } else {
+  //         p.second = 0;
+  //       }
+  //     } else if (p.second == 1) {
+  //       countOne = life_.find({p.first.first - 1, p.first.second - 1})->second == 1 ? countOne
+  //       + 1
+  //                                                                                   : countOne;
+  //       countOne = life_.find({p.first.first, p.first.second - 1})->second == 1 ? countOne + 1
+  //                                                                               : countOne;
+
+  //       countOne = life_.find({p.first.first + 1, p.first.second - 1})->second == 1 ? countOne
+  //       + 1
+  //                                                                                   : countOne;
+  //       countOne = life_.find({p.first.first - 1, p.first.second})->second == 1 ? countOne + 1
+  //                                                                               : countOne;
+
+  //       countOne = life_.find({p.first.first + 1, p.first.second})->second == 1 ? countOne + 1
+  //                                                                               : countOne;
+
+  //       countOne = life_.find({p.first.first - 1, p.first.second + 1})->second == 1 ? countOne
+  //       + 1
+  //                                                                                   : countOne;
+
+  //       countOne = life_.find({p.first.first, p.first.second + 1})->second == 1 ? countOne + 1
+  //                                                                               : countOne;
+
+  //       countOne = life_.find({p.first.first + 1, p.first.second + 1})->second == 1 ? countOne
+  //       + 1
+  //                                                                                   : countOne;
+  //       if (countOne == 3 || countOne == 2) {
+  //         p.second = 1;
+  //         std::cout << p.first.first << " " << p.first.second << std::endl;
+  //         auto square = GameObject::createGameObject();
+  //         square.transform.scale = glm::vec2(scale);
+  //         square.transform.translation = {
+  //             p.first.first * scale - 1,
+  //             p.first.second * scale - 1,
+  //         };
+  //         square.color = {1.F, 0.F, 0.F};
+  //         square.model = Model::createSquareModel(device_, {.5f, .0f});
+  //         gameObjects_.push_back(std::move(square));
+
+  //       } else {
+  //         p.second = 0;
+  //       }
+  //     }
+
+  //     countOne = 0;
+  //   }
+  // }
+  void Application::gameLife() {
+    for (auto& p : gameObjects_) {
+      // auto test = std::find(gameObjects_.begin(), gameObjects_.end(), ) != vec.end();
+      std::cout << p.getId() << std::endl;
+    };
+  }
 }  // namespace ve
