@@ -1,6 +1,6 @@
 NAME = library
 
-SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp model.cpp
+SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp model.cpp renderer.cpp simple_render_system.cpp
 
 INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi 
 

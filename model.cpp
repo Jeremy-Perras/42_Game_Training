@@ -58,4 +58,21 @@ namespace ve {
     attributeDescriptions[1].offset = offsetof(Vertex, color);
     return attributeDescriptions;
   }
+
+  std::unique_ptr<Model> Model::createCircleModel(Device &device, unsigned int numSides) {
+    std::vector<Model::Vertex> uniqueVertices{};
+    for (int i = 0; i < static_cast<int>(numSides); i++) {
+      float angle = static_cast<float>(i) * glm::two_pi<float>() / static_cast<float>(numSides);
+      uniqueVertices.push_back({{glm::cos(angle), glm::sin(angle)}, {1.0F, 0.0F, 0.0F}});
+    }
+    uniqueVertices.push_back({});  // adds center vertex at 0, 0
+
+    std::vector<Model::Vertex> vertices{};
+    for (int i = 0; i < static_cast<int>(numSides); i++) {
+      vertices.push_back(uniqueVertices[i]);
+      vertices.push_back(uniqueVertices[(i + 1) % numSides]);
+      vertices.push_back(uniqueVertices[numSides]);
+    }
+    return std::make_unique<Model>(device, vertices);
+  }
 }  // namespace ve

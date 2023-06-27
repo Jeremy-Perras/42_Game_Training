@@ -1,6 +1,7 @@
 #pragma once
 
 #include "device.hpp"
+#include "vulkan/vulkan_core.h"
 
 // vulkan headers
 #include <vulkan/vulkan.h>
@@ -39,6 +40,11 @@ namespace ve {
     VkResult acquireNextImage(uint32_t *imageIndex);
     VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t const *imageIndex);
 
+    bool compareSwapFormat(const SwapChain &swapChain) {
+      return swapChain.swapChainDepthFormat == swapChainDepthFormat
+             && swapChain.swapChainImageFormat_ == swapChainImageFormat_;
+    }
+
     // Getter
     VkFormat getSwapChainImageFormat() { return swapChainImageFormat_; }
     VkExtent2D getSwapChainExtent() { return swapChainExtent_; }
@@ -66,6 +72,7 @@ namespace ve {
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
     VkFormat swapChainImageFormat_;
+    VkFormat swapChainDepthFormat;
     VkExtent2D swapChainExtent_;
 
     std::vector<VkFramebuffer> swapChainFramebuffers_;

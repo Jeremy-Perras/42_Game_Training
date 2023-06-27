@@ -3,6 +3,7 @@
 #include <_types/_uint32_t.h>
 
 #include <cassert>
+#include <glm/gtc/constants.hpp>
 
 #include "device.hpp"
 #include "vulkan/vulkan_core.h"
@@ -26,7 +27,7 @@ namespace ve {
     Model(const Model &src) = delete;
     Model &operator=(const Model &rhs) = delete;
     ~Model();
-
+    static std::unique_ptr<Model> createCircleModel(Device &device, unsigned int numSides);
     void bind(VkCommandBuffer commandBuffer);
     void draw(VkCommandBuffer commandBuffer);
 
