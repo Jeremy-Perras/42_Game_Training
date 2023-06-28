@@ -4,6 +4,7 @@
 
 #include <map>
 #include <stdexcept>
+#include <utility>
 
 #include "game_object.hpp"
 #include "renderer.hpp"
@@ -27,6 +28,7 @@ namespace ve {
   private:
     void loadGameObjects();
     void gameLife();
+    void gameLife2();
     static long double getElapsedTime(struct timeval end, struct timeval begin);
 
     Window window_{WIDTH, HEIGHT, "GameEngine"};
@@ -34,11 +36,11 @@ namespace ve {
     Renderer renderer_{window_, device_};
     std::vector<GameObject> gameObjects_;
 
-    std::map<std::pair<float, float>, float> life_;
+    std::map<std::pair<int, int>, std::pair<int, int>> life_;
     unsigned int m_fpscount_;
     struct timeval start_;
     struct timeval end_;
-    float xMax_;
-    float yMax_;
+    glm::vec3 colorLive_ = {0.1, 0.1, 0.5};
+    glm::vec3 colorDead_ = {1, 1, 1};
   };
 }  // namespace ve

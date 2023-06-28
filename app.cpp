@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <glm/gtc/constants.hpp>
 #include <memory>
+#include <ostream>
 #include <utility>
 
 #include "game_object.hpp"
@@ -23,7 +24,8 @@ namespace ve {
   void Application::mainLoop() {
     SimpleRenderSystem simpleRenderSystem(device_, renderer_.getSwapChainRenderPass());
     // KeyboardMovementController playerController{};
-
+    struct timeval gameStart;
+    gettimeofday(&gameStart, NULL);
     while (static_cast<int>(window_.shouldClose()) == 0
            && static_cast<int>(glfwGetKey(window_.getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
                   == 0) {
@@ -38,42 +40,48 @@ namespace ve {
         renderer_.endSwapChainRenderPass(commandBuffer);
         renderer_.endFrame();
       }
+
       if (getElapsedTime(end_, start_) >= 1000) {
         window_.updateFrame(m_fpscount_);
         m_fpscount_ = 0;
         gettimeofday(&start_, NULL);
-        Application::gameLife();
       }
-
+      if (getElapsedTime(end_, gameStart) >= 3000) {
+        Application::gameLife2();
+      }
       gettimeofday(&end_, NULL);
     }
     vkDeviceWaitIdle(device_.getDevice());
   }
 
   void Application::loadGameObjects() {
-    float x = 0;
-    float y = 0;
+    int x = 0;
+    int y = 0;
+
     float scale = 0.01;
-    while (-1 + scale * y < 1.0F) {
-      while (-1 + scale * x < 1.0F) {
-        life_.insert(std::pair<std::pair<float, float>, float>({x, y}, 0));
-        x++;
+    while (-1 + scale * static_cast<float>(y) < 1.0F) {
+      while (-1 + scale * static_cast<float>(x) < 1.0F) {
         auto square = GameObject::createGameObject();
         square.transform.scale = glm::vec2(scale);
-        square.transform.translation = {x * scale - 1, y * scale - 1};
-        square.color = {1.F, 0.F, 0.F};
+        square.transform.translation
+            = {static_cast<float>(x) * scale - 1, static_cast<float>(y) * scale - 1};
+        square.color = colorDead_;
         square.model = Model::createSquareModel(device_, {.5f, .0f});
+        life_.insert(
+            std::pair<std::pair<int, int>, std::pair<int, int>>({x, y}, {0, square.getId()}));
         gameObjects_.push_back(std::move(square));
+        x++;
       }
-      xMax_ = x;
       x = 0;
       y++;
     }
-    yMax_ = y;
-    std::cout << xMax_ << " " << yMax_ << std::endl;
-    life_.find({100 - 1, 100})->second = 1;
-    life_.find({100, 100})->second = 1;
-    life_.find({100 + 1, 100})->second = 1;
+
+    life_.find({100 - 1, 100})->second.first = 1;
+    life_.find({100, 100})->second.first = 1;
+    life_.find({100 + 1, 100})->second.first = 1;
+    gameObjects_[life_.find({100 - 1, 100})->second.second].color = colorLive_;
+    gameObjects_[life_.find({100, 100})->second.second].color = colorLive_;
+    gameObjects_[life_.find({100 + 1, 100})->second.second].color = colorLive_;
   }
 
   long double Application::getElapsedTime(struct timeval end, struct timeval begin) {
@@ -83,105 +91,110 @@ namespace ve {
     return (elapsed);
   }
 
-  // void Application::gameLife() {
-  //   int countOne = 0;
-  //   float scale = 0.01;
-
-  //   for (auto p : life_) {
-  //     if (p.second == 0) {
-  //       countOne = life_.find({p.first.first - 1, p.first.second - 1})->second == 1 ? countOne
-  //       + 1
-  //                                                                                   : countOne;
-  //       countOne = life_.find({p.first.first, p.first.second - 1})->second == 1 ? countOne + 1
-  //                                                                               : countOne;
-
-  //       countOne = life_.find({p.first.first + 1, p.first.second - 1})->second == 1 ? countOne
-  //       + 1
-  //                                                                                   : countOne;
-  //       countOne = life_.find({p.first.first - 1, p.first.second})->second == 1 ? countOne + 1
-  //                                                                               : countOne;
-
-  //       countOne = life_.find({p.first.first + 1, p.first.second})->second == 1 ? countOne + 1
-  //                                                                               : countOne;
-
-  //       countOne = life_.find({p.first.first - 1, p.first.second + 1})->second == 1 ? countOne
-  //       + 1
-  //                                                                                   : countOne;
-
-  //       countOne = life_.find({p.first.first, p.first.second + 1})->second == 1 ? countOne + 1
-  //                                                                               : countOne;
-
-  //       countOne = life_.find({p.first.first + 1, p.first.second + 1})->second == 1 ? countOne
-  //       + 1
-  //                                                                                   : countOne;
-  //       if (countOne == 3) {
-  //         p.second = 1;
-  //         std::cout << "1 : " << p.first.first * scale - 1 << " " << p.first.second * scale - 1
-  //                   << std::endl;
-  //         auto square = GameObject::createGameObject();
-  //         square.transform.scale = glm::vec2(scale);
-  //         square.transform.translation = {
-  //             p.first.first * scale - 1,
-  //             p.first.second * scale - 1,
-  //         };
-  //         square.color = {1.F, 0.F, 0.F};
-  //         square.model = Model::createSquareModel(device_, {.5f, .0f});
-  //         gameObjects_.push_back(std::move(square));
-
-  //       } else {
-  //         p.second = 0;
-  //       }
-  //     } else if (p.second == 1) {
-  //       countOne = life_.find({p.first.first - 1, p.first.second - 1})->second == 1 ? countOne
-  //       + 1
-  //                                                                                   : countOne;
-  //       countOne = life_.find({p.first.first, p.first.second - 1})->second == 1 ? countOne + 1
-  //                                                                               : countOne;
-
-  //       countOne = life_.find({p.first.first + 1, p.first.second - 1})->second == 1 ? countOne
-  //       + 1
-  //                                                                                   : countOne;
-  //       countOne = life_.find({p.first.first - 1, p.first.second})->second == 1 ? countOne + 1
-  //                                                                               : countOne;
-
-  //       countOne = life_.find({p.first.first + 1, p.first.second})->second == 1 ? countOne + 1
-  //                                                                               : countOne;
-
-  //       countOne = life_.find({p.first.first - 1, p.first.second + 1})->second == 1 ? countOne
-  //       + 1
-  //                                                                                   : countOne;
-
-  //       countOne = life_.find({p.first.first, p.first.second + 1})->second == 1 ? countOne + 1
-  //                                                                               : countOne;
-
-  //       countOne = life_.find({p.first.first + 1, p.first.second + 1})->second == 1 ? countOne
-  //       + 1
-  //                                                                                   : countOne;
-  //       if (countOne == 3 || countOne == 2) {
-  //         p.second = 1;
-  //         std::cout << p.first.first << " " << p.first.second << std::endl;
-  //         auto square = GameObject::createGameObject();
-  //         square.transform.scale = glm::vec2(scale);
-  //         square.transform.translation = {
-  //             p.first.first * scale - 1,
-  //             p.first.second * scale - 1,
-  //         };
-  //         square.color = {1.F, 0.F, 0.F};
-  //         square.model = Model::createSquareModel(device_, {.5f, .0f});
-  //         gameObjects_.push_back(std::move(square));
-
-  //       } else {
-  //         p.second = 0;
-  //       }
-  //     }
-
-  //     countOne = 0;
-  //   }
-  // }
   void Application::gameLife() {
-    for (auto& p : gameObjects_) {
-      // auto test = std::find(gameObjects_.begin(), gameObjects_.end(), ) != vec.end();
-      std::cout << p.getId() << std::endl;
-    };
+    int countOne = 0;
+    std::map<std::pair<int, int>, std::pair<int, int>> lifeOld = life_;
+
+    for (auto p : life_) {
+      if (p.second.first == 0) {
+        countOne = lifeOld.find({p.first.first - 1, p.first.second - 1}) == lifeOld.end() ? countOne
+                   : lifeOld.find({p.first.first - 1, p.first.second - 1})->second.first == 1
+                       ? countOne + 1
+                       : countOne;
+
+        countOne = lifeOld.find({p.first.first, p.first.second - 1}) == lifeOld.end() ? countOne
+                   : lifeOld.find({p.first.first, p.first.second - 1})->second.first == 1
+                       ? countOne + 1
+                       : countOne;
+
+        countOne = lifeOld.find({p.first.first + 1, p.first.second - 1}) == lifeOld.end() ? countOne
+                   : lifeOld.find({p.first.first + 1, p.first.second - 1})->second.first == 1
+                       ? countOne + 1
+                       : countOne;
+
+        countOne = lifeOld.find({p.first.first - 1, p.first.second}) == lifeOld.end() ? countOne
+                   : lifeOld.find({p.first.first - 1, p.first.second})->second.first == 1
+                       ? countOne + 1
+                       : countOne;
+
+        countOne = lifeOld.find({p.first.first + 1, p.first.second}) == lifeOld.end() ? countOne
+                   : lifeOld.find({p.first.first + 1, p.first.second})->second.first == 1
+                       ? countOne + 1
+                       : countOne;
+
+        countOne = lifeOld.find({p.first.first - 1, p.first.second + 1}) == lifeOld.end() ? countOne
+                   : lifeOld.find({p.first.first - 1, p.first.second + 1})->second.first == 1
+                       ? countOne + 1
+                       : countOne;
+
+        countOne = lifeOld.find({p.first.first, p.first.second + 1}) == lifeOld.end() ? countOne
+                   : lifeOld.find({p.first.first, p.first.second + 1})->second.first == 1
+                       ? countOne + 1
+                       : countOne;
+        countOne = lifeOld.find({p.first.first + 1, p.first.second + 1}) == lifeOld.end() ? countOne
+                   : lifeOld.find({p.first.first + 1, p.first.second + 1})->second.first == 1
+                       ? countOne + 1
+                       : countOne;
+
+        if (countOne == 3) {
+          gameObjects_[p.second.second].color = colorLive_;
+          life_.find({p.first.first, p.first.second})->second.first = 1;
+        } else {
+          life_.find({p.first.first, p.first.second})->second.first = 0;
+          gameObjects_[p.second.second].color = colorDead_;
+        }
+      } else if (p.second.first == 1) {
+        countOne = lifeOld.find({p.first.first - 1, p.first.second - 1}) == lifeOld.end() ? countOne
+                   : lifeOld.find({p.first.first - 1, p.first.second - 1})->second.first == 1
+                       ? countOne + 1
+                       : countOne;
+
+        countOne = lifeOld.find({p.first.first, p.first.second - 1}) == lifeOld.end() ? countOne
+                   : lifeOld.find({p.first.first, p.first.second - 1})->second.first == 1
+                       ? countOne + 1
+                       : countOne;
+
+        countOne = lifeOld.find({p.first.first + 1, p.first.second - 1}) == lifeOld.end() ? countOne
+                   : lifeOld.find({p.first.first + 1, p.first.second - 1})->second.first == 1
+                       ? countOne + 1
+                       : countOne;
+
+        countOne = lifeOld.find({p.first.first - 1, p.first.second}) == lifeOld.end() ? countOne
+                   : lifeOld.find({p.first.first - 1, p.first.second})->second.first == 1
+                       ? countOne + 1
+                       : countOne;
+
+        countOne = lifeOld.find({p.first.first + 1, p.first.second}) == lifeOld.end() ? countOne
+                   : lifeOld.find({p.first.first + 1, p.first.second})->second.first == 1
+                       ? countOne + 1
+                       : countOne;
+
+        countOne = lifeOld.find({p.first.first - 1, p.first.second + 1}) == lifeOld.end() ? countOne
+                   : lifeOld.find({p.first.first - 1, p.first.second + 1})->second.first == 1
+                       ? countOne + 1
+                       : countOne;
+
+        countOne = lifeOld.find({p.first.first, p.first.second + 1}) == lifeOld.end() ? countOne
+                   : lifeOld.find({p.first.first, p.first.second + 1})->second.first == 1
+                       ? countOne + 1
+                       : countOne;
+        countOne = lifeOld.find({p.first.first + 1, p.first.second + 1}) == lifeOld.end() ? countOne
+                   : lifeOld.find({p.first.first + 1, p.first.second + 1})->second.first == 1
+                       ? countOne + 1
+                       : countOne;
+
+        if (countOne == 3 || countOne == 2) {
+          life_.find({p.first.first, p.first.second})->second.first = 1;
+          gameObjects_[p.second.second].color = colorLive_;
+
+        } else {
+          life_.find({p.first.first, p.first.second})->second.first = 0;
+          gameObjects_[p.second.second].color = colorDead_;
+        }
+      }
+
+      countOne = 0;
+    }
   }
+
 }  // namespace ve
