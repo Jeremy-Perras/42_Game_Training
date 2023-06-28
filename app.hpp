@@ -28,7 +28,6 @@ namespace ve {
   private:
     void loadGameObjects();
     void gameLife();
-    void gameLife2();
     static long double getElapsedTime(struct timeval end, struct timeval begin);
 
     Window window_{WIDTH, HEIGHT, "GameEngine"};

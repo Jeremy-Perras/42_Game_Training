@@ -47,7 +47,7 @@ namespace ve {
         gettimeofday(&start_, NULL);
       }
       if (getElapsedTime(end_, gameStart) >= 3000) {
-        Application::gameLife2();
+        Application::gameLife();
       }
       gettimeofday(&end_, NULL);
     }
