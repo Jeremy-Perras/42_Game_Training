@@ -54,6 +54,50 @@ namespace ve {
     vkDeviceWaitIdle(device_.getDevice());
   }
 
+  // void Application::loadGameObjects() {
+  //   int x = 0;
+  //   int y = 0;
+
+  //   int xMax = 0;
+  //   int yMax = 0;
+
+  //   float scale = 0.01;
+  //   while (-1 + scale * static_cast<float>(y) < 1.0F) {
+  //     while (-1 + scale * static_cast<float>(x) < 1.0F) {
+  //       auto square = GameObject::createGameObject();
+  //       square.color = colorDead_;
+  //       square.model = Model::createSquareModel(
+  //           device_, {static_cast<float>(x) * scale - 1, static_cast<float>(y) * scale - 1});
+
+  //       life_.insert(
+  //           std::pair<std::pair<int, int>, std::pair<int, int>>({x, y}, {0, square.getId()}));
+  //       gameObjects_.push_back(std::move(square));
+  //       x++;
+  //       xMax = x;
+  //     }
+  //     x = 0;
+  //     y++;
+  //   }
+  //   yMax = y;
+  //   for (int j = 0; j < yMax; j++) {
+  //     for (int i = 0; i < xMax; i++) {
+  //       if (i == 0 || i == 1 || j == 0 || j == 1 || j == yMax - 1 || j == yMax - 2 || i == xMax -
+  //       1
+  //           || i == xMax - 2) {
+  //         life_.find({i, j})->second.first = 1;
+  //         gameObjects_[life_.find({i, j})->second.second].color = colorLive_;
+  //       }
+  //     }
+  //   }
+  //   // for (auto obj : life_) {
+  //   //   if (obj.first.first == 0 || obj.first.first == 1 || obj.first.first == xMax - 1
+  //   //       || obj.first.first == xMax - 2 || obj.first.second == 0 || obj.first.second == 1
+  //   //       || obj.first.first == yMax - 1 || obj.first.second == yMax - 2) {
+  //   //     obj.second.first = 1;
+  //   //     gameObjects_[obj.second.second].color = colorLive_;
+  //   //   }
+  //   // }
+  // }
   void Application::loadGameObjects() {
     int x = 0;
     int y = 0;

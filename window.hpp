@@ -1,3 +1,4 @@
+#pragma once
 #include <_types/_uint32_t.h>
 
 #include <string>

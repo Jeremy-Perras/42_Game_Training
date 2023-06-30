@@ -52,10 +52,6 @@ namespace ve {
     attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
     attributeDescriptions[0].offset = offsetof(Vertex, position);
 
-    // attributeDescriptions[1].binding = 0;
-    // attributeDescriptions[1].location = 1;
-    // attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-    // attributeDescriptions[1].offset = offsetof(Vertex, color);
     return attributeDescriptions;
   }
 
@@ -79,8 +75,9 @@ namespace ve {
   std::unique_ptr<Model> Model::createSquareModel(Device &device, glm::vec2 offset) {
     (void)offset;
     std::vector<Model::Vertex> vertices = {
-        {{-0.5F, -0.5F}}, {{0.5F, 0.5F}},  {{-0.5F, 0.5F}},
-        {{-0.5F, -0.5F}}, {{0.5F, -0.5F}}, {{0.5F, 0.5F}},  //
+        // {{-offset.x, -offset.y}}, {{offset.x, offset.y}},  {{-offset.x, offset.y}},
+        // {{-offset.x, -offset.y}}, {{offset.x, -offset.y}}, {{offset.x, offset.y}},
+        {{-0.5, -0.5}}, {{0.5, 0.5}}, {{-0.5, 0.5}}, {{-0.5, -0.5}}, {{0.5, -0.5}}, {{0.5, 0.5}},
     };
     return std::make_unique<Model>(device, vertices);
   }

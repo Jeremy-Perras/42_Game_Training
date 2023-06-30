@@ -53,10 +53,11 @@ namespace ve {
 
   void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer,
                                              std::vector<GameObject>& gameObjects) {
+    static int frame = 30;
+    frame = (frame + 1) % 100;
     pipeline_->bind(commandBuffer);
+    gameObjects[0].model->bind(commandBuffer);
     for (auto& obj : gameObjects) {
-      obj.transform.rotation = glm::mod(obj.transform.rotation + 0.01F, glm::two_pi<float>());
-
       SimplePushConstantData push{};
       push.offset = obj.transform.translation;
 
@@ -66,8 +67,7 @@ namespace ve {
       vkCmdPushConstants(commandBuffer, pipelineLayout_,
                          VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
                          sizeof(SimplePushConstantData), &push);
-
-      obj.model->bind(commandBuffer);
+      // obj.model->bind(commandBuffer);
       obj.model->draw(commandBuffer);
     }
   }

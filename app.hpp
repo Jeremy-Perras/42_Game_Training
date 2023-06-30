@@ -39,7 +39,7 @@ namespace ve {
     unsigned int m_fpscount_;
     struct timeval start_;
     struct timeval end_;
-    glm::vec3 colorLive_ = {0.1, 0.1, 0.5};
-    glm::vec3 colorDead_ = {1, 1, 1};
+    glm::vec3 colorLive_ = {1, 1, 1};
+    glm::vec3 colorDead_ = {0.05, 0.05, 0.05};
   };
 }  // namespace ve
