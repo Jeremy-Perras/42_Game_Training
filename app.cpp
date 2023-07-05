@@ -46,86 +46,35 @@ namespace ve {
         m_fpscount_ = 0;
         gettimeofday(&start_, NULL);
       }
-      if (getElapsedTime(end_, gameStart) >= 3000) {
-        Application::gameLife();
-      }
+
+      Application::gameLife();
+      gameObjects_[0].model->updateVertexBuffer(vertices_);
       gettimeofday(&end_, NULL);
     }
     vkDeviceWaitIdle(device_.getDevice());
   }
 
-  // void Application::loadGameObjects() {
-  //   int x = 0;
-  //   int y = 0;
-
-  //   int xMax = 0;
-  //   int yMax = 0;
-
-  //   float scale = 0.01;
-  //   while (-1 + scale * static_cast<float>(y) < 1.0F) {
-  //     while (-1 + scale * static_cast<float>(x) < 1.0F) {
-  //       auto square = GameObject::createGameObject();
-  //       square.color = colorDead_;
-  //       square.model = Model::createSquareModel(
-  //           device_, {static_cast<float>(x) * scale - 1, static_cast<float>(y) * scale - 1});
-
-  //       life_.insert(
-  //           std::pair<std::pair<int, int>, std::pair<int, int>>({x, y}, {0, square.getId()}));
-  //       gameObjects_.push_back(std::move(square));
-  //       x++;
-  //       xMax = x;
-  //     }
-  //     x = 0;
-  //     y++;
-  //   }
-  //   yMax = y;
-  //   for (int j = 0; j < yMax; j++) {
-  //     for (int i = 0; i < xMax; i++) {
-  //       if (i == 0 || i == 1 || j == 0 || j == 1 || j == yMax - 1 || j == yMax - 2 || i == xMax -
-  //       1
-  //           || i == xMax - 2) {
-  //         life_.find({i, j})->second.first = 1;
-  //         gameObjects_[life_.find({i, j})->second.second].color = colorLive_;
-  //       }
-  //     }
-  //   }
-  //   // for (auto obj : life_) {
-  //   //   if (obj.first.first == 0 || obj.first.first == 1 || obj.first.first == xMax - 1
-  //   //       || obj.first.first == xMax - 2 || obj.first.second == 0 || obj.first.second == 1
-  //   //       || obj.first.first == yMax - 1 || obj.first.second == yMax - 2) {
-  //   //     obj.second.first = 1;
-  //   //     gameObjects_[obj.second.second].color = colorLive_;
-  //   //   }
-  //   // }
-  // }
   void Application::loadGameObjects() {
-    int x = 0;
-    int y = 0;
+    life_ = {};
 
     float scale = 0.01;
-    while (-1 + scale * static_cast<float>(y) < 1.0F) {
-      while (-1 + scale * static_cast<float>(x) < 1.0F) {
-        auto square = GameObject::createGameObject();
-        square.transform.scale = glm::vec2(scale);
-        square.transform.translation
-            = {static_cast<float>(x) * scale - 1, static_cast<float>(y) * scale - 1};
-        square.color = colorDead_;
-        square.model = Model::createSquareModel(device_, {.5f, .0f});
-        life_.insert(
-            std::pair<std::pair<int, int>, std::pair<int, int>>({x, y}, {0, square.getId()}));
-        gameObjects_.push_back(std::move(square));
-        x++;
-      }
-      x = 0;
-      y++;
-    }
+    auto square = GameObject::createGameObject();
+    square.color = colorLive_;
+    life_ = Model::createSquareModel(scale);
 
-    life_.find({100 - 1, 100})->second.first = 1;
-    life_.find({100, 100})->second.first = 1;
-    life_.find({100 + 1, 100})->second.first = 1;
-    gameObjects_[life_.find({100 - 1, 100})->second.second].color = colorLive_;
-    gameObjects_[life_.find({100, 100})->second.second].color = colorLive_;
-    gameObjects_[life_.find({100 + 1, 100})->second.second].color = colorLive_;
+    for (std::map<std::pair<int, int>, std::pair<int, std::vector<Model::Vertex>>>::iterator it
+         = life_.begin();
+         it != life_.end(); it++) {
+      vertices_.push_back(it->second.second[0]);
+      vertices_.push_back(it->second.second[1]);
+      vertices_.push_back(it->second.second[2]);
+      vertices_.push_back(it->second.second[3]);
+      vertices_.push_back(it->second.second[4]);
+      vertices_.push_back(it->second.second[5]);
+    }
+    std::cout << vertices_.size() << std::endl;
+    square.model = std::make_unique<Model>(device_, vertices_);
+    gameObjects_.push_back(std::move(square));
   }
 
   long double Application::getElapsedTime(struct timeval end, struct timeval begin) {
@@ -137,9 +86,10 @@ namespace ve {
 
   void Application::gameLife() {
     int countOne = 0;
-    std::map<std::pair<int, int>, std::pair<int, int>> lifeOld = life_;
+    int i = 0;
+    std::map<std::pair<int, int>, std::pair<int, std::vector<Model::Vertex>>> lifeOld = life_;
 
-    for (auto p : life_) {
+    for (const auto& p : life_) {
       if (p.second.first == 0) {
         countOne = lifeOld.find({p.first.first - 1, p.first.second - 1}) == lifeOld.end() ? countOne
                    : lifeOld.find({p.first.first - 1, p.first.second - 1})->second.first == 1
@@ -181,11 +131,16 @@ namespace ve {
                        : countOne;
 
         if (countOne == 3) {
-          gameObjects_[p.second.second].color = colorLive_;
+          for (int j = 0; j < 6; j++) {
+            vertices_[i + j].colors = colorLive_;
+          }
+
           life_.find({p.first.first, p.first.second})->second.first = 1;
         } else {
+          for (int j = 0; j < 6; j++) {
+            vertices_[i + j].colors = colorDead_;
+          }
           life_.find({p.first.first, p.first.second})->second.first = 0;
-          gameObjects_[p.second.second].color = colorDead_;
         }
       } else if (p.second.first == 1) {
         countOne = lifeOld.find({p.first.first - 1, p.first.second - 1}) == lifeOld.end() ? countOne
@@ -229,14 +184,17 @@ namespace ve {
 
         if (countOne == 3 || countOne == 2) {
           life_.find({p.first.first, p.first.second})->second.first = 1;
-          gameObjects_[p.second.second].color = colorLive_;
-
+          for (int j = 0; j < 6; j++) {
+            vertices_[i + j].colors = colorLive_;
+          }
         } else {
           life_.find({p.first.first, p.first.second})->second.first = 0;
-          gameObjects_[p.second.second].color = colorDead_;
+          for (int j = 0; j < 6; j++) {
+            vertices_[i + j].colors = colorDead_;
+          }
         }
       }
-
+      i += 6;
       countOne = 0;
     }
   }

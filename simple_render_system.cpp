@@ -7,8 +7,6 @@
 namespace ve {
 
   struct SimplePushConstantData {
-    glm::mat2 transform{1.0F};
-    glm::vec2 offset;
     alignas(16) glm::vec3 color;
   };
 
@@ -53,23 +51,19 @@ namespace ve {
 
   void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer,
                                              std::vector<GameObject>& gameObjects) {
-    static int frame = 30;
-    frame = (frame + 1) % 100;
     pipeline_->bind(commandBuffer);
+
+    // for (auto& obj : gameObjects) {
+    //   SimplePushConstantData push{};
+    //   push.color = obj.color;
+
+    // vkCmdPushConstants(commandBuffer, pipelineLayout_,
+    //                    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+    //                    sizeof(SimplePushConstantData), &push);
+
     gameObjects[0].model->bind(commandBuffer);
-    for (auto& obj : gameObjects) {
-      SimplePushConstantData push{};
-      push.offset = obj.transform.translation;
-
-      push.color = obj.color;
-      push.transform = obj.transform.mat2();
-
-      vkCmdPushConstants(commandBuffer, pipelineLayout_,
-                         VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
-                         sizeof(SimplePushConstantData), &push);
-      // obj.model->bind(commandBuffer);
-      obj.model->draw(commandBuffer);
-    }
+    gameObjects[0].model->draw(commandBuffer);
+    // }
   }
 
 }  // namespace ve

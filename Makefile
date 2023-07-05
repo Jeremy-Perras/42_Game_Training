@@ -9,7 +9,7 @@ CXXFLAGS = -O3
 
 CC = g++
 
-FLAGS = -Wall -Werror -Wextra -std=c++17 -ferror-limit=0 -g
+FLAGS = -Wall -Werror -Wextra -std=c++17 -ferror-limit=0 -g -stdlib=libc++ 
 
 MKDIR = mkdir -p
 OUT_DIR := out
@@ -31,7 +31,7 @@ $(NAME): $(OBJS)
 
 all : $(NAME) gl
 
-debug: CXXFLAGS = -gdwarf-4 -fsanitize=address 
+debug: CXXFLAGS = -gdwarf-4 -fsanitize=address -std=c++17 
 
 debug: $(OBJS_DEBUG)
 	$(CC) $(CXXFLAGS) $(OBJS_DEBUG) $(LDFLAGS) $(INCLUDES) -o $(NAME)_debug
@@ -51,8 +51,8 @@ gl:
 
 clean :
 	rm -rf $(OBJS)
-	# rm -rf shaders/frag.spv
-	# rm -rf shaders/vert.spv
+	rm -rf shaders/shader.frag.spv
+	rm -rf shaders/shader.vert.spv
 
 fclean : clean
 	rm -rf $(NAME)

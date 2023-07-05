@@ -6,18 +6,6 @@ namespace ve {
   class GameObject {
     struct Transform2dComponent {
       glm::vec2 translation{};
-      glm::vec2 scale{1.0F, 1.0F};
-      float rotation;
-
-      glm::mat2 mat2() {
-        const float s = glm::sin(rotation);
-        const float c = glm::cos(rotation);
-
-        glm::mat2 rotMatrix{{c, s}, {-s, c}};
-        glm::mat2 scaleMat{{scale.x, 0.0F}, {0.0F, scale.y}};
-
-        return glm::mat2{1.0F} * scaleMat;
-      }
     };
 
   public:
@@ -36,7 +24,7 @@ namespace ve {
 
     std::shared_ptr<Model> model{};
     glm::vec3 color{};
-    Transform2dComponent transform{};
+    // Transform2dComponent transform{};
 
     // Getter
     id_t getId() const { return id_; }
