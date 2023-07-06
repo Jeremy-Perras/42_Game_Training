@@ -9,7 +9,7 @@ CXXFLAGS = -O3
 
 CC = g++
 
-FLAGS = -Wall -Werror -Wextra -std=c++17 -ferror-limit=0 -g -stdlib=libc++ 
+FLAGS = -Wall -Werror -Wextra -std=c++17 -ferror-limit=0 -g 
 
 MKDIR = mkdir -p
 OUT_DIR := out

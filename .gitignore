@@ -2,6 +2,7 @@
 *.d
 .cache
 
+
 # Compiled Object files
 *.slo
 *.lo
@@ -31,3 +32,6 @@
 *.exe
 *.out
 *.app
+*.debug
+Sounds/*.out
+Sounds/*.debug
