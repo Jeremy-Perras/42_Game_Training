@@ -7,6 +7,7 @@
 namespace ve {
 
   struct SimplePushConstantData {
+    glm::mat4 transform{1.F};
     alignas(16) glm::vec3 color;
   };
 
@@ -50,20 +51,25 @@ namespace ve {
   }
 
   void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer,
-                                             std::vector<GameObject>& gameObjects) {
+                                             std::vector<GameObject>& gameObjects,
+                                             const Camera& camera) {
     pipeline_->bind(commandBuffer);
 
-    // for (auto& obj : gameObjects) {
-    //   SimplePushConstantData push{};
-    //   push.color = obj.color;
+    auto projectionView = camera.getProjection() * camera.getView();
 
-    // vkCmdPushConstants(commandBuffer, pipelineLayout_,
-    //                    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
-    //                    sizeof(SimplePushConstantData), &push);
+    for (auto& obj : gameObjects) {
+      SimplePushConstantData push{};
 
-    gameObjects[0].model->bind(commandBuffer);
-    gameObjects[0].model->draw(commandBuffer);
-    // }
+      push.color = obj.color;
+      push.transform = projectionView * obj.transform.mat4();
+
+      vkCmdPushConstants(commandBuffer, pipelineLayout_,
+                         VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+                         sizeof(SimplePushConstantData), &push);
+
+      obj.model->bind(commandBuffer);
+      obj.model->draw(commandBuffer);
+    }
   }
 
 }  // namespace ve

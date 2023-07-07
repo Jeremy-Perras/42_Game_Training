@@ -32,6 +32,7 @@ namespace ve {
 
       return currentFrameIndex_;
     }
+    float getAspectRatio() const { return swapChain_->extentAspectRatio(); }
 
   private:
     void createCommandBuffers();

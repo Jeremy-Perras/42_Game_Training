@@ -5,6 +5,7 @@
 #include <cassert>
 #include <glm/gtc/constants.hpp>
 #include <map>
+#include <memory>
 
 #include "device.hpp"
 #include "vulkan/vulkan_core.h"
@@ -16,35 +17,57 @@ namespace ve {
   class Model {
   public:
     struct Vertex {
-      glm::vec2 position;
+      glm::vec3 position;
       glm::vec3 colors;
+      glm::vec3 normal;
+      glm::vec2 uv{};
+
       // getters
       static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
       static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+
+      bool operator==(const Vertex &other) const {
+        return position == other.position && colors == other.colors && normal == other.normal
+               && uv == other.uv;
+      }
     };
-    Model(Device &device, const std::vector<Vertex> &vertices);
+
+    struct Builder {
+      std::vector<Vertex> vertices{};
+      std::vector<uint32_t> indices{};
+      void loadModel(const std::string &filepath);
+    };
+
+    Model(Device &device, const Model::Builder &builder);
     Model(const Model &src) = delete;
     Model &operator=(const Model &rhs) = delete;
     ~Model();
-    static std::unique_ptr<Model> createCircleModel(Device &device, unsigned int numSides);
-    static std::map<std::pair<int, int>, std::pair<int, std::vector<Model::Vertex>>>
-    createSquareModel(float scale);
+
+    static std::unique_ptr<Model> createModelFromFile(Device &device, const std::string &filepath);
+
     void bind(VkCommandBuffer commandBuffer);
     void draw(VkCommandBuffer commandBuffer) const;
     void changeColorModel(int indice);
-    static void sierpinski(std::vector<Model::Vertex> &vertices, int depth, glm::vec2 left,
-                           glm::vec2 right, glm::vec2 top);
+
     static std::unique_ptr<Model> loadGameObjects(Device &device, int i, float scale);
     void updateVertexBuffer(const std::vector<Vertex> &vertices);
-    static std::vector<Model::Vertex> updateGameObjects(int i, float scale);
 
   private:
     const std::vector<Vertex> vertices_;
     void createVertexBuffer(const std::vector<Vertex> &vertices);
+    void createIndexBuffer(const std::vector<uint32_t> &indices);
     Device &device_;
+
     VkBuffer vertexBuffer_;
     VkDeviceMemory vertexBufferMemory_;
     uint32_t vertexCount_;
+
+    bool hasIndexBuffer_ = false;
+
+    VkBuffer indexBuffer_;
+    VkDeviceMemory indexBufferMemory_;
+    uint32_t indexCount_;
+
     VkBuffer srcvertexBuffer_;
     VkDeviceMemory srcvertexBufferMemory_;
     uint32_t srcvertexCount_;
