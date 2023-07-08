@@ -7,6 +7,7 @@
 #include <map>
 #include <memory>
 
+#include "buffer.hpp"
 #include "device.hpp"
 #include "vulkan/vulkan_core.h"
 #define GLM_FORCE_RADIANS
@@ -58,19 +59,18 @@ namespace ve {
     void createIndexBuffer(const std::vector<uint32_t> &indices);
     Device &device_;
 
-    VkBuffer vertexBuffer_;
-    VkDeviceMemory vertexBufferMemory_;
+    std::unique_ptr<Buffer> vertexBuffer_;
     uint32_t vertexCount_;
 
     bool hasIndexBuffer_ = false;
 
-    VkBuffer indexBuffer_;
-    VkDeviceMemory indexBufferMemory_;
+    std::unique_ptr<Buffer> indexBuffer_;
     uint32_t indexCount_;
 
     VkBuffer srcvertexBuffer_;
     VkDeviceMemory srcvertexBufferMemory_;
     uint32_t srcvertexCount_;
+
     VkBuffer stagingBuffer_;
     VkDeviceMemory stagingBufferMemory_;
   };

@@ -3,12 +3,13 @@
 #include <glm/gtc/constants.hpp>
 
 #include "device.hpp"
+#include "frame_info.hpp"
 #include "vulkan/vulkan_core.h"
 namespace ve {
 
   struct SimplePushConstantData {
     glm::mat4 transform{1.F};
-    alignas(16) glm::vec3 color;
+    glm::mat4 normalMatrix{1.0F};
   };
 
   SimpleRenderSystem::SimpleRenderSystem(Device& device, VkRenderPass renderPass)
@@ -50,25 +51,25 @@ namespace ve {
                                            "shaders/shader.frag.spv", pipelineConfig);
   }
 
-  void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer,
-                                             std::vector<GameObject>& gameObjects,
-                                             const Camera& camera) {
-    pipeline_->bind(commandBuffer);
+  void SimpleRenderSystem::renderGameObjects(FrameInfo& frameInfo,
+                                             std::vector<GameObject>& gameObjects) {
+    pipeline_->bind(frameInfo.commandBuffer);
 
-    auto projectionView = camera.getProjection() * camera.getView();
+    auto projectionView = frameInfo.camera.getProjection() * frameInfo.camera.getView();
 
     for (auto& obj : gameObjects) {
       SimplePushConstantData push{};
+      auto modelMatrix = obj.transform.mat4();
 
-      push.color = obj.color;
-      push.transform = projectionView * obj.transform.mat4();
+      push.transform = projectionView * modelMatrix;
+      push.normalMatrix = obj.transform.normalMatrix();
 
-      vkCmdPushConstants(commandBuffer, pipelineLayout_,
+      vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout_,
                          VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
                          sizeof(SimplePushConstantData), &push);
 
-      obj.model->bind(commandBuffer);
-      obj.model->draw(commandBuffer);
+      obj.model->bind(frameInfo.commandBuffer);
+      obj.model->draw(frameInfo.commandBuffer);
     }
   }
 
