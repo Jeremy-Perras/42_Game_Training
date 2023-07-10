@@ -13,15 +13,15 @@
 #include "vulkan/vulkan_core.h"
 
 namespace ve {
-  class SimpleRenderSystem {
+  class PointLightSystem {
   public:
-    SimpleRenderSystem(Device &device, VkRenderPass renderPass,
-                       VkDescriptorSetLayout globalSetLayout);
-    SimpleRenderSystem(const SimpleRenderSystem &src) = delete;
-    SimpleRenderSystem &operator=(const SimpleRenderSystem &rhs) = delete;
-    ~SimpleRenderSystem();
+    PointLightSystem(Device &device, VkRenderPass renderPass,
+                     VkDescriptorSetLayout globalSetLayout);
+    PointLightSystem(const PointLightSystem &src) = delete;
+    PointLightSystem &operator=(const PointLightSystem &rhs) = delete;
+    ~PointLightSystem();
 
-    void renderGameObjects(FrameInfo &info);
+    void render(FrameInfo &info);
 
   private:
     void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);

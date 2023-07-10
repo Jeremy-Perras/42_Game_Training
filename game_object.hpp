@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <unordered_map>
 
 #include "model.hpp"
 namespace ve {
@@ -15,6 +16,7 @@ namespace ve {
   class GameObject {
   public:
     using id_t = unsigned int;
+    using Map = std::unordered_map<id_t, GameObject>;
 
     GameObject(const GameObject &) = delete;
     GameObject &operator=(const GameObject &) = delete;

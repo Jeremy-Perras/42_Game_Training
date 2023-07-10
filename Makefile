@@ -1,7 +1,7 @@
 NAME = library
 
 SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp model.cpp renderer.cpp simple_render_system.cpp\
-keyboard_movement_controller.cpp camera.cpp game_object.cpp buffer.cpp
+keyboard_movement_controller.cpp camera.cpp game_object.cpp buffer.cpp descriptors.cpp point_light_system.cpp
 
 INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 
@@ -47,6 +47,8 @@ debug_re: debug_fclean debug
 gl: 
 	glslc shaders/shader.frag -o shaders/shader.frag.spv
 	glslc shaders/shader.vert -o shaders/shader.vert.spv
+	glslc shaders/point_light.frag -o shaders/point_light.frag.spv
+	glslc shaders/point_light.vert -o shaders/point_light.vert.spv
 
 
 clean :

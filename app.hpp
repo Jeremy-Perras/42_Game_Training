@@ -3,14 +3,15 @@
 #include <sys/time.h>
 
 #include <map>
+#include <memory>
 #include <stdexcept>
 #include <utility>
 #include <vector>
 
+#include "descriptors.hpp"
 #include "game_object.hpp"
 #include "model.hpp"
 #include "renderer.hpp"
-
 namespace ve {
   // struct Point {
   //   double x, y;
@@ -39,7 +40,8 @@ namespace ve {
     Window window_{WIDTH, HEIGHT, "GameEngine"};
     Device device_{window_};
     Renderer renderer_{window_, device_};
-    std::vector<GameObject> gameObjects_;
+    std::unique_ptr<DescriptorPool> globalPool_{};
+    GameObject::Map gameObjects_;
 
     unsigned int m_fpscount_;
     struct timeval start_;
