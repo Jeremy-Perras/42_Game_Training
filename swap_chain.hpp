@@ -54,13 +54,14 @@ namespace ve {
     VkRenderPass getRenderPass() { return renderPass_; }
     VkImageView getImageView(int index) { return swapChainImageViews_[index]; }
     size_t getImageCount() { return swapChainImages_.size(); }
+    void createImageViews();
 
   private:
     void init();
     void createSwapChain();
-    void createImageViews();
     void createDepthResources();
     void createRenderPass();
+
     void createFramebuffers();
     void createSyncObjects();
 

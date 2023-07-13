@@ -7,6 +7,8 @@
 #include <map>
 
 #include "device.hpp"
+#include "renderer.hpp"
+#include "swap_chain.hpp"
 #include "vulkan/vulkan_core.h"
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -22,7 +24,11 @@ namespace ve {
       static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
       static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
     };
-    Model(Device &device, const std::vector<Vertex> &vertices);
+
+    // Model(Device &device, const std::vector<Vertex> &vertices);
+
+    Model(Device &device, const std::vector<Vertex> &vertices, Renderer &renderer);
+
     Model(const Model &src) = delete;
     Model &operator=(const Model &rhs) = delete;
     ~Model();
@@ -32,24 +38,33 @@ namespace ve {
     void bind(VkCommandBuffer commandBuffer);
     void draw(VkCommandBuffer commandBuffer) const;
     void changeColorModel(int indice);
-    static void sierpinski(std::vector<Model::Vertex> &vertices, int depth, glm::vec2 left,
-                           glm::vec2 right, glm::vec2 top);
-    static std::unique_ptr<Model> loadGameObjects(Device &device, int i, float scale);
     void updateVertexBuffer(const std::vector<Vertex> &vertices);
-    static std::vector<Model::Vertex> updateGameObjects(int i, float scale);
+    void createTextureImage();
+    void createTextureImageView();
+    void createTextureSampler();
 
   private:
     const std::vector<Vertex> vertices_;
     void createVertexBuffer(const std::vector<Vertex> &vertices);
+    VkImageView createImageView(VkImage image, VkFormat format);
     Device &device_;
+    Renderer &renderer_;
+
     VkBuffer vertexBuffer_;
     VkDeviceMemory vertexBufferMemory_;
+
     uint32_t vertexCount_;
     VkBuffer srcvertexBuffer_;
     VkDeviceMemory srcvertexBufferMemory_;
+
     uint32_t srcvertexCount_;
     VkBuffer stagingBuffer_;
     VkDeviceMemory stagingBufferMemory_;
+
+    VkImage textureImage_;
+    VkDeviceMemory textureImageMemory_;
+    VkImageView textureImageView_;
+    VkSampler textureSampler_;
   };
 
 }  // namespace ve

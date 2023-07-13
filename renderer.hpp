@@ -3,7 +3,9 @@
 #include <sys/time.h>
 
 #include <cassert>
+#include <memory>
 #include <stdexcept>
+#include <utility>
 
 #include "swap_chain.hpp"
 
@@ -32,6 +34,8 @@ namespace ve {
 
       return currentFrameIndex_;
     }
+
+    SwapChain &getSwapChain() { return *swapChain_; }
 
   private:
     void createCommandBuffers();

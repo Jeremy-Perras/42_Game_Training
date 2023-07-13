@@ -57,7 +57,8 @@ namespace ve {
 
     void createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPropertyFlags properties,
                              VkImage &image, VkDeviceMemory &imageMemory);
-
+    void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout,
+                               VkImageLayout newLayout);
     VkPhysicalDeviceProperties properties;
 
     // Getter
@@ -67,6 +68,7 @@ namespace ve {
     VkSurfaceKHR getSurface() { return surface_; }
     VkQueue getGraphicsQueue() { return graphicsQueue_; }
     VkQueue getPresentQueue() { return presentQueue_; }
+    VkPhysicalDevice getPysicalDevice() { return physicalDevice_; }
 
   private:
     void createInstance();

@@ -9,7 +9,6 @@
 #include "game_object.hpp"
 #include "keyboard_movement_controller.hpp"
 #include "model.hpp"
-#include "rainbow.hpp"
 #include "simple_render_system.hpp"
 namespace ve {
 
@@ -73,7 +72,7 @@ namespace ve {
       vertices_.push_back(it->second.second[5]);
     }
     std::cout << vertices_.size() << std::endl;
-    square.model = std::make_unique<Model>(device_, vertices_);
+    square.model = std::make_unique<Model>(device_, vertices_, renderer_);
     gameObjects_.push_back(std::move(square));
   }
 

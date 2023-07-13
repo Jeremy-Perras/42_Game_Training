@@ -3,7 +3,7 @@ NAME = library
 SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp model.cpp renderer.cpp simple_render_system.cpp\
 keyboard_movement_controller.cpp
 
-INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi 
+INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 
 CXXFLAGS = -O3
 
@@ -43,6 +43,8 @@ debug_fclean: debug_clean
 	rm -rf $(NAME)_debug
 
 debug_re: debug_fclean debug
+
+
 
 gl: 
 	glslc shaders/shader.frag -o shaders/shader.frag.spv
