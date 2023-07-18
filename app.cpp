@@ -6,22 +6,56 @@
 #include <ostream>
 #include <utility>
 
+#include "buffer.hpp"
+#include "frame_info.hpp"
 #include "game_object.hpp"
 #include "keyboard_movement_controller.hpp"
 #include "model.hpp"
 #include "simple_render_system.hpp"
 namespace ve {
+  struct GlobalUbo {
+    glm::mat4 projectionView{1.F};
+    glm::vec3 lightDirection = glm::normalize(glm::vec3{1.F, -3.F, -1.F});
+  };
 
   Application::Application() : m_fpscount_(0) {
     gettimeofday(&start_, NULL);
     gettimeofday(&end_, NULL);
+
+    globalPool_
+        = DescriptorPool::Builder(device_)
+              .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+              .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
+              .build();
     loadGameObjects();
   }
 
   Application::~Application() {}
 
   void Application::mainLoop() {
-    SimpleRenderSystem simpleRenderSystem(device_, renderer_.getSwapChainRenderPass());
+    std::vector<std::unique_ptr<Buffer>> uboBuffers(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    for (int i = 0; i < static_cast<int>(uboBuffers.size()); i++) {
+      uboBuffers[i] = std::make_unique<Buffer>(device_, sizeof(GlobalUbo), 1,
+                                               VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+      uboBuffers[i]->map();
+    }
+
+    auto globalSetLayout
+        = DescriptorSetLayout::Builder(device_)
+              .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+              .build();
+
+    std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    for (int i = 0; i < static_cast<int>(globalDescriptorSets.size()); i++) {
+      auto bufferInfo = uboBuffers[i]->descriptorInfo();
+      DescriptorWriter(*globalSetLayout, *globalPool_)
+          .writeBuffer(0, &bufferInfo)
+          .build(globalDescriptorSets[i]);
+    }
+
+    SimpleRenderSystem simpleRenderSystem{device_, renderer_.getSwapChainRenderPass(),
+                                          globalSetLayout->getDescriptorSetLayout()};
     // KeyboardMovementController playerController{};
     struct timeval gameStart;
     gettimeofday(&gameStart, NULL);
@@ -34,8 +68,15 @@ namespace ve {
       // playerController.moveInPlaneXZ(window_.getGLFWwindow(), gameObjects_[0]);
 
       if (auto* commandBuffer = renderer_.beginFrame()) {
+        int frameIndex = renderer_.getFrameIndex();
+        FrameInfo frameInfo{frameIndex, commandBuffer, globalDescriptorSets[frameIndex]};
+
+        GlobalUbo ubo{};
+        uboBuffers[frameIndex]->writeToBuffer(&ubo);
+        uboBuffers[frameIndex]->flush();
+
         renderer_.beginSwapChainRenderPass(commandBuffer);
-        simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects_);
+        simpleRenderSystem.renderGameObjects(frameInfo, gameObjects_);
         renderer_.endSwapChainRenderPass(commandBuffer);
         renderer_.endFrame();
       }
@@ -46,8 +87,8 @@ namespace ve {
         gettimeofday(&start_, NULL);
       }
 
-      Application::gameLife();
-      gameObjects_[0].model->updateVertexBuffer(vertices_);
+      // Application::gameLife();
+      // gameObjects_[0].model->updateVertexBuffer(vertices_);
       gettimeofday(&end_, NULL);
     }
     vkDeviceWaitIdle(device_.getDevice());

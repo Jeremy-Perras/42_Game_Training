@@ -31,35 +31,67 @@ namespace ve {
     vkDestroyImageView(device_.getDevice(), textureImageView_, nullptr);
     vkDestroyImage(device_.getDevice(), textureImage_, nullptr);
     vkFreeMemory(device_.getDevice(), textureImageMemory_, nullptr);
-    vkDestroyBuffer(device_.getDevice(), vertexBuffer_, nullptr);
-    vkFreeMemory(device_.getDevice(), vertexBufferMemory_, nullptr);
+    // vkDestroyBuffer(device_.getDevice(), vertexBuffer_, nullptr);
+    // vkFreeMemory(device_.getDevice(), vertexBufferMemory_, nullptr);
   }
 
   void Model::createVertexBuffer(const std::vector<Vertex> &vertices) {
     vertexCount_ = static_cast<uint32_t>(vertices.size());
     assert(vertexCount_ >= 3 && "Vertex count must be at least 3");
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount_;
+    uint32_t vertexSize = sizeof(vertices[0]);
 
-    device_.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                         stagingBuffer_, stagingBufferMemory_);
+    Buffer stagingBuffer{
+        device_,
+        vertexSize,
+        vertexCount_,
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+    };
 
-    void *data;
-    vkMapMemory(device_.getDevice(), stagingBufferMemory_, 0, bufferSize, 0, &data);
-    memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
-    vkUnmapMemory(device_.getDevice(), stagingBufferMemory_);
+    stagingBuffer.map();
+    stagingBuffer.writeToBuffer((void *)vertices.data());
 
-    device_.createBuffer(bufferSize,
-                         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer_, vertexBufferMemory_);
+    vertexBuffer_ = std::make_unique<Buffer>(
+        device_, vertexSize, vertexCount_,
+        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    device_.copyBuffer(stagingBuffer_, vertexBuffer_, bufferSize);
-    vkDestroyBuffer(device_.getDevice(), stagingBuffer_, nullptr);
-    vkFreeMemory(device_.getDevice(), stagingBufferMemory_, nullptr);
+    device_.copyBuffer(stagingBuffer.getBuffer(), vertexBuffer_->getBuffer(), bufferSize);
+  }
+
+  void Model::createIndexBuffers(const std::vector<uint32_t> &indices) {
+    indexCount_ = static_cast<uint32_t>(indices.size());
+    hasIndexBuffer_ = indexCount_ > 0;
+
+    if (!indexBuffer_) {
+      return;
+    }
+
+    VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount_;
+    uint32_t indexSize = sizeof(indices[0]);
+
+    Buffer stagingBuffer{
+        device_,
+        indexSize,
+        indexCount_,
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+    };
+
+    stagingBuffer.map();
+    stagingBuffer.writeToBuffer((void *)indices.data());
+
+    indexBuffer_ = std::make_unique<Buffer>(
+        device_, indexSize, indexCount_,
+        VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    device_.copyBuffer(stagingBuffer.getBuffer(), indexBuffer_->getBuffer(), bufferSize);
   }
 
   void Model::bind(VkCommandBuffer commandBuffer) {
-    VkBuffer buffers[] = {vertexBuffer_};
+    VkBuffer buffers[] = {vertexBuffer_->getBuffer()};
     VkDeviceSize offsets[] = {0};
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
   }
@@ -136,30 +168,32 @@ namespace ve {
     return life;
   }
 
-  void Model::updateVertexBuffer(const std::vector<Vertex> &vertices) {
-    vertexCount_ = static_cast<uint32_t>(vertices.size());
-    assert(vertexCount_ >= 3 && "Vertex count must be at least 3");
-    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount_;
-    device_.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                         stagingBuffer_, stagingBufferMemory_);
+  // void Model::updateVertexBuffer(const std::vector<Vertex> &vertices) {
+  //   vertexCount_ = static_cast<uint32_t>(vertices.size());
+  //   assert(vertexCount_ >= 3 && "Vertex count must be at least 3");
+  //   VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount_;
+  //   device_.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+  //                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+  //                        VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer_,
+  //                        stagingBufferMemory_);
 
-    void *data;
-    vkMapMemory(device_.getDevice(), stagingBufferMemory_, 0, bufferSize, 0, &data);
-    memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
-    vkUnmapMemory(device_.getDevice(), stagingBufferMemory_);
-    auto *test = vertexBuffer_;
-    auto *test3 = vertexBufferMemory_;
-    device_.createBuffer(bufferSize,
-                         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer_, vertexBufferMemory_);
+  //   void *data;
+  //   vkMapMemory(device_.getDevice(), stagingBufferMemory_, 0, bufferSize, 0, &data);
+  //   memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
+  //   vkUnmapMemory(device_.getDevice(), stagingBufferMemory_);
+  //   auto *test = vertexBuffer_;
+  //   auto *test3 = vertexBufferMemory_;
+  //   device_.createBuffer(bufferSize,
+  //                        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+  //                        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer_,
+  //                        vertexBufferMemory_);
 
-    device_.copyBuffer(stagingBuffer_, vertexBuffer_, bufferSize);
-    vkDestroyBuffer(device_.getDevice(), stagingBuffer_, nullptr);
-    vkFreeMemory(device_.getDevice(), stagingBufferMemory_, nullptr);
-    vkDestroyBuffer(device_.getDevice(), test, nullptr);
-    vkFreeMemory(device_.getDevice(), test3, nullptr);
-  }
+  //   device_.copyBuffer(stagingBuffer_, vertexBuffer_, bufferSize);
+  //   vkDestroyBuffer(device_.getDevice(), stagingBuffer_, nullptr);
+  //   vkFreeMemory(device_.getDevice(), stagingBufferMemory_, nullptr);
+  //   vkDestroyBuffer(device_.getDevice(), test, nullptr);
+  //   vkFreeMemory(device_.getDevice(), test3, nullptr);
+  // }
 
   void Model::createTextureImage() {
     int texWidth;

@@ -6,6 +6,7 @@
 #include <glm/gtc/constants.hpp>
 #include <map>
 
+#include "buffer.hpp"
 #include "device.hpp"
 #include "renderer.hpp"
 #include "swap_chain.hpp"
@@ -47,11 +48,16 @@ namespace ve {
     const std::vector<Vertex> vertices_;
     void createVertexBuffer(const std::vector<Vertex> &vertices);
     VkImageView createImageView(VkImage image, VkFormat format);
+    void createIndexBuffers(const std::vector<uint32_t> &indices);
+
     Device &device_;
     Renderer &renderer_;
 
-    VkBuffer vertexBuffer_;
-    VkDeviceMemory vertexBufferMemory_;
+    std::unique_ptr<Buffer> vertexBuffer_;
+
+    bool hasIndexBuffer_ = false;
+    std::unique_ptr<Buffer> indexBuffer_;
+    uint32_t indexCount_;
 
     uint32_t vertexCount_;
     VkBuffer srcvertexBuffer_;
