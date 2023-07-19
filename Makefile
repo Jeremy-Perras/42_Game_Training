@@ -1,7 +1,7 @@
 NAME = library
 
 SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp model.cpp renderer.cpp simple_render_system.cpp\
-keyboard_movement_controller.cpp buffer.cpp descriptors.cpp
+keyboard_movement_controller.cpp buffer.cpp descriptors.cpp menu.cpp
 
 INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 
@@ -49,6 +49,8 @@ debug_re: debug_fclean debug
 gl: 
 	glslc shaders/shader.frag -o shaders/shader.frag.spv
 	glslc shaders/shader.vert -o shaders/shader.vert.spv
+	glslc shaders/menu.frag -o shaders/menu.frag.spv
+	glslc shaders/menu.vert -o shaders/menu.vert.spv
 
 
 clean :

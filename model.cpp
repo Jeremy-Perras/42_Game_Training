@@ -31,8 +31,6 @@ namespace ve {
     vkDestroyImageView(device_.getDevice(), textureImageView_, nullptr);
     vkDestroyImage(device_.getDevice(), textureImage_, nullptr);
     vkFreeMemory(device_.getDevice(), textureImageMemory_, nullptr);
-    // vkDestroyBuffer(device_.getDevice(), vertexBuffer_, nullptr);
-    // vkFreeMemory(device_.getDevice(), vertexBufferMemory_, nullptr);
   }
 
   void Model::createVertexBuffer(const std::vector<Vertex> &vertices) {

@@ -10,19 +10,24 @@
 #include "frame_info.hpp"
 #include "game_object.hpp"
 #include "keyboard_movement_controller.hpp"
+#include "menu.hpp"
 #include "model.hpp"
 #include "simple_render_system.hpp"
 namespace ve {
   struct GlobalUbo {
-    glm::mat4 projectionView{1.F};
-    glm::vec3 lightDirection = glm::normalize(glm::vec3{1.F, -3.F, -1.F});
+    float deltaTime;
   };
 
   Application::Application() : m_fpscount_(0) {
     gettimeofday(&start_, NULL);
     gettimeofday(&end_, NULL);
 
-    globalPool_
+    // globalPool_
+    //     = DescriptorPool::Builder(device_)
+    //           .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+    //           .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
+    //           .build();
+    texturePool_
         = DescriptorPool::Builder(device_)
               .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
               .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
@@ -41,24 +46,45 @@ namespace ve {
       uboBuffers[i]->map();
     }
 
-    auto globalSetLayout
-        = DescriptorSetLayout::Builder(device_)
-              .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
-              .build();
+    // auto globalSetLayout
+    //     = DescriptorSetLayout::Builder(device_)
+    //           .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+    //           .build();
 
-    std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
-    for (int i = 0; i < static_cast<int>(globalDescriptorSets.size()); i++) {
+    auto textureSetLayout = DescriptorSetLayout::Builder(device_)
+                                .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                            VK_SHADER_STAGE_FRAGMENT_BIT)
+                                .build();
+
+    // std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    std::vector<VkDescriptorSet> textureDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
+
+    for (int i = 0; i < static_cast<int>(textureDescriptorSets.size()); i++) {
       auto bufferInfo = uboBuffers[i]->descriptorInfo();
-      DescriptorWriter(*globalSetLayout, *globalPool_)
+      DescriptorWriter(*textureSetLayout, *texturePool_)
           .writeBuffer(0, &bufferInfo)
-          .build(globalDescriptorSets[i]);
+          .build(textureDescriptorSets[i]);
     }
-
-    SimpleRenderSystem simpleRenderSystem{device_, renderer_.getSwapChainRenderPass(),
-                                          globalSetLayout->getDescriptorSetLayout()};
+    // for (int i = 0; i < static_cast<int>(textureDescriptorSets.size()); i++) {
+    //   auto bufferInfo = uboBuffers[i]->descriptorInfo();
+    //   DescriptorWriter(*textureSetLayoutSetLayout, *globalPool_)
+    //       .writeBuffer(0, &bufferInfo)
+    //       .build(globalDescriptorSets[i]);
+    // }
+    MenuSystem menuSystem{device_,
+                          renderer_.getSwapChainRenderPass(),
+                          textureSetLayout->getDescriptorSetLayout(),
+                          {{{-0.5F, -0.5F}, {1.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
+                           {{0.5F, -0.5F}, {0.0F, 1.0F, 0.0F}, {0.0F, 0.0F}},
+                           {{0.5F, 0.5F}, {0.0F, 0.0F, 1.0F}, {0.0F, 1.0F}},
+                           {{-0.5F, 0.5F}, {1.0F, 1.0F, 1.0F}, {1.0F, 1.0F}}}};
+    // SimpleRenderSystem simpleRenderSystem{device_, renderer_.getSwapChainRenderPass(),
+    //                                       textureSetLayout->getDescriptorSetLayout()};
     // KeyboardMovementController playerController{};
     struct timeval gameStart;
     gettimeofday(&gameStart, NULL);
+    auto startTime = std::chrono::high_resolution_clock::now();
+
     while (static_cast<int>(window_.shouldClose()) == 0
            && static_cast<int>(glfwGetKey(window_.getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
                   == 0) {
@@ -69,16 +95,22 @@ namespace ve {
 
       if (auto* commandBuffer = renderer_.beginFrame()) {
         int frameIndex = renderer_.getFrameIndex();
-        FrameInfo frameInfo{frameIndex, commandBuffer, globalDescriptorSets[frameIndex]};
+        FrameInfo frameInfo{frameIndex, commandBuffer, textureDescriptorSets[frameIndex]};
+        auto newTime = std::chrono::high_resolution_clock::now();
 
         GlobalUbo ubo{};
+        ubo.deltaTime
+            = std::chrono::duration<float, std::chrono::seconds::period>(newTime - startTime)
+                  .count();
+
         uboBuffers[frameIndex]->writeToBuffer(&ubo);
         uboBuffers[frameIndex]->flush();
 
-        renderer_.beginSwapChainRenderPass(commandBuffer);
-        simpleRenderSystem.renderGameObjects(frameInfo, gameObjects_);
-        renderer_.endSwapChainRenderPass(commandBuffer);
-        renderer_.endFrame();
+        // renderer_.beginSwapChainRenderPass(commandBuffer);
+        menuSystem.render(frameInfo);
+        // simpleRenderSystem.renderGameObjects(frameInfo, gameObjects_);
+        // renderer_.endSwapChainRenderPass(commandBuffer);
+        // renderer_.endFrame();
       }
 
       if (getElapsedTime(end_, start_) >= 1000) {
@@ -87,8 +119,6 @@ namespace ve {
         gettimeofday(&start_, NULL);
       }
 
-      // Application::gameLife();
-      // gameObjects_[0].model->updateVertexBuffer(vertices_);
       gettimeofday(&end_, NULL);
     }
     vkDeviceWaitIdle(device_.getDevice());
@@ -122,121 +152,6 @@ namespace ve {
     elapsed = static_cast<long double>(end.tv_sec - begin.tv_sec) * 1000.0
               + static_cast<long double>(end.tv_usec - begin.tv_usec) / 1000.0;
     return (elapsed);
-  }
-
-  void Application::gameLife() {
-    int countOne = 0;
-    int i = 0;
-    std::map<std::pair<int, int>, std::pair<int, std::vector<Model::Vertex>>> lifeOld = life_;
-
-    for (const auto& p : life_) {
-      if (p.second.first == 0) {
-        countOne = lifeOld.find({p.first.first - 1, p.first.second - 1}) == lifeOld.end() ? countOne
-                   : lifeOld.find({p.first.first - 1, p.first.second - 1})->second.first == 1
-                       ? countOne + 1
-                       : countOne;
-
-        countOne = lifeOld.find({p.first.first, p.first.second - 1}) == lifeOld.end() ? countOne
-                   : lifeOld.find({p.first.first, p.first.second - 1})->second.first == 1
-                       ? countOne + 1
-                       : countOne;
-
-        countOne = lifeOld.find({p.first.first + 1, p.first.second - 1}) == lifeOld.end() ? countOne
-                   : lifeOld.find({p.first.first + 1, p.first.second - 1})->second.first == 1
-                       ? countOne + 1
-                       : countOne;
-
-        countOne = lifeOld.find({p.first.first - 1, p.first.second}) == lifeOld.end() ? countOne
-                   : lifeOld.find({p.first.first - 1, p.first.second})->second.first == 1
-                       ? countOne + 1
-                       : countOne;
-
-        countOne = lifeOld.find({p.first.first + 1, p.first.second}) == lifeOld.end() ? countOne
-                   : lifeOld.find({p.first.first + 1, p.first.second})->second.first == 1
-                       ? countOne + 1
-                       : countOne;
-
-        countOne = lifeOld.find({p.first.first - 1, p.first.second + 1}) == lifeOld.end() ? countOne
-                   : lifeOld.find({p.first.first - 1, p.first.second + 1})->second.first == 1
-                       ? countOne + 1
-                       : countOne;
-
-        countOne = lifeOld.find({p.first.first, p.first.second + 1}) == lifeOld.end() ? countOne
-                   : lifeOld.find({p.first.first, p.first.second + 1})->second.first == 1
-                       ? countOne + 1
-                       : countOne;
-        countOne = lifeOld.find({p.first.first + 1, p.first.second + 1}) == lifeOld.end() ? countOne
-                   : lifeOld.find({p.first.first + 1, p.first.second + 1})->second.first == 1
-                       ? countOne + 1
-                       : countOne;
-
-        if (countOne == 3) {
-          for (int j = 0; j < 6; j++) {
-            vertices_[i + j].colors = colorLive_;
-          }
-
-          life_.find({p.first.first, p.first.second})->second.first = 1;
-        } else {
-          for (int j = 0; j < 6; j++) {
-            vertices_[i + j].colors = colorDead_;
-          }
-          life_.find({p.first.first, p.first.second})->second.first = 0;
-        }
-      } else if (p.second.first == 1) {
-        countOne = lifeOld.find({p.first.first - 1, p.first.second - 1}) == lifeOld.end() ? countOne
-                   : lifeOld.find({p.first.first - 1, p.first.second - 1})->second.first == 1
-                       ? countOne + 1
-                       : countOne;
-
-        countOne = lifeOld.find({p.first.first, p.first.second - 1}) == lifeOld.end() ? countOne
-                   : lifeOld.find({p.first.first, p.first.second - 1})->second.first == 1
-                       ? countOne + 1
-                       : countOne;
-
-        countOne = lifeOld.find({p.first.first + 1, p.first.second - 1}) == lifeOld.end() ? countOne
-                   : lifeOld.find({p.first.first + 1, p.first.second - 1})->second.first == 1
-                       ? countOne + 1
-                       : countOne;
-
-        countOne = lifeOld.find({p.first.first - 1, p.first.second}) == lifeOld.end() ? countOne
-                   : lifeOld.find({p.first.first - 1, p.first.second})->second.first == 1
-                       ? countOne + 1
-                       : countOne;
-
-        countOne = lifeOld.find({p.first.first + 1, p.first.second}) == lifeOld.end() ? countOne
-                   : lifeOld.find({p.first.first + 1, p.first.second})->second.first == 1
-                       ? countOne + 1
-                       : countOne;
-
-        countOne = lifeOld.find({p.first.first - 1, p.first.second + 1}) == lifeOld.end() ? countOne
-                   : lifeOld.find({p.first.first - 1, p.first.second + 1})->second.first == 1
-                       ? countOne + 1
-                       : countOne;
-
-        countOne = lifeOld.find({p.first.first, p.first.second + 1}) == lifeOld.end() ? countOne
-                   : lifeOld.find({p.first.first, p.first.second + 1})->second.first == 1
-                       ? countOne + 1
-                       : countOne;
-        countOne = lifeOld.find({p.first.first + 1, p.first.second + 1}) == lifeOld.end() ? countOne
-                   : lifeOld.find({p.first.first + 1, p.first.second + 1})->second.first == 1
-                       ? countOne + 1
-                       : countOne;
-
-        if (countOne == 3 || countOne == 2) {
-          life_.find({p.first.first, p.first.second})->second.first = 1;
-          for (int j = 0; j < 6; j++) {
-            vertices_[i + j].colors = colorLive_;
-          }
-        } else {
-          life_.find({p.first.first, p.first.second})->second.first = 0;
-          for (int j = 0; j < 6; j++) {
-            vertices_[i + j].colors = colorDead_;
-          }
-        }
-      }
-      i += 6;
-      countOne = 0;
-    }
   }
 
 }  // namespace ve

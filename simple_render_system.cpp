@@ -48,6 +48,9 @@ namespace ve {
     Pipeline::defaultPipelineConfigInfo(pipelineConfig);
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = pipelineLayout_;
+    pipelineConfig.attributeDescriptions = Model::Vertex::getAttributeDescriptions();
+    pipelineConfig.bindingDescriptions = Model::Vertex::getBindingDescriptions();
+
     pipeline_ = std::make_unique<Pipeline>(device_, "shaders/shader.vert.spv",
                                            "shaders/shader.frag.spv", pipelineConfig);
   }

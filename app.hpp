@@ -42,6 +42,7 @@ namespace ve {
     Renderer renderer_{window_, device_};
     std::vector<GameObject> gameObjects_;
     std::unique_ptr<DescriptorPool> globalPool_{};
+    std::unique_ptr<DescriptorPool> texturePool_{};
 
     unsigned int m_fpscount_;
     struct timeval start_;
@@ -49,6 +50,5 @@ namespace ve {
     glm::vec3 colorLive_ = {1, 1, 1};
     glm::vec3 colorDead_ = {0.05, 0.05, 0.05};
     std::vector<Model::Vertex> vertices_;
-    int i_ = {0};
   };
 }  // namespace ve
