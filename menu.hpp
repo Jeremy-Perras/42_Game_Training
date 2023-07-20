@@ -24,21 +24,33 @@ namespace ve {
       static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
       static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
     };
+
+    struct Builder {
+      std::vector<Vertex> vertices{};
+      std::vector<uint32_t> indices{};
+    };
+
     void bind(VkCommandBuffer commandBuffer);
     void draw(VkCommandBuffer commandBuffer) const;
     void createVertexBuffer(const std::vector<Vertex> &vertices);
-
+    void createIndexBuffers(const std::vector<uint32_t> &indices);
     MenuSystem(Device &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout,
-               const std::vector<Vertex> &vertices);
+               const MenuSystem::Builder &builder, id_t objId);
     MenuSystem(const MenuSystem &src) = delete;
     MenuSystem &operator=(const MenuSystem &rhs) = delete;
     ~MenuSystem();
 
     void render(FrameInfo &info);
+    id_t getId() const { return id_; }
 
   private:
     void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
     void createPipeline(VkRenderPass renderPass);
+    VkImageView createImageView(VkImage image, VkFormat format);
+    void createTextureSampler();
+    void createTextureImage();
+    void createTextureImageView();
+
     std::unique_ptr<Buffer> vertexBuffer_;
     uint32_t vertexCount_;
 
@@ -46,5 +58,11 @@ namespace ve {
 
     std::unique_ptr<Pipeline> pipeline_;
     VkPipelineLayout pipelineLayout_;
+
+    bool hasIndexBuffer_ = false;
+    std::unique_ptr<Buffer> indexBuffer_;
+    uint32_t indexCount_;
+
+    id_t id_;
   };
 }  // namespace ve

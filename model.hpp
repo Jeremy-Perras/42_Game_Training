@@ -28,7 +28,7 @@ namespace ve {
 
     // Model(Device &device, const std::vector<Vertex> &vertices);
 
-    Model(Device &device, const std::vector<Vertex> &vertices, Renderer &renderer);
+    Model(Device &device, const std::vector<Vertex> &vertices);
 
     Model(const Model &src) = delete;
     Model &operator=(const Model &rhs) = delete;
@@ -51,7 +51,6 @@ namespace ve {
     void createIndexBuffers(const std::vector<uint32_t> &indices);
 
     Device &device_;
-    Renderer &renderer_;
 
     std::unique_ptr<Buffer> vertexBuffer_;
 

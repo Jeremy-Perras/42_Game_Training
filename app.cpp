@@ -13,24 +13,31 @@
 #include "menu.hpp"
 #include "model.hpp"
 #include "simple_render_system.hpp"
+#include "texture.hpp"
 namespace ve {
   struct GlobalUbo {
     float deltaTime;
   };
 
   Application::Application() : m_fpscount_(0) {
-    gettimeofday(&start_, NULL);
-    gettimeofday(&end_, NULL);
-
-    // globalPool_
-    //     = DescriptorPool::Builder(device_)
-    //           .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
-    //           .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
-    //           .build();
-    texturePool_
+    globalPool_
         = DescriptorPool::Builder(device_)
               .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
               .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
+              .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                           SwapChain::MAX_FRAMES_IN_FLIGHT)
+              .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                           SwapChain::MAX_FRAMES_IN_FLIGHT)
+              .build();
+
+    globalPool2_
+        = DescriptorPool::Builder(device_)
+              .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+              .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
+              .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                           SwapChain::MAX_FRAMES_IN_FLIGHT)
+              .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                           SwapChain::MAX_FRAMES_IN_FLIGHT)
               .build();
     loadGameObjects();
   }
@@ -46,57 +53,86 @@ namespace ve {
       uboBuffers[i]->map();
     }
 
-    // auto globalSetLayout
-    //     = DescriptorSetLayout::Builder(device_)
-    //           .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
-    //           .build();
+    auto globalSetLayout
+        = DescriptorSetLayout::Builder(device_)
+              .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+              .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                          VK_SHADER_STAGE_FRAGMENT_BIT)
+              .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                          VK_SHADER_STAGE_FRAGMENT_BIT)
+              .build();
 
-    auto textureSetLayout = DescriptorSetLayout::Builder(device_)
-                                .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                            VK_SHADER_STAGE_FRAGMENT_BIT)
-                                .build();
+    auto globalSetLayout2
+        = DescriptorSetLayout::Builder(device_)
+              .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+              .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                          VK_SHADER_STAGE_FRAGMENT_BIT)
+              .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                          VK_SHADER_STAGE_FRAGMENT_BIT)
+              .build();
 
-    // std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
-    std::vector<VkDescriptorSet> textureDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    std::vector<VkDescriptorSet> globalDescriptorSets2(SwapChain::MAX_FRAMES_IN_FLIGHT);
 
-    for (int i = 0; i < static_cast<int>(textureDescriptorSets.size()); i++) {
+    Texture texture(device_, "texture/pixil3.png");
+    Texture texture2(device_, "texture/texture.jpg");
+
+    for (int i = 0; i < static_cast<int>(globalDescriptorSets.size()); i++) {
       auto bufferInfo = uboBuffers[i]->descriptorInfo();
-      DescriptorWriter(*textureSetLayout, *texturePool_)
+      auto textureInfo = texture.getImageInfo();
+      auto textureInfo2 = texture2.getImageInfo();
+      DescriptorWriter(*globalSetLayout, *globalPool_)
           .writeBuffer(0, &bufferInfo)
-          .build(textureDescriptorSets[i]);
+          .writeImage(1, &textureInfo)
+          .writeImage(2, &textureInfo2)
+          .build(globalDescriptorSets[i]);
     }
-    // for (int i = 0; i < static_cast<int>(textureDescriptorSets.size()); i++) {
-    //   auto bufferInfo = uboBuffers[i]->descriptorInfo();
-    //   DescriptorWriter(*textureSetLayoutSetLayout, *globalPool_)
-    //       .writeBuffer(0, &bufferInfo)
-    //       .build(globalDescriptorSets[i]);
-    // }
-    MenuSystem menuSystem{device_,
-                          renderer_.getSwapChainRenderPass(),
-                          textureSetLayout->getDescriptorSetLayout(),
-                          {{{-0.5F, -0.5F}, {1.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
-                           {{0.5F, -0.5F}, {0.0F, 1.0F, 0.0F}, {0.0F, 0.0F}},
-                           {{0.5F, 0.5F}, {0.0F, 0.0F, 1.0F}, {0.0F, 1.0F}},
-                           {{-0.5F, 0.5F}, {1.0F, 1.0F, 1.0F}, {1.0F, 1.0F}}}};
-    // SimpleRenderSystem simpleRenderSystem{device_, renderer_.getSwapChainRenderPass(),
-    //                                       textureSetLayout->getDescriptorSetLayout()};
-    // KeyboardMovementController playerController{};
-    struct timeval gameStart;
-    gettimeofday(&gameStart, NULL);
-    auto startTime = std::chrono::high_resolution_clock::now();
 
+    for (int i = 0; i < static_cast<int>(globalDescriptorSets.size()); i++) {
+      auto bufferInfo = uboBuffers[i]->descriptorInfo();
+      auto textureInfo = texture.getImageInfo();
+      auto textureInfo2 = texture2.getImageInfo();
+      DescriptorWriter(*globalSetLayout2, *globalPool2_)
+          .writeBuffer(0, &bufferInfo)
+          .writeImage(1, &textureInfo)
+          .writeImage(2, &textureInfo2)
+          .build(globalDescriptorSets[i]);
+    }
+
+    MenuSystem::Builder builder{{{{-1.00F, -1.00F}, {1.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
+                                 {{-0.90F, -1.0F}, {0.0F, 1.0F, 0.0F}, {0.0F, 0.0F}},
+                                 {{-0.90F, -0.90F}, {0.0F, 0.0F, 1.0F}, {0.0F, 1.0F}},
+                                 {{-1.00F, -0.90F}, {1.0F, 1.0F, 1.0F}, {1.0F, 1.0F}}},
+                                {0, 1, 2, 2, 3, 0}};
+
+    MenuSystem menuSystem{device_, renderer_.getSwapChainRenderPass(),
+                          globalSetLayout->getDescriptorSetLayout(), builder, 0};
+
+    MenuSystem::Builder builder2{{{{-0.05F, -0.05F}, {1.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
+                                  {{0.05F, -0.05F}, {0.0F, 1.0F, 0.0F}, {0.0F, 0.0F}},
+                                  {{0.05F, 0.05F}, {0.0F, 0.0F, 1.0F}, {0.0F, 1.0F}},
+                                  {{-0.05F, 0.05F}, {1.0F, 1.0F, 1.0F}, {1.0F, 1.0F}}},
+                                 {0, 1, 2, 2, 3, 0}};
+
+    MenuSystem menuSystem2{device_, renderer_.getSwapChainRenderPass(),
+                           globalSetLayout2->getDescriptorSetLayout(), builder2, 1};
+
+    SimpleRenderSystem simpleRenderSystem{device_, renderer_.getSwapChainRenderPass()};
+    // KeyboardMovementController playerController{};
+
+    auto startTime = std::chrono::high_resolution_clock::now();
+    auto startFrameTime = std::chrono::high_resolution_clock::now();
     while (static_cast<int>(window_.shouldClose()) == 0
            && static_cast<int>(glfwGetKey(window_.getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
                   == 0) {
       glfwPollEvents();
       m_fpscount_++;
-
+      auto newTime = std::chrono::high_resolution_clock::now();
       // playerController.moveInPlaneXZ(window_.getGLFWwindow(), gameObjects_[0]);
 
       if (auto* commandBuffer = renderer_.beginFrame()) {
         int frameIndex = renderer_.getFrameIndex();
-        FrameInfo frameInfo{frameIndex, commandBuffer, textureDescriptorSets[frameIndex]};
-        auto newTime = std::chrono::high_resolution_clock::now();
+        FrameInfo frameInfo{frameIndex, commandBuffer, globalDescriptorSets[frameIndex]};
 
         GlobalUbo ubo{};
         ubo.deltaTime
@@ -106,20 +142,22 @@ namespace ve {
         uboBuffers[frameIndex]->writeToBuffer(&ubo);
         uboBuffers[frameIndex]->flush();
 
-        // renderer_.beginSwapChainRenderPass(commandBuffer);
+        renderer_.beginSwapChainRenderPass(commandBuffer);
+
         menuSystem.render(frameInfo);
-        // simpleRenderSystem.renderGameObjects(frameInfo, gameObjects_);
-        // renderer_.endSwapChainRenderPass(commandBuffer);
-        // renderer_.endFrame();
+        menuSystem2.render(frameInfo);
+        simpleRenderSystem.renderGameObjects(frameInfo, gameObjects_);
+        renderer_.endSwapChainRenderPass(commandBuffer);
+        renderer_.endFrame();
       }
 
-      if (getElapsedTime(end_, start_) >= 1000) {
+      if ((std::chrono::duration<float, std::chrono::seconds::period>(newTime - startFrameTime)
+               .count())
+          >= 1.0) {
         window_.updateFrame(m_fpscount_);
         m_fpscount_ = 0;
-        gettimeofday(&start_, NULL);
+        startFrameTime = std::chrono::high_resolution_clock::now();
       }
-
-      gettimeofday(&end_, NULL);
     }
     vkDeviceWaitIdle(device_.getDevice());
   }
@@ -143,15 +181,8 @@ namespace ve {
       vertices_.push_back(it->second.second[5]);
     }
     std::cout << vertices_.size() << std::endl;
-    square.model = std::make_unique<Model>(device_, vertices_, renderer_);
+    square.model = std::make_unique<Model>(device_, vertices_);
     gameObjects_.push_back(std::move(square));
-  }
-
-  long double Application::getElapsedTime(struct timeval end, struct timeval begin) {
-    long double elapsed;
-    elapsed = static_cast<long double>(end.tv_sec - begin.tv_sec) * 1000.0
-              + static_cast<long double>(end.tv_usec - begin.tv_usec) / 1000.0;
-    return (elapsed);
   }
 
 }  // namespace ve

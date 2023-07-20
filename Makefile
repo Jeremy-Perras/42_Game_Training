@@ -1,7 +1,7 @@
 NAME = library
 
 SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp model.cpp renderer.cpp simple_render_system.cpp\
-keyboard_movement_controller.cpp buffer.cpp descriptors.cpp menu.cpp
+keyboard_movement_controller.cpp buffer.cpp descriptors.cpp menu.cpp texture.cpp
 
 INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 

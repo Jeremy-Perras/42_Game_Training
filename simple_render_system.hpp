@@ -15,7 +15,7 @@ namespace ve {
   class SimpleRenderSystem {
   public:
     SimpleRenderSystem(Device &device, VkRenderPass renderPass,
-                       VkDescriptorSetLayout globalSetLayout);
+                       VkDescriptorSetLayout globalSetLayout = nullptr);
     SimpleRenderSystem(const SimpleRenderSystem &src) = delete;
     SimpleRenderSystem &operator=(const SimpleRenderSystem &rhs) = delete;
     ~SimpleRenderSystem();

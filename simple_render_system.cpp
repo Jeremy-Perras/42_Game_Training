@@ -7,7 +7,7 @@
 namespace ve {
 
   struct SimplePushConstantData {
-    alignas(16) glm::vec3 color;
+    int index;
   };
 
   SimpleRenderSystem::SimpleRenderSystem(Device& device, VkRenderPass renderPass,
@@ -31,8 +31,13 @@ namespace ve {
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+    if (globalSetLayout != nullptr) {
+      pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+      pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+    } else {
+      pipelineLayoutInfo.setLayoutCount = 0;
+      pipelineLayoutInfo.pSetLayouts = nullptr;
+    }
     pipelineLayoutInfo.pushConstantRangeCount = 1;
     pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
     if (vkCreatePipelineLayout(device_.getDevice(), &pipelineLayoutInfo, nullptr, &pipelineLayout_)
@@ -66,8 +71,8 @@ namespace ve {
     // vkCmdPushConstants(commandBuffer, pipelineLayout_,
     //                    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
     //                    sizeof(SimplePushConstantData), &push);
-    vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                            pipelineLayout_, 0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
+    // vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+    //                         pipelineLayout_, 0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
     gameObjects[0].model->bind(frameInfo.commandBuffer);
     gameObjects[0].model->draw(frameInfo.commandBuffer);
     // }
