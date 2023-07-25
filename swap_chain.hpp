@@ -37,13 +37,20 @@ namespace ve {
     }
     VkFormat findDepthFormat();
 
-    VkResult acquireNextImage(uint32_t *imageIndex);
+    VkResult acquireNextImage(uint32_t *imageIndex, bool compute);
     VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t const *imageIndex);
-
     bool compareSwapFormat(const SwapChain &swapChain) {
       return swapChain.swapChainDepthFormat == swapChainDepthFormat
              && swapChain.swapChainImageFormat_ == swapChainImageFormat_;
     }
+    VkResult submitComputeCommandBuffers(const VkCommandBuffer *buffers,
+                                         uint32_t const *imageIndex);
+
+    // compute
+    void computeWait();
+    void computeResetFences();
+    size_t getComputeCurrentFrame() const { return currentComputeFrame_; }
+    void computeQueueSubmit(const VkCommandBuffer *buffers);
 
     // Getter
     VkFormat getSwapChainImageFormat() { return swapChainImageFormat_; }
@@ -61,7 +68,6 @@ namespace ve {
     void createSwapChain();
     void createDepthResources();
     void createRenderPass();
-
     void createFramebuffers();
     void createSyncObjects();
 
@@ -93,9 +99,16 @@ namespace ve {
 
     std::vector<VkSemaphore> imageAvailableSemaphores_;
     std::vector<VkSemaphore> renderFinishedSemaphores_;
+
     std::vector<VkFence> inFlightFences_;
     std::vector<VkFence> imagesInFlight_;
+
+    // TODO
+    std::vector<VkFence> computeInFlightFences;
+    std::vector<VkSemaphore> computeFinishedSemaphores;
+
     size_t currentFrame_ = 0;
+    size_t currentComputeFrame_ = 0;
   };
 
 }  // namespace ve

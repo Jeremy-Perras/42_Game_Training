@@ -17,10 +17,18 @@ namespace ve {
     Renderer &operator=(const Renderer &rhs) = delete;
     ~Renderer();
 
-    VkCommandBuffer beginFrame();
-    void endFrame();
+    VkCommandBuffer beginFrame(bool compute);
+    void endFrame(bool compute);
     void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
-    void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
+    void endSwapChainRenderPass(VkCommandBuffer commandBuffer) const;
+
+    // compute
+    void computeWait() { swapChain_->computeWait(); };
+    void computeResetFences() { swapChain_->computeResetFences(); }
+    size_t getComputeCurrentFrame() const { return swapChain_->getComputeCurrentFrame(); }
+    void computeQueueSubmit(const VkCommandBuffer *buffers) {
+      swapChain_->computeQueueSubmit(buffers);
+    }
 
     // getters
     bool isFrameInProgress() const { return isFrameStarted_; }
@@ -29,6 +37,7 @@ namespace ve {
       assert(isFrameStarted_ && " Cannot get command buffer when freame not in progress");
       return commandBuffers_[currentFrameIndex_];
     }
+
     int getFrameIndex() const {
       assert(isFrameStarted_ && "Cannot get Frame Index when frame not in progress");
 
@@ -46,6 +55,7 @@ namespace ve {
     Device &device_;
     std::unique_ptr<SwapChain> swapChain_;
     std::vector<VkCommandBuffer> commandBuffers_;
+    std::vector<VkCommandBuffer> computeCommandBuffers_;
     uint32_t currentImageIndex_{0};
     int currentFrameIndex_{0};
     bool isFrameStarted_{false};

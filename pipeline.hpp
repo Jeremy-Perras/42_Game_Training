@@ -39,11 +39,11 @@ namespace ve {
     Pipeline &operator=(const Pipeline &rhs) = delete;
     ~Pipeline();
     void bind(VkCommandBuffer commandBuffer);
-
+    static std::vector<char> readFile(const std::string &filepath);
     static void defaultPipelineConfigInfo(PipelineConfigInfo &configInfo);
+    static void defaultComputePipelineConfigInfo(PipelineConfigInfo &configInfo);
 
   private:
-    static std::vector<char> readFile(const std::string &filepath);
     void createGraphicPipeline(const std::string &vertFilepath, const std::string &fragFilepath,
                                const PipelineConfigInfo &configInfo);
     void createShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule);

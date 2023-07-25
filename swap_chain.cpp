@@ -1,5 +1,7 @@
 #include "swap_chain.hpp"
 
+#include <sys/_types/_size_t.h>
+
 #include <memory>
 #include <utility>
 
@@ -57,18 +59,29 @@ namespace ve {
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
       vkDestroySemaphore(device_.getDevice(), renderFinishedSemaphores_[i], nullptr);
       vkDestroySemaphore(device_.getDevice(), imageAvailableSemaphores_[i], nullptr);
+      vkDestroySemaphore(device_.getDevice(), computeFinishedSemaphores[i], nullptr);  // TODO
+      vkDestroyFence(device_.getDevice(), computeInFlightFences[i], nullptr);          // TODO
       vkDestroyFence(device_.getDevice(), inFlightFences_[i], nullptr);
     }
   }
 
-  VkResult SwapChain::acquireNextImage(uint32_t *imageIndex) {
-    vkWaitForFences(device_.getDevice(), 1, &inFlightFences_[currentFrame_], VK_TRUE,
-                    std::numeric_limits<uint64_t>::max());
-
-    VkResult result = vkAcquireNextImageKHR(
-        device_.getDevice(), swapChain_, std::numeric_limits<uint64_t>::max(),
-        imageAvailableSemaphores_[currentFrame_],  // must be a not signaled semaphore
-        VK_NULL_HANDLE, imageIndex);
+  VkResult SwapChain::acquireNextImage(uint32_t *imageIndex, bool compute) {
+    VkResult result;
+    if (!compute) {
+      vkWaitForFences(device_.getDevice(), 1, &inFlightFences_[currentFrame_], VK_TRUE,
+                      std::numeric_limits<uint64_t>::max());
+      result = vkAcquireNextImageKHR(
+          device_.getDevice(), swapChain_, std::numeric_limits<uint64_t>::max(),
+          imageAvailableSemaphores_[currentFrame_],  // must be a not signaled semaphore
+          VK_NULL_HANDLE, imageIndex);
+    } else {
+      vkWaitForFences(device_.getDevice(), 1, &inFlightFences_[currentComputeFrame_], VK_TRUE,
+                      std::numeric_limits<uint64_t>::max());
+      result = vkAcquireNextImageKHR(
+          device_.getDevice(), swapChain_, std::numeric_limits<uint64_t>::max(),
+          imageAvailableSemaphores_[currentComputeFrame_],  // must be a not signaled semaphore
+          VK_NULL_HANDLE, imageIndex);
+    }
 
     return result;
   }
@@ -117,6 +130,58 @@ namespace ve {
     auto result = vkQueuePresentKHR(device_.getPresentQueue(), &presentInfo);
 
     currentFrame_ = (currentFrame_ + 1) % MAX_FRAMES_IN_FLIGHT;
+
+    return result;
+  }
+
+  VkResult SwapChain::submitComputeCommandBuffers(const VkCommandBuffer *buffers,
+                                                  uint32_t const *imageIndex) {
+    if (imagesInFlight_[*imageIndex] != VK_NULL_HANDLE) {
+      vkWaitForFences(device_.getDevice(), 1, &imagesInFlight_[*imageIndex], VK_TRUE, UINT64_MAX);
+    }
+    imagesInFlight_[*imageIndex] = inFlightFences_[currentComputeFrame_];
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    // TODO
+    VkSemaphore waitSemaphores[] = {computeFinishedSemaphores[currentComputeFrame_],
+                                    imageAvailableSemaphores_[currentComputeFrame_]};
+    VkPipelineStageFlags waitStages[]
+        = {VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.waitSemaphoreCount = 2;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = buffers;
+
+    VkSemaphore signalSemaphores[] = {renderFinishedSemaphores_[currentComputeFrame_]};
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    vkResetFences(device_.getDevice(), 1, &inFlightFences_[currentComputeFrame_]);
+
+    if (vkQueueSubmit(device_.getGraphicsQueue(), 1, &submitInfo,
+                      inFlightFences_[currentComputeFrame_])
+        != VK_SUCCESS) {
+      throw std::runtime_error("failed to submit draw command buffer!");
+    }
+
+    VkPresentInfoKHR presentInfo = {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+
+    VkSwapchainKHR swapChains[] = {swapChain_};
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+
+    presentInfo.pImageIndices = imageIndex;
+
+    auto result = vkQueuePresentKHR(device_.getPresentQueue(), &presentInfo);
+
+    currentComputeFrame_ = (currentComputeFrame_ + 1) % MAX_FRAMES_IN_FLIGHT;
 
     return result;
   }
@@ -313,7 +378,7 @@ namespace ve {
       imageInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
       imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
       imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-      imageInfo.flags = 0;  // TODO = 0
+      imageInfo.flags = 0;
 
       device_.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImages_[i],
                                   depthImageMemorys_[i]);
@@ -342,6 +407,9 @@ namespace ve {
     inFlightFences_.resize(MAX_FRAMES_IN_FLIGHT);
     imagesInFlight_.resize(getImageCount(), VK_NULL_HANDLE);
 
+    computeFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    computeInFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+
     VkSemaphoreCreateInfo semaphoreInfo = {};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -359,6 +427,14 @@ namespace ve {
           || vkCreateFence(device_.getDevice(), &fenceInfo, nullptr, &inFlightFences_[i])
                  != VK_SUCCESS) {
         throw std::runtime_error("failed to create synchronization objects for a frame!");
+      }
+
+      if (vkCreateSemaphore(device_.getDevice(), &semaphoreInfo, nullptr,
+                            &computeFinishedSemaphores[i])
+              != VK_SUCCESS
+          || vkCreateFence(device_.getDevice(), &fenceInfo, nullptr, &computeInFlightFences[i])
+                 != VK_SUCCESS) {
+        throw std::runtime_error("failed to create compute synchronization objects for a frame!");
       }
     }
   }
@@ -413,6 +489,32 @@ namespace ve {
     return device_.findSupportedFormat(
         {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
         VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+  }
+
+  // Compute submission
+
+  void SwapChain::computeQueueSubmit(const VkCommandBuffer *buffers) {
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = buffers;
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = &computeFinishedSemaphores[currentComputeFrame_];
+
+    if (vkQueueSubmit(device_.getComputeQueue(), 1, &submitInfo,
+                      computeInFlightFences[currentComputeFrame_])
+        != VK_SUCCESS) {
+      throw std::runtime_error("failed to submit compute command buffer!");
+    };
+  }
+
+  void SwapChain::computeWait() {
+    vkWaitForFences(device_.getDevice(), 1, &computeInFlightFences[currentComputeFrame_], VK_TRUE,
+                    UINT64_MAX);
+  }
+
+  void SwapChain::computeResetFences() {
+    vkResetFences(device_.getDevice(), 1, &computeInFlightFences[currentComputeFrame_]);
   }
 
 }  // namespace ve

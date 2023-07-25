@@ -1,10 +1,13 @@
 #include "renderer.hpp"
 
+#include <_types/_uint32_t.h>
+
 #include <glm/gtc/constants.hpp>
 #include <memory>
 #include <stdexcept>
 
 #include "swap_chain.hpp"
+#include "vulkan/vulkan_core.h"
 namespace ve {
 
   Renderer::Renderer(Window &window, Device &device) : window_(window), device_(device) {
@@ -53,10 +56,10 @@ namespace ve {
     }
   }
 
-  VkCommandBuffer Renderer::beginFrame() {
+  VkCommandBuffer Renderer::beginFrame(bool compute) {
     assert(!isFrameStarted_ && "Can't call beginFrame while already in progress");
 
-    auto result = swapChain_->acquireNextImage(&currentImageIndex_);
+    auto result = swapChain_->acquireNextImage(&currentImageIndex_, compute);
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
       recreateSwapChain();
       return nullptr;
@@ -78,13 +81,18 @@ namespace ve {
     return commandBuffer;
   }
 
-  void Renderer::endFrame() {
+  void Renderer::endFrame(bool compute) {
+    VkResult result;
     assert(isFrameStarted_ && "Can't call endFrame while frame is not in progress");
     auto *commandBuffer = getCurrentCommandBuffer();
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
       throw std::runtime_error("failed to record command buffer");
     }
-    auto result = swapChain_->submitCommandBuffers(&commandBuffer, &currentImageIndex_);
+    if (!compute) {
+      result = swapChain_->submitCommandBuffers(&commandBuffer, &currentImageIndex_);
+    } else {
+      result = swapChain_->submitComputeCommandBuffers(&commandBuffer, &currentImageIndex_);
+    }
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR
         || window_.wasWindowResized()) {
@@ -129,7 +137,7 @@ namespace ve {
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
   }
 
-  void Renderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer) {
+  void Renderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer) const {
     assert(isFrameStarted_ && "Can't call endSwapChainRenderPass while frame is not in progress");
     assert(commandBuffer == getCurrentCommandBuffer()
            && "Can't end render pass ont command buffer from a fifferent frame");

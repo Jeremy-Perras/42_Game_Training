@@ -24,8 +24,8 @@ namespace ve {
     Application &operator=(const Application &rhs) = delete;
     ~Application();
 
-    static constexpr int WIDTH = 2560;
-    static constexpr int HEIGHT = 1600;
+    static constexpr int WIDTH = 800;
+    static constexpr int HEIGHT = 600;
     void mainLoop();
 
     std::map<std::pair<int, int>, std::pair<int, std::vector<Model::Vertex>>> life_;
@@ -35,9 +35,6 @@ namespace ve {
     void loadGameObjects();
     void gameLife();
     void updateGame();
-    void createTextureImage();
-    void createTextureImageView();
-    void createTextureSampler();
     VkImageView createImageView(VkImage image, VkFormat format);
 
     Window window_{WIDTH, HEIGHT, "GameEngine"};
@@ -46,6 +43,8 @@ namespace ve {
     std::vector<GameObject> gameObjects_;
     std::unique_ptr<DescriptorPool> globalPool_{};
     std::unique_ptr<DescriptorPool> globalPool2_{};
+    std::unique_ptr<DescriptorPool> computePool_{};
+
     unsigned int m_fpscount_;
     glm::vec3 colorLive_ = {1, 1, 1};
     glm::vec3 colorDead_ = {0.05, 0.05, 0.05};

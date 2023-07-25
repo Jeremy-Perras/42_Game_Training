@@ -46,10 +46,6 @@ namespace ve {
   private:
     void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
     void createPipeline(VkRenderPass renderPass);
-    VkImageView createImageView(VkImage image, VkFormat format);
-    void createTextureSampler();
-    void createTextureImage();
-    void createTextureImageView();
 
     std::unique_ptr<Buffer> vertexBuffer_;
     uint32_t vertexCount_;

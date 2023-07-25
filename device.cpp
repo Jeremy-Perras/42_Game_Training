@@ -168,6 +168,7 @@ namespace ve {
     }
 
     vkGetDeviceQueue(device_, indices.graphicsFamily, 0, &graphicsQueue_);
+    vkGetDeviceQueue(device_, indices.graphicsFamily, 0, &computeQueue_);
     vkGetDeviceQueue(device_, indices.presentFamily, 0, &presentQueue_);
   }
 
@@ -324,7 +325,8 @@ namespace ve {
 
     int i = 0;
     for (const auto &queueFamily : queueFamilies) {
-      if (queueFamily.queueCount > 0 && ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0U)) {
+      if (queueFamily.queueCount > 0 && ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0U)
+          && ((queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) != 0U)) {
         indices.graphicsFamily = i;
         indices.graphicsFamilyHasValue = true;
       }

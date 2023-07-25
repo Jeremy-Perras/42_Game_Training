@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "buffer.hpp"
+#include "compute_shader.hpp"
 #include "frame_info.hpp"
 #include "game_object.hpp"
 #include "keyboard_movement_controller.hpp"
@@ -74,7 +75,7 @@ namespace ve {
     std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
     std::vector<VkDescriptorSet> globalDescriptorSets2(SwapChain::MAX_FRAMES_IN_FLIGHT);
 
-    Texture texture(device_, "texture/pixil3.png");
+    Texture texture(device_, "texture/test2.png");
     Texture texture2(device_, "texture/texture.jpg");
 
     for (int i = 0; i < static_cast<int>(globalDescriptorSets.size()); i++) {
@@ -96,13 +97,13 @@ namespace ve {
           .writeBuffer(0, &bufferInfo)
           .writeImage(1, &textureInfo)
           .writeImage(2, &textureInfo2)
-          .build(globalDescriptorSets[i]);
+          .build(globalDescriptorSets2[i]);
     }
 
     MenuSystem::Builder builder{{{{-1.00F, -1.00F}, {1.0F, 0.0F, 0.0F}, {1.0F, 0.0F}},
-                                 {{-0.90F, -1.0F}, {0.0F, 1.0F, 0.0F}, {0.0F, 0.0F}},
-                                 {{-0.90F, -0.90F}, {0.0F, 0.0F, 1.0F}, {0.0F, 1.0F}},
-                                 {{-1.00F, -0.90F}, {1.0F, 1.0F, 1.0F}, {1.0F, 1.0F}}},
+                                 {{-0.90F, -1.0F}, {1.0F, 0.0F, 0.0F}, {0.0F, 0.0F}},
+                                 {{-0.90F, -0.90F}, {1.0F, 0.0F, 0.0F}, {0.0F, 1.0F}},
+                                 {{-1.00F, -0.90F}, {1.0F, 0.0F, 0.0F}, {1.0F, 1.0F}}},
                                 {0, 1, 2, 2, 3, 0}};
 
     MenuSystem menuSystem{device_, renderer_.getSwapChainRenderPass(),
@@ -119,6 +120,10 @@ namespace ve {
 
     SimpleRenderSystem simpleRenderSystem{device_, renderer_.getSwapChainRenderPass()};
     // KeyboardMovementController playerController{};
+    //                             computeBuilder);
+    ComputeShader::Builder computeBuilder{};
+    ComputeShader computeShader{device_, renderer_.getSwapChainRenderPass(), renderer_,
+                                computeBuilder};
 
     auto startTime = std::chrono::high_resolution_clock::now();
     auto startFrameTime = std::chrono::high_resolution_clock::now();
@@ -128,16 +133,17 @@ namespace ve {
       glfwPollEvents();
       m_fpscount_++;
       auto newTime = std::chrono::high_resolution_clock::now();
+      FrameInfo frameInfo{0, 0, 0};
+
       // playerController.moveInPlaneXZ(window_.getGLFWwindow(), gameObjects_[0]);
-
-      if (auto* commandBuffer = renderer_.beginFrame()) {
-        int frameIndex = renderer_.getFrameIndex();
-        FrameInfo frameInfo{frameIndex, commandBuffer, globalDescriptorSets[frameIndex]};
-
+      //
+      if (auto* commandBuffer = renderer_.beginFrame(false)) {
         GlobalUbo ubo{};
         ubo.deltaTime
             = std::chrono::duration<float, std::chrono::seconds::period>(newTime - startTime)
                   .count();
+        int frameIndex = renderer_.getFrameIndex();
+        FrameInfo frameInfo{frameIndex, commandBuffer, globalDescriptorSets[frameIndex]};
 
         uboBuffers[frameIndex]->writeToBuffer(&ubo);
         uboBuffers[frameIndex]->flush();
@@ -146,11 +152,12 @@ namespace ve {
 
         menuSystem.render(frameInfo);
         menuSystem2.render(frameInfo);
+
         simpleRenderSystem.renderGameObjects(frameInfo, gameObjects_);
         renderer_.endSwapChainRenderPass(commandBuffer);
-        renderer_.endFrame();
+        renderer_.endFrame(false);
       }
-
+      computeShader.render(frameInfo);
       if ((std::chrono::duration<float, std::chrono::seconds::period>(newTime - startFrameTime)
                .count())
           >= 1.0) {
