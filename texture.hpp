@@ -1,15 +1,18 @@
 #pragma once
 #include <memory>
 
+#include "descriptors.hpp"
 #include "device.hpp"
 
 namespace ve {
   class Texture {
   public:
     Texture(Device &device, const std::string &textureFilepath);
-    Texture(const Texture &src) = delete;
-    Texture &operator=(const Texture &rhs) = delete;
+    Texture(const Texture &) = delete;
+    Texture &operator=(const Texture &) = delete;
+    Texture(Texture &&) = default;
     ~Texture();
+
     // Getter
     VkDescriptorImageInfo getImageInfo() {
       return VkDescriptorImageInfo{
@@ -24,6 +27,7 @@ namespace ve {
     void createTextureImageView();
     void createTextureSampler();
     VkImageView createImageView(VkImage image, VkFormat format);
+
     Device &device_;
     VkImage textureImage_;
     VkDeviceMemory textureImageMemory_;

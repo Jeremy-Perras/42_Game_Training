@@ -6,8 +6,11 @@
 #include "descriptors.hpp"
 #include "device.hpp"
 #include "frame_info.hpp"
+#include "game_object.hpp"
+#include "menu.hpp"
 #include "pipeline.hpp"
 #include "renderer.hpp"
+#include "simple_render_system.hpp"
 #include "swap_chain.hpp"
 namespace ve {
 
@@ -22,6 +25,8 @@ namespace ve {
       glm::vec2 velocity;
       glm::vec4 color;
 
+      // glm::vec2 position;
+      // glm::vec3 color;
       // getters
       static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
       static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
@@ -45,7 +50,7 @@ namespace ve {
     void createIndexBuffers(const std::vector<uint32_t> &indices);
     void createComputeShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule);
     void createShaderStorageBuffers();
-    void render(FrameInfo &frameInfo);
+    void render(FrameInfo &frameInfo, std::vector<GameObject> &gameObject);
     void createDescriptorPool();
     void draw(uint32_t currentFrame);
     void recordComputeCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame);
@@ -113,5 +118,6 @@ namespace ve {
     std::vector<VkCommandBuffer> computeCommandBuffers_;
     VkDescriptorPool descriptorPool_;
     std::vector<VkDescriptorSet> computeDescriptorSets_;
+    SimpleRenderSystem simpleRenderSystem{device_, renderer_.getSwapChainRenderPass()};
   };
 }  // namespace ve

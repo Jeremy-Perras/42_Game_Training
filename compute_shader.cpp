@@ -12,6 +12,7 @@
 #include "device.hpp"
 #include "frame_info.hpp"
 #include "pipeline.hpp"
+#include "simple_render_system.hpp"
 #include "vulkan/vulkan_core.h"
 
 namespace ve {
@@ -151,7 +152,6 @@ namespace ve {
     // Initialize particles
     std::default_random_engine rndEngine((unsigned)time(nullptr));
     std::uniform_real_distribution<float> rndDist(0.0F, 1.0F);
-
     // Initial particle positions on a circle
     std::vector<Particle> particles(PARTICLE_COUNT);
     for (auto& particle : particles) {
@@ -163,8 +163,20 @@ namespace ve {
       particle.velocity = glm::normalize(glm::vec2(x, y)) * 0.00025F;
       particle.color = glm::vec4(rndDist(rndEngine), rndDist(rndEngine), rndDist(rndEngine), 1.0F);
     }
-
-    VkDeviceSize bufferSize = sizeof(Particle) * PARTICLE_COUNT;
+    // float numSides = 64;
+    // std::vector<Particle> uniqueVertices{};
+    // for (int i = 0; i < static_cast<int>(numSides); i++) {
+    //   float angle = static_cast<float>(i) * glm::two_pi<float>() / numSides;
+    //   uniqueVertices.push_back({{glm::cos(angle), glm::sin(angle)}, {}});
+    // }
+    // uniqueVertices.push_back({});
+    // std::vector<Particle> vertices{};
+    // for (int i = 0; i < static_cast<int>(numSides); i++) {
+    //   vertices.push_back(uniqueVertices[i]);
+    //   vertices.push_back(uniqueVertices[(i + 1) % static_cast<int>(numSides)]);
+    //   vertices.push_back(uniqueVertices[static_cast<int>(numSides)]);
+    // }
+    VkDeviceSize bufferSize = sizeof(Particle) * particles.size();
 
     // Create a staging buffer used to upload data to the gpu
     VkBuffer stagingBuffer;
@@ -205,8 +217,7 @@ namespace ve {
     vkCmdDraw(commandBuffer, PARTICLE_COUNT, 1, 0, 0);
   }
 
-  void ComputeShader::render(FrameInfo& frameInfo) {
-    (void)frameInfo;
+  void ComputeShader::render(FrameInfo& frameInfo, std::vector<GameObject>& gameObject) {
     size_t currentFrame = renderer_.getComputeCurrentFrame();
     renderer_.computeWait();
     updateUniformBuffer(currentFrame);
@@ -216,11 +227,20 @@ namespace ve {
     renderer_.computeQueueSubmit(&(computeCommandBuffers_[currentFrame]));
 
     auto* commandBuffer = renderer_.beginFrame(true);
-
+    frameInfo.commandBuffer = commandBuffer;
     renderer_.beginSwapChainRenderPass(commandBuffer);
+    for (auto& obj : gameObject) {
+      if (obj.menu) {
+        obj.menu->render(frameInfo);
+      } else {
+        simpleRenderSystem.renderGameObjects(frameInfo, obj);
+      }
+    }
     pipeline_->bind(commandBuffer);
+
     ComputeShader::bind(commandBuffer, static_cast<int>(currentFrame));
     ComputeShader::draw(commandBuffer);
+
     renderer_.endSwapChainRenderPass(commandBuffer);
     renderer_.endFrame(true);
 

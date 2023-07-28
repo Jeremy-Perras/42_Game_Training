@@ -8,5 +8,5 @@ layout ( location = 0) in vec3 fragColor;
 // } push;
 
 void main() {
-    outColor = vec4(fragColor,1.0);
+    outColor = vec4(fragColor,0.5);
 }

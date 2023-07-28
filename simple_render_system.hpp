@@ -20,7 +20,7 @@ namespace ve {
     SimpleRenderSystem &operator=(const SimpleRenderSystem &rhs) = delete;
     ~SimpleRenderSystem();
 
-    void renderGameObjects(FrameInfo &frameInfo, std::vector<GameObject> &gameObjects);
+    void renderGameObjects(FrameInfo &frameInfo, GameObject &gameObjects);
 
   private:
     void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);

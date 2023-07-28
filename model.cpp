@@ -105,49 +105,13 @@ namespace ve {
     return attributeDescriptions;
   }
 
-  std::map<std::pair<int, int>, std::pair<int, std::vector<Model::Vertex>>>
-  Model::createSquareModel(float scale) {
-    float x = 0;
-    float y = 0;
-    int i = 0;
-    std::vector<Model::Vertex> vertices = {};
-    std::map<std::pair<int, int>, std::pair<int, std::vector<Model::Vertex>>> life;
-    while (scale * y < 2.0F) {
-      while (scale * x < 2.0F) {
-        if ((x == 0) || (x == 1) || (y == 0) || (y == 1) || x == 199 || x == 200 || y == 199
-            || y == 200) {
-          vertices.push_back({{x * scale - 1.0F, y * scale - 1.0F}, {1, 1, 1}});
-          vertices.push_back({{(x + 1.0F) * scale - 1.0F, y * scale - 1.0F}, {1, 1, 1}});
-          vertices.push_back({{x * scale - 1.0F, (y + 1.0F) * scale - 1.0F}, {1, 1, 1}});
+  std::unique_ptr<Model> Model::createSquareModel(Device &device) {
+    std::vector<Model::Vertex> vertices = {
+        {{-1.0F, 0.70F}, {1.0F, 1.0F, 1.0F}}, {{1.0F, 0.70F}, {1.0F, 1.0F, 1.0F}},
+        {{1.0F, 1.0F}, {1.0F, 1.0F, 1.0F}},   {{-1.0F, 0.70F}, {1.0F, 1.0F, 1.0F}},
+        {{-1.0F, 1.0F}, {1.0F, 1.0F, 1.0F}},  {{1.0F, 1.0F}, {1.0F, 1.0F, 1.0F}},  //
+    };
 
-          vertices.push_back({{(x + 1.0F) * scale - 1.0F, y * scale - 1.0F}, {1, 1, 1}});
-          vertices.push_back({{x * scale - 1.0F, (y + 1.0F) * scale - 1.0F}, {1, 1, 1}});
-          vertices.push_back({{(x + 1.0F) * scale - 1.0F, (y + 1.0F) * scale - 1.0F}, {1, 1, 1}});
-          life.insert(std::pair<std::pair<int, int>, std::pair<int, std::vector<Model::Vertex>>>(
-              {x, y}, {1,
-                       {vertices[i], vertices[i + 1], vertices[i + 2], vertices[i + 3],
-                        vertices[i + 4], vertices[i + 5]}}));
-        } else {
-          vertices.push_back({{x * scale - 1.0F, y * scale - 1.0F}, {0.05, 0.05, 0.05}});
-          vertices.push_back({{(x + 1.0F) * scale - 1.0F, y * scale - 1.0F}, {0.05, 0.05, 0.05}});
-          vertices.push_back({{x * scale - 1.0F, (y + 1.0F) * scale - 1.0F}, {0.05, 0.05, 0.05}});
-
-          vertices.push_back({{(x + 1.0F) * scale - 1.0F, y * scale - 1.0F}, {0.05, 0.05, 0.05}});
-          vertices.push_back({{x * scale - 1.0F, (y + 1.0F) * scale - 1.0F}, {0.05, 0.05, 0.05}});
-          vertices.push_back(
-              {{(x + 1.0F) * scale - 1.0F, (y + 1.0F) * scale - 1.0F}, {0.05, 0.05, 0.05}});
-          life.insert(std::pair<std::pair<int, int>, std::pair<int, std::vector<Model::Vertex>>>(
-              {x, y}, {0,
-                       {vertices[i], vertices[i + 1], vertices[i + 2], vertices[i + 3],
-                        vertices[i + 4], vertices[i + 5]}}));
-        }
-        i = i + 6;
-        x++;
-      }
-      x = 0;
-      y++;
-    }
-    return life;
+    return std::make_unique<Model>(device, vertices);
   }
-
 }  // namespace ve

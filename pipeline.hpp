@@ -42,6 +42,7 @@ namespace ve {
     static std::vector<char> readFile(const std::string &filepath);
     static void defaultPipelineConfigInfo(PipelineConfigInfo &configInfo);
     static void defaultComputePipelineConfigInfo(PipelineConfigInfo &configInfo);
+    static void enableAlphaBlending(PipelineConfigInfo &configInfo);
 
   private:
     void createGraphicPipeline(const std::string &vertFilepath, const std::string &fragFilepath,

@@ -1,13 +1,10 @@
 #pragma once
 
+#include "menu.hpp"
 #include "model.hpp"
 
 namespace ve {
   class GameObject {
-    struct Transform2dComponent {
-      glm::vec2 translation{};
-    };
-
   public:
     using id_t = unsigned int;
 
@@ -22,10 +19,8 @@ namespace ve {
       return GameObject(currentId++);
     }
 
+    std::shared_ptr<MenuSystem> menu{};
     std::shared_ptr<Model> model{};
-    glm::vec3 color{};
-    // Transform2dComponent transform{};
-
     // Getter
     id_t getId() const { return id_; }
 

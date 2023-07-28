@@ -33,16 +33,10 @@ namespace ve {
     Model(const Model &src) = delete;
     Model &operator=(const Model &rhs) = delete;
     ~Model();
-    static std::unique_ptr<Model> createCircleModel(Device &device, unsigned int numSides);
-    static std::map<std::pair<int, int>, std::pair<int, std::vector<Model::Vertex>>>
-    createSquareModel(float scale);
+
+    static std::unique_ptr<Model> createSquareModel(Device &device);
     void bind(VkCommandBuffer commandBuffer);
     void draw(VkCommandBuffer commandBuffer) const;
-    void changeColorModel(int indice);
-    void updateVertexBuffer(const std::vector<Vertex> &vertices);
-    void createTextureImage();
-    void createTextureImageView();
-    void createTextureSampler();
 
   private:
     const std::vector<Vertex> vertices_;
@@ -59,17 +53,9 @@ namespace ve {
     uint32_t indexCount_;
 
     uint32_t vertexCount_;
-    VkBuffer srcvertexBuffer_;
-    VkDeviceMemory srcvertexBufferMemory_;
 
-    uint32_t srcvertexCount_;
     VkBuffer stagingBuffer_;
     VkDeviceMemory stagingBufferMemory_;
-
-    VkImage textureImage_;
-    VkDeviceMemory textureImageMemory_;
-    VkImageView textureImageView_;
-    VkSampler textureSampler_;
   };
 
 }  // namespace ve

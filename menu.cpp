@@ -3,20 +3,17 @@
 #include <_types/_uint32_t.h>
 #include <sys/_types/_id_t.h>
 
-#include <glm/gtc/constants.hpp>
-
 #include "device.hpp"
 #include "frame_info.hpp"
+#include "pipeline.hpp"
 #include "vulkan/vulkan_core.h"
 namespace ve {
-  struct SimplePushConstantData {
-    unsigned int index;
-  };
 
   MenuSystem::MenuSystem(Device& device, VkRenderPass renderPass,
                          VkDescriptorSetLayout globalSetLayout, const MenuSystem::Builder& builder,
-                         id_t id)
-      : device_(device), id_(id) {
+                         int textureIndex)
+      : device_(device), textureIndex_(textureIndex) {
+    builder_ = builder;
     createPipelineLayout(globalSetLayout);
     createPipeline(renderPass);
     createVertexBuffer(builder.vertices);
@@ -52,6 +49,7 @@ namespace ve {
 
     PipelineConfigInfo pipelineConfig{};
     Pipeline::defaultPipelineConfigInfo(pipelineConfig);
+    Pipeline::enableAlphaBlending(pipelineConfig);
 
     pipelineConfig.attributeDescriptions = MenuSystem::Vertex::getAttributeDescriptions();
     pipelineConfig.bindingDescriptions = MenuSystem::Vertex::getBindingDescriptions();
@@ -165,7 +163,7 @@ namespace ve {
   void MenuSystem::render(FrameInfo& frameInfo) {
     pipeline_->bind(frameInfo.commandBuffer);
     SimplePushConstantData push{};
-    push.index = this->id_;
+    push.index = this->textureIndex_;
 
     vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout_,
                        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,

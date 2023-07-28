@@ -1,5 +1,7 @@
 #include "texture.hpp"
 
+#include "buffer.hpp"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 namespace ve {
@@ -56,6 +58,7 @@ namespace ve {
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageInfo.flags = 0;  // Optionnel
+
     device_.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage_,
                                 textureImageMemory_);
     device_.transitionImageLayout(textureImage_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,

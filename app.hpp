@@ -9,13 +9,16 @@
 
 #include "descriptors.hpp"
 #include "game_object.hpp"
+#include "menu.hpp"
 #include "model.hpp"
+#include "mouse_movement_controller.hpp"
 #include "renderer.hpp"
+#include "swap_chain.hpp"
 
 namespace ve {
-  // struct Point {
-  //   double x, y;
-  // };
+  struct GlobalUbo {
+    float deltaTime;
+  };
 
   class Application {
   public:
@@ -28,26 +31,28 @@ namespace ve {
     static constexpr int HEIGHT = 600;
     void mainLoop();
 
-    std::map<std::pair<int, int>, std::pair<int, std::vector<Model::Vertex>>> life_;
-    void setLife(glm::vec3 color, int x, int y, int value);
-
   private:
-    void loadGameObjects();
-    void gameLife();
-    void updateGame();
     VkImageView createImageView(VkImage image, VkFormat format);
+    void updateFPS(std::chrono::steady_clock::time_point newTime);
+    void createObject();
+    void initDescriptor();
 
     Window window_{WIDTH, HEIGHT, "GameEngine"};
     Device device_{window_};
     Renderer renderer_{window_, device_};
+    MouseMovementController mouse_{window_};
+
     std::vector<GameObject> gameObjects_;
     std::unique_ptr<DescriptorPool> globalPool_{};
-    std::unique_ptr<DescriptorPool> globalPool2_{};
     std::unique_ptr<DescriptorPool> computePool_{};
 
     unsigned int m_fpscount_;
-    glm::vec3 colorLive_ = {1, 1, 1};
-    glm::vec3 colorDead_ = {0.05, 0.05, 0.05};
-    std::vector<Model::Vertex> vertices_;
+    std::vector<std::unique_ptr<Buffer>> uboBuffers_;
+    std::unique_ptr<DescriptorSetLayout> descriptorSetLayout_;
+    std::vector<VkDescriptorSet> descriptorSets_;
+
+    std::chrono::steady_clock::time_point startFrameTime_;
+
+    std::vector<MenuSystem::Builder> builder_;
   };
 }  // namespace ve
