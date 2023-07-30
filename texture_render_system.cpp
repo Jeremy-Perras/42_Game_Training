@@ -1,4 +1,4 @@
-#include "menu.hpp"
+#include "texture_render_system.hpp"
 
 #include <_types/_uint32_t.h>
 #include <sys/_types/_id_t.h>
@@ -9,33 +9,32 @@
 #include "vulkan/vulkan_core.h"
 namespace ve {
 
-  MenuSystem::MenuSystem(Device& device, VkRenderPass renderPass,
-                         VkDescriptorSetLayout globalSetLayout, const MenuSystem::Builder& builder,
-                         int textureIndex)
+  TextureRenderSystem::TextureRenderSystem(Device& device, VkRenderPass renderPass,
+                                           VkDescriptorSetLayout globalSetLayout,
+                                           const TextureRenderSystem::Builder& builder,
+                                           int textureIndex)
       : device_(device), textureIndex_(textureIndex) {
     builder_ = builder;
-    createPipelineLayout(globalSetLayout);
+    createPipelineLayout(&globalSetLayout);
     createPipeline(renderPass);
     createVertexBuffer(builder.vertices);
     createIndexBuffers(builder.indices);
   }
 
-  MenuSystem::~MenuSystem() {
+  TextureRenderSystem::~TextureRenderSystem() {
     vkDestroyPipelineLayout(device_.getDevice(), pipelineLayout_, nullptr);
   }
 
-  void MenuSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout) {
+  void TextureRenderSystem::createPipelineLayout(VkDescriptorSetLayout* globalSetLayout) {
     VkPushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstantRange.offset = 0;
     pushConstantRange.size = sizeof(SimplePushConstantData);
 
-    std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
-
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+    pipelineLayoutInfo.setLayoutCount = 1;
+    pipelineLayoutInfo.pSetLayouts = globalSetLayout;
     pipelineLayoutInfo.pushConstantRangeCount = 1;
     pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
     if (vkCreatePipelineLayout(device_.getDevice(), &pipelineLayoutInfo, nullptr, &pipelineLayout_)
@@ -44,23 +43,24 @@ namespace ve {
     }
   }
 
-  void MenuSystem::createPipeline(VkRenderPass renderPass) {
+  void TextureRenderSystem::createPipeline(VkRenderPass renderPass) {
     assert(pipelineLayout_ != nullptr && "Cannot create pipeline before pipeline layout");
 
     PipelineConfigInfo pipelineConfig{};
     Pipeline::defaultPipelineConfigInfo(pipelineConfig);
     Pipeline::enableAlphaBlending(pipelineConfig);
 
-    pipelineConfig.attributeDescriptions = MenuSystem::Vertex::getAttributeDescriptions();
-    pipelineConfig.bindingDescriptions = MenuSystem::Vertex::getBindingDescriptions();
+    pipelineConfig.attributeDescriptions = TextureRenderSystem::Vertex::getAttributeDescriptions();
+    pipelineConfig.bindingDescriptions = TextureRenderSystem::Vertex::getBindingDescriptions();
 
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = pipelineLayout_;
-    pipeline_ = std::make_unique<Pipeline>(device_, "shaders/menu.vert.spv",
-                                           "shaders/menu.frag.spv", pipelineConfig);
+    pipeline_ = std::make_unique<Pipeline>(device_, "shaders/texture.vert.spv",
+                                           "shaders/texture.frag.spv", pipelineConfig);
   }
 
-  std::vector<VkVertexInputBindingDescription> MenuSystem::Vertex::getBindingDescriptions() {
+  std::vector<VkVertexInputBindingDescription>
+  TextureRenderSystem::Vertex::getBindingDescriptions() {
     std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
     bindingDescriptions[0].binding = 0;
     bindingDescriptions[0].stride = sizeof(Vertex);
@@ -68,8 +68,9 @@ namespace ve {
     return bindingDescriptions;
   }
 
-  std::vector<VkVertexInputAttributeDescription> MenuSystem::Vertex::getAttributeDescriptions() {
-    std::vector<VkVertexInputAttributeDescription> attributeDescriptions(3);
+  std::vector<VkVertexInputAttributeDescription>
+  TextureRenderSystem::Vertex::getAttributeDescriptions() {
+    std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
     attributeDescriptions[0].binding = 0;
     attributeDescriptions[0].location = 0;
     attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
@@ -77,18 +78,13 @@ namespace ve {
 
     attributeDescriptions[1].binding = 0;
     attributeDescriptions[1].location = 1;
-    attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-    attributeDescriptions[1].offset = offsetof(Vertex, color);
-
-    attributeDescriptions[2].binding = 0;
-    attributeDescriptions[2].location = 2;
-    attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-    attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
+    attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
+    attributeDescriptions[1].offset = offsetof(Vertex, texCoord);
 
     return attributeDescriptions;
   }
 
-  void MenuSystem::bind(VkCommandBuffer commandBuffer) {
+  void TextureRenderSystem::bind(VkCommandBuffer commandBuffer) {
     VkBuffer buffers[] = {vertexBuffer_->getBuffer()};
     VkDeviceSize offsets[] = {0};
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
@@ -97,7 +93,7 @@ namespace ve {
     }
   }
 
-  void MenuSystem::draw(VkCommandBuffer commandBuffer) const {
+  void TextureRenderSystem::draw(VkCommandBuffer commandBuffer) const {
     if (hasIndexBuffer_) {
       vkCmdDrawIndexed(commandBuffer, indexCount_, 1, 0, 0, 0);
     } else {
@@ -105,7 +101,7 @@ namespace ve {
     }
   }
 
-  void MenuSystem::createVertexBuffer(const std::vector<Vertex>& vertices) {
+  void TextureRenderSystem::createVertexBuffer(const std::vector<Vertex>& vertices) {
     vertexCount_ = static_cast<uint32_t>(vertices.size());
     assert(vertexCount_ >= 3 && "Vertex count must be at least 3");
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount_;
@@ -130,7 +126,7 @@ namespace ve {
     device_.copyBuffer(stagingBuffer.getBuffer(), vertexBuffer_->getBuffer(), bufferSize);
   }
 
-  void MenuSystem::createIndexBuffers(const std::vector<uint32_t>& indices) {
+  void TextureRenderSystem::createIndexBuffers(const std::vector<uint32_t>& indices) {
     indexCount_ = static_cast<uint32_t>(indices.size());
     hasIndexBuffer_ = indexCount_ > 0;
 
@@ -160,7 +156,7 @@ namespace ve {
     device_.copyBuffer(stagingBuffer.getBuffer(), indexBuffer_->getBuffer(), bufferSize);
   }
 
-  void MenuSystem::render(FrameInfo& frameInfo) {
+  void TextureRenderSystem::render(FrameInfo& frameInfo) {
     pipeline_->bind(frameInfo.commandBuffer);
     SimplePushConstantData push{};
     push.index = this->textureIndex_;
@@ -171,8 +167,8 @@ namespace ve {
     vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             pipelineLayout_, 0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
 
-    MenuSystem::bind(frameInfo.commandBuffer);
-    MenuSystem::draw(frameInfo.commandBuffer);
+    TextureRenderSystem::bind(frameInfo.commandBuffer);
+    TextureRenderSystem::draw(frameInfo.commandBuffer);
   }
 
 }  // namespace ve

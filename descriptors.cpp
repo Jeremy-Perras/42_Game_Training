@@ -1,5 +1,7 @@
 #include "descriptors.hpp"
 
+#include <_types/_uint32_t.h>
+
 // std
 #include <cassert>
 #include <stdexcept>
@@ -147,21 +149,18 @@ namespace ve {
     return *this;
   }
 
-  DescriptorWriter &DescriptorWriter::writeImage(uint32_t binding,
-                                                 VkDescriptorImageInfo *imageInfo) {
+  DescriptorWriter &DescriptorWriter::writeImage(uint32_t binding, VkDescriptorImageInfo *imageInfo,
+                                                 uint32_t count) {
     assert(setLayout_.bindings_.count(binding) == 1 && "Layout does not contain specified binding");
 
     auto &bindingDescription = setLayout_.bindings_[binding];
-
-    assert(bindingDescription.descriptorCount == 1
-           && "Binding single descriptor info, but binding expects multiple");
 
     VkWriteDescriptorSet write{};
     write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
     write.descriptorType = bindingDescription.descriptorType;
     write.dstBinding = binding;
     write.pImageInfo = imageInfo;
-    write.descriptorCount = 1;
+    write.descriptorCount = count;
 
     writes_.push_back(write);
     return *this;

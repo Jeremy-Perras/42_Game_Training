@@ -1,7 +1,7 @@
 #pragma once
 
-#include "menu.hpp"
-#include "model.hpp"
+#include "render_system.hpp"
+#include "texture_render_system.hpp"
 
 namespace ve {
   class GameObject {
@@ -19,8 +19,8 @@ namespace ve {
       return GameObject(currentId++);
     }
 
-    std::shared_ptr<MenuSystem> menu{};
-    std::shared_ptr<Model> model{};
+    std::shared_ptr<TextureRenderSystem> textureRenderSystem{};
+    std::shared_ptr<RenderSystem> renderSystem{};
     // Getter
     id_t getId() const { return id_; }
 

@@ -21,6 +21,13 @@ namespace ve {
           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
       };
     }
+    void getArrayImageInfo(int size, VkDescriptorImageInfo descriptorImageInfos[]) {
+      for (int i = 0; i < size; ++i) {
+        descriptorImageInfos[i].sampler = textureSampler_;
+        descriptorImageInfos[i].imageView = textureImageView_;
+        descriptorImageInfos[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+      }
+    }
 
   private:
     void createTextureImage(const std::string &textureFilepath);

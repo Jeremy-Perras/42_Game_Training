@@ -8,18 +8,19 @@ namespace ve {
   MouseMovementController::~MouseMovementController() {}
 
   void MouseMovementController::getCursorPos() {
-    GLFWwindow *window = window_.getWindow();
-    glfwGetCursorPos(window, &xpos_, &ypos_);
+    glfwGetCursorPos(window_.getGLFWwindow(), &xpos_, &ypos_);
   }
 
   void MouseMovementController::getInput(GameObject &gameObject) {
     if (glfwGetMouseButton(window_.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) != 0) {
-      getCursorPos();
+      // getCursorPos();
+      glfwGetCursorPos(window_.getGLFWwindow(), &xpos_, &ypos_);
 
-      if (gameObject.menu
-          && gameObject.menu->isInside(((xpos_ / window_.getExtent().width) - 0.5F) * 2,
-                                       ((ypos_ / window_.getExtent().height) - 0.5F) * 2)) {
-        gameObject.menu->setId(1);
+      if (gameObject.textureRenderSystem
+          && gameObject.textureRenderSystem->isInside(
+              ((xpos_ / window_.getExtent().width) - 0.5F) * 2,
+              ((ypos_ / window_.getExtent().height) - 0.5F) * 2)) {
+        gameObject.textureRenderSystem->setId(1);
       }
     }
   }

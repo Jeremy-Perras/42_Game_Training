@@ -19,7 +19,6 @@ namespace ve {
     bool shouldClose();
     void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);
 
-    GLFWwindow *getWindow() { return window_; }
     VkExtent2D getExtent() const {
       return {static_cast<uint32_t>(width_), static_cast<uint32_t>(height_)};
     }

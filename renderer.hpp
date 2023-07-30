@@ -21,7 +21,7 @@ namespace ve {
     void endFrame(bool compute);
     void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
     void endSwapChainRenderPass(VkCommandBuffer commandBuffer) const;
-
+    // size_t getComputeCurrentFrame() const { return swapChain_->getCurrentFrame(); }
     // compute
     void computeWait() { swapChain_->computeWait(); };
     void computeResetFences() { swapChain_->computeResetFences(); }

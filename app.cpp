@@ -4,6 +4,7 @@
 #include <glm/gtc/constants.hpp>
 #include <memory>
 #include <ostream>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -12,51 +13,47 @@
 #include "frame_info.hpp"
 #include "game_object.hpp"
 #include "keyboard_movement_controller.hpp"
-#include "menu.hpp"
 #include "model.hpp"
-#include "simple_render_system.hpp"
+#include "render_system.hpp"
 #include "swap_chain.hpp"
 #include "texture.hpp"
+
 namespace ve {
 
-  Application::Application() : m_fpscount_(0) {
-    initDescriptor();
-    createObject();
-  }
+  Application::Application() : m_fpscount_(0) { initDescriptor(); }
 
   Application::~Application() {}
 
   void Application::mainLoop() {
-    Texture texture(device_, "texture/test2.png");
-    Texture texture2(device_, "texture/texture.jpg");
-    auto test = std::make_unique<Texture>(device_, "texture/test2.png");
-    auto test2 = std::make_unique<Texture>(device_, "texture/test2.png");
-    std::vector<std::shared_ptr<Texture>> texture3;
-    texture3.push_back(std::move(test2));
-    texture3.push_back(std::move(test));
+    Model model{device_};
+    std::vector<std::shared_ptr<Texture>> texture;
+    model.loadTexture(&texture);
+    model.createMenu(&gameObjects_, renderer_.getSwapChainRenderPass(),
+                     descriptorSetLayout_->getDescriptorSetLayout());
+    std::vector<VkDescriptorImageInfo> textureDescriptors(textureSize);
+    for (int i = 0; i < textureSize; i++) {
+      textureDescriptors[i] = texture[i]->getImageInfo();
+    }
 
     for (int i = 0; i < static_cast<int>(descriptorSets_.size()); i++) {
       auto bufferInfo = uboBuffers_[i]->descriptorInfo();
-      auto textureInfo = texture3[0]->getImageInfo();
-      auto textureInfo2 = texture3[1]->getImageInfo();
       DescriptorWriter(*descriptorSetLayout_, *globalPool_)
           .writeBuffer(0, &bufferInfo)
-          .writeImage(1, &textureInfo)
-          .writeImage(2, &textureInfo2)
+          .writeImage(1, textureDescriptors.data(), textureSize)
           .build(descriptorSets_[i]);
     }
 
-    ComputeShader::Builder computeBuilder{};
-    ComputeShader computeShader{device_, renderer_.getSwapChainRenderPass(), renderer_,
-                                computeBuilder};
+    ComputeShader computeShader{device_, renderer_.getSwapChainRenderPass(), renderer_};
 
     auto startTime_ = std::chrono::high_resolution_clock::now();
     startFrameTime_ = std::chrono::high_resolution_clock::now();
+    double newTimeCompute;
+
     while (static_cast<int>(window_.shouldClose()) == 0
-           && static_cast<int>(glfwGetKey(window_.getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
+           && static_cast<int>(glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
                   == 0) {
       glfwPollEvents();
-      for (int i = 0; i < static_cast<int>(gameObjects_.size()); i++) {
+      for (int i = 0; i < static_cast<int>(gameObjects_.size() - 1); i++) {
         mouse_.getInput(gameObjects_[i]);
       }
       GlobalUbo ubo{};
@@ -65,10 +62,40 @@ namespace ve {
           = std::chrono::duration<float, std::chrono::seconds::period>(newTime - startTime_)
                 .count();
       size_t currentFrame = renderer_.getComputeCurrentFrame();
+
       m_fpscount_++;
 
-      FrameInfo frameInfo = {static_cast<int>(currentFrame), 0, descriptorSets_[currentFrame]};
-      computeShader.render(frameInfo, gameObjects_);
+      switch (gameState_) {
+        case GameState::START:
+
+          if (auto *commandBuffer = renderer_.beginFrame(false)) {
+            FrameInfo frameInfo
+                = {static_cast<int>(currentFrame), 0, descriptorSets_[currentFrame], 0.0};
+
+            renderer_.beginSwapChainRenderPass(commandBuffer);
+            frameInfo.commandBuffer = commandBuffer;
+            gameObjects_[gameObjects_.size() - 2].renderSystem->renderGameObjects(frameInfo);
+            renderer_.endSwapChainRenderPass(commandBuffer);
+            renderer_.endFrame(false);
+          }
+
+          if ((std::chrono::duration<float, std::chrono::seconds::period>(newTime - startTime_)
+                   .count())
+              >= 5) {
+            newTimeCompute = glfwGetTime();
+            gameState_ = GameState::PLAYING;
+          }
+          break;
+        case GameState::MENU:
+          break;
+        case GameState::PLAYING:
+
+          FrameInfo frameInfo
+              = {static_cast<int>(currentFrame), 0, descriptorSets_[currentFrame], newTimeCompute};
+          computeShader.render(frameInfo, gameObjects_);
+          break;
+      }
+
       updateFPS(newTime);
     }
 
@@ -91,9 +118,8 @@ namespace ve {
               .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
               .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
               .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                           SwapChain::MAX_FRAMES_IN_FLIGHT)
-              .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                           SwapChain::MAX_FRAMES_IN_FLIGHT)
+                           textureSize * SwapChain::MAX_FRAMES_IN_FLIGHT)
+
               .build();
     uboBuffers_.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
 
@@ -108,119 +134,10 @@ namespace ve {
         = DescriptorSetLayout::Builder(device_)
               .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
               .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                          VK_SHADER_STAGE_FRAGMENT_BIT)
-              .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                          VK_SHADER_STAGE_FRAGMENT_BIT)
+                          VK_SHADER_STAGE_FRAGMENT_BIT, textureSize)
               .build();
 
     descriptorSets_.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
-  }
-
-  void Application::createObject() {
-    float xStart = -0.95;
-    float yStart = 0.80F;
-    for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 3; j++) {
-        builder_.push_back(
-            {{{{xStart + static_cast<float>(i) * 0.05F, yStart + static_cast<float>(j) * 0.05},
-               {1.0F, 0.0F, 0.0F},
-               {1.0F, 0.0F}},
-              {{xStart + 0.05F + static_cast<float>(i) * 0.05F,
-                yStart + static_cast<float>(j) * 0.05},
-               {1.0F, 0.0F, 0.0F},
-               {0.0F, 0.0F}},
-              {{xStart + 0.05F + static_cast<float>(i) * 0.05F,
-                yStart + 0.05F + static_cast<float>(j) * 0.05},
-               {1.0F, 0.0F, 0.0F},
-               {0.0F, 1.0F}},
-              {{xStart + static_cast<float>(i) * 0.05F,
-                yStart + 0.05F + static_cast<float>(j) * 0.05},
-               {1.0F, 0.0F, 0.0F},
-               {1.0F, 1.0F}}},
-             {0, 1, 2, 2, 3, 0}});
-      }
-    }
-    for (int j = 0; j < 3; j++) {
-      builder_.push_back(
-          {{{{xStart + 0.01F + 3 * 0.05F, yStart + static_cast<float>(j) * 0.05},
-             {1.0F, 0.0F, 0.0F},
-             {1.0F, 0.0F}},
-            {{xStart + 0.05F + 0.01F + 3 * 0.05F, yStart + static_cast<float>(j) * 0.05},
-             {1.0F, 0.0F, 0.0F},
-             {0.0F, 0.0F}},
-            {{xStart + 0.05F + 0.01F + 3 * 0.05F, yStart + 0.05F + static_cast<float>(j) * 0.05},
-             {1.0F, 0.0F, 0.0F},
-             {0.0F, 1.0F}},
-            {{xStart + 0.01F + 3 * 0.05F, yStart + 0.05F + static_cast<float>(j) * 0.05},
-             {1.0F, 0.0F, 0.0F},
-             {1.0F, 1.0F}}},
-           {0, 1, 2, 2, 3, 0}});
-    }
-    auto squareMenuTop = GameObject::createGameObject();
-    auto squareMenuTop2 = GameObject::createGameObject();
-    auto squareMenuTop3 = GameObject::createGameObject();
-    auto squareMenuTop4 = GameObject::createGameObject();
-    squareMenuTop.menu = std::make_unique<MenuSystem>(
-        device_, renderer_.getSwapChainRenderPass(), descriptorSetLayout_->getDescriptorSetLayout(),
-        builder_[0], 0);
-    squareMenuTop2.menu = std::make_unique<MenuSystem>(
-        device_, renderer_.getSwapChainRenderPass(), descriptorSetLayout_->getDescriptorSetLayout(),
-        builder_[1], 0);
-    squareMenuTop3.menu = std::make_unique<MenuSystem>(
-        device_, renderer_.getSwapChainRenderPass(), descriptorSetLayout_->getDescriptorSetLayout(),
-        builder_[2], 0);
-    squareMenuTop4.menu = std::make_unique<MenuSystem>(
-        device_, renderer_.getSwapChainRenderPass(), descriptorSetLayout_->getDescriptorSetLayout(),
-        builder_[9], 0);
-    gameObjects_.push_back(std::move(squareMenuTop));
-    gameObjects_.push_back(std::move(squareMenuTop2));
-    gameObjects_.push_back(std::move(squareMenuTop3));
-    gameObjects_.push_back(std::move(squareMenuTop4));
-
-    auto squareMenuMiddle = GameObject::createGameObject();
-    auto squareMenuMiddle2 = GameObject::createGameObject();
-    auto squareMenuMiddle3 = GameObject::createGameObject();
-    auto squareMenuMiddle4 = GameObject::createGameObject();
-    squareMenuMiddle.menu = std::make_unique<MenuSystem>(
-        device_, renderer_.getSwapChainRenderPass(), descriptorSetLayout_->getDescriptorSetLayout(),
-        builder_[3], 0);
-    squareMenuMiddle2.menu = std::make_unique<MenuSystem>(
-        device_, renderer_.getSwapChainRenderPass(), descriptorSetLayout_->getDescriptorSetLayout(),
-        builder_[4], 0);
-    squareMenuMiddle3.menu = std::make_unique<MenuSystem>(
-        device_, renderer_.getSwapChainRenderPass(), descriptorSetLayout_->getDescriptorSetLayout(),
-        builder_[5], 0);
-    squareMenuMiddle4.menu = std::make_unique<MenuSystem>(
-        device_, renderer_.getSwapChainRenderPass(), descriptorSetLayout_->getDescriptorSetLayout(),
-        builder_[10], 0);
-    gameObjects_.push_back(std::move(squareMenuMiddle));
-    gameObjects_.push_back(std::move(squareMenuMiddle2));
-    gameObjects_.push_back(std::move(squareMenuMiddle3));
-    gameObjects_.push_back(std::move(squareMenuMiddle4));
-
-    auto squareMenuBack = GameObject::createGameObject();
-    auto squareMenuBack2 = GameObject::createGameObject();
-    auto squareMenuBack3 = GameObject::createGameObject();
-    auto squareMenuBack4 = GameObject::createGameObject();
-    squareMenuBack.menu = std::make_unique<MenuSystem>(
-        device_, renderer_.getSwapChainRenderPass(), descriptorSetLayout_->getDescriptorSetLayout(),
-        builder_[6], 0);
-    squareMenuBack2.menu = std::make_unique<MenuSystem>(
-        device_, renderer_.getSwapChainRenderPass(), descriptorSetLayout_->getDescriptorSetLayout(),
-        builder_[7], 1);
-    squareMenuBack3.menu = std::make_unique<MenuSystem>(
-        device_, renderer_.getSwapChainRenderPass(), descriptorSetLayout_->getDescriptorSetLayout(),
-        builder_[8], 1);
-    squareMenuBack4.menu = std::make_unique<MenuSystem>(
-        device_, renderer_.getSwapChainRenderPass(), descriptorSetLayout_->getDescriptorSetLayout(),
-        builder_[11], 1);
-    gameObjects_.push_back(std::move(squareMenuBack));
-    gameObjects_.push_back(std::move(squareMenuBack2));
-    gameObjects_.push_back(std::move(squareMenuBack3));
-    gameObjects_.push_back(std::move(squareMenuBack4));
-    auto whiteSquare = GameObject::createGameObject();
-    whiteSquare.model = Model::createSquareModel(device_);
-    gameObjects_.push_back(std::move(whiteSquare));
   }
 
 }  // namespace ve

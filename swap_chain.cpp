@@ -68,11 +68,11 @@ namespace ve {
   VkResult SwapChain::acquireNextImage(uint32_t *imageIndex, bool compute) {
     VkResult result;
     if (!compute) {
-      vkWaitForFences(device_.getDevice(), 1, &inFlightFences_[currentFrame_], VK_TRUE,
+      vkWaitForFences(device_.getDevice(), 1, &inFlightFences_[currentComputeFrame_], VK_TRUE,
                       std::numeric_limits<uint64_t>::max());
       result = vkAcquireNextImageKHR(
           device_.getDevice(), swapChain_, std::numeric_limits<uint64_t>::max(),
-          imageAvailableSemaphores_[currentFrame_],  // must be a not signaled semaphore
+          imageAvailableSemaphores_[currentComputeFrame_],  // must be a not signaled semaphore
           VK_NULL_HANDLE, imageIndex);
     } else {
       vkWaitForFences(device_.getDevice(), 1, &inFlightFences_[currentComputeFrame_], VK_TRUE,
@@ -91,12 +91,12 @@ namespace ve {
     if (imagesInFlight_[*imageIndex] != VK_NULL_HANDLE) {
       vkWaitForFences(device_.getDevice(), 1, &imagesInFlight_[*imageIndex], VK_TRUE, UINT64_MAX);
     }
-    imagesInFlight_[*imageIndex] = inFlightFences_[currentFrame_];
+    imagesInFlight_[*imageIndex] = inFlightFences_[currentComputeFrame_];
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore waitSemaphores[] = {imageAvailableSemaphores_[currentFrame_]};
+    VkSemaphore waitSemaphores[] = {imageAvailableSemaphores_[currentComputeFrame_]};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
@@ -105,12 +105,13 @@ namespace ve {
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = buffers;
 
-    VkSemaphore signalSemaphores[] = {renderFinishedSemaphores_[currentFrame_]};
+    VkSemaphore signalSemaphores[] = {renderFinishedSemaphores_[currentComputeFrame_]};
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    vkResetFences(device_.getDevice(), 1, &inFlightFences_[currentFrame_]);
-    if (vkQueueSubmit(device_.getGraphicsQueue(), 1, &submitInfo, inFlightFences_[currentFrame_])
+    vkResetFences(device_.getDevice(), 1, &inFlightFences_[currentComputeFrame_]);
+    if (vkQueueSubmit(device_.getGraphicsQueue(), 1, &submitInfo,
+                      inFlightFences_[currentComputeFrame_])
         != VK_SUCCESS) {
       throw std::runtime_error("failed to submit draw command buffer!");
     }
@@ -129,7 +130,7 @@ namespace ve {
 
     auto result = vkQueuePresentKHR(device_.getPresentQueue(), &presentInfo);
 
-    currentFrame_ = (currentFrame_ + 1) % MAX_FRAMES_IN_FLIGHT;
+    currentComputeFrame_ = (currentComputeFrame_ + 1) % MAX_FRAMES_IN_FLIGHT;
 
     return result;
   }

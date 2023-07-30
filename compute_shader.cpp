@@ -12,7 +12,7 @@
 #include "device.hpp"
 #include "frame_info.hpp"
 #include "pipeline.hpp"
-#include "simple_render_system.hpp"
+#include "texture_render_system.hpp"
 #include "vulkan/vulkan_core.h"
 
 namespace ve {
@@ -21,20 +21,16 @@ namespace ve {
     unsigned int index;
   };
 
-  ComputeShader::ComputeShader(Device& device, VkRenderPass renderPass, Renderer& renderer,
-                               Builder& builder)
+  ComputeShader::ComputeShader(Device& device, VkRenderPass renderPass, Renderer& renderer)
       : device_(device), renderer_(renderer) {
-    (void)builder;
     createComputeDescriptorSetLayout();
     createPipelineLayout();
     createPipeline(renderPass);
     createComputePipeline();
-
     createShaderStorageBuffers();
     createUniformBuffers();
     createDescriptorPool();
     createComputeDescriptorSets();
-
     createComputeCommandBuffers();
   }
 
@@ -218,11 +214,10 @@ namespace ve {
   }
 
   void ComputeShader::render(FrameInfo& frameInfo, std::vector<GameObject>& gameObject) {
-    size_t currentFrame = renderer_.getComputeCurrentFrame();
+    size_t currentFrame = frameInfo.frameIndex;
     renderer_.computeWait();
     updateUniformBuffer(currentFrame);
     renderer_.computeResetFences();
-
     recordComputeCommandBuffer(computeCommandBuffers_[currentFrame], currentFrame);
     renderer_.computeQueueSubmit(&(computeCommandBuffers_[currentFrame]));
 
@@ -230,10 +225,10 @@ namespace ve {
     frameInfo.commandBuffer = commandBuffer;
     renderer_.beginSwapChainRenderPass(commandBuffer);
     for (auto& obj : gameObject) {
-      if (obj.menu) {
-        obj.menu->render(frameInfo);
+      if (obj.textureRenderSystem) {
+        obj.textureRenderSystem->render(frameInfo);
       } else {
-        simpleRenderSystem.renderGameObjects(frameInfo, obj);
+        obj.renderSystem->renderGameObjects(frameInfo);
       }
     }
     pipeline_->bind(commandBuffer);
@@ -244,7 +239,7 @@ namespace ve {
     renderer_.endSwapChainRenderPass(commandBuffer);
     renderer_.endFrame(true);
 
-    double currentTime = glfwGetTime();
+    double currentTime = glfwGetTime() - frameInfo.Time;
     lastFrameTime = (currentTime - lastTime) * 1000.0;
     lastTime = currentTime;
   }

@@ -32,7 +32,6 @@ namespace ve {
       if (!oldSwapChain->compareSwapFormat(*swapChain_)) {
         throw std::runtime_error("Swap chain or depth format has changed");
       }
-      // swapChain_->createImageViews();  // texture
     }
   }
 

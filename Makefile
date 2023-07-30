@@ -1,7 +1,7 @@
 NAME = library
 
-SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp model.cpp renderer.cpp simple_render_system.cpp\
-keyboard_movement_controller.cpp buffer.cpp descriptors.cpp menu.cpp texture.cpp \
+SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp model.cpp renderer.cpp render_system.cpp\
+keyboard_movement_controller.cpp buffer.cpp descriptors.cpp texture_render_system.cpp texture.cpp \
 compute_shader.cpp mouse_movement_controller.cpp
 
 INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
@@ -31,8 +31,8 @@ $(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(FLAGS) $(OBJS) $(INCLUDES) -o $(NAME)
 
 all : $(NAME) gl
-
-debug: CXXFLAGS = -gdwarf-4 -fsanitize=address -std=c++17 
+# -fsanitize=address
+debug: CXXFLAGS = -gdwarf-4  -std=c++17 
 
 debug: $(OBJS_DEBUG)
 	$(CC) $(CXXFLAGS) $(OBJS_DEBUG) $(LDFLAGS) $(INCLUDES) -o $(NAME)_debug
@@ -54,13 +54,12 @@ gl:
 	glslc shaders/compute_shader.frag -o shaders/compute_shader.frag.spv
 	glslc shaders/shader.frag -o shaders/shader.frag.spv
 	glslc shaders/shader.vert -o shaders/shader.vert.spv
-	glslc shaders/menu.frag -o shaders/menu.frag.spv
-	glslc shaders/menu.vert -o shaders/menu.vert.spv
+	glslc shaders/texture.frag -o shaders/texture.frag.spv
+	glslc shaders/texture.vert -o shaders/texture.vert.spv
 clean :
 	rm -rf $(OBJS)
-	rm -rf shaders/shader.frag.spv
-	rm -rf shaders/shader.vert.spv
-
+	rm -rf shaders/*.spv
+	
 fclean : clean
 	rm -rf $(NAME)
 

@@ -15,7 +15,7 @@
 
 namespace ve {
 
-  class MenuSystem {
+  class TextureRenderSystem {
     struct SimplePushConstantData {
       unsigned int index;
     };
@@ -23,7 +23,6 @@ namespace ve {
   public:
     struct Vertex {
       glm::vec2 pos;
-      glm::vec3 color;
       glm::vec2 texCoord;
 
       // getters
@@ -40,11 +39,12 @@ namespace ve {
     void draw(VkCommandBuffer commandBuffer) const;
     void createVertexBuffer(const std::vector<Vertex> &vertices);
     void createIndexBuffers(const std::vector<uint32_t> &indices);
-    MenuSystem(Device &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout,
-               const MenuSystem::Builder &builder, int textureIndex);
-    MenuSystem(const MenuSystem &src) = delete;
-    MenuSystem &operator=(const MenuSystem &rhs) = delete;
-    ~MenuSystem();
+    TextureRenderSystem(Device &device, VkRenderPass renderPass,
+                        VkDescriptorSetLayout globalSetLayout,
+                        const TextureRenderSystem::Builder &builder, int textureIndex);
+    TextureRenderSystem(const TextureRenderSystem &src) = delete;
+    TextureRenderSystem &operator=(const TextureRenderSystem &rhs) = delete;
+    ~TextureRenderSystem();
 
     void render(FrameInfo &info);
     void setId(int id) { textureIndex_ = id; }
@@ -55,7 +55,7 @@ namespace ve {
     }
 
   private:
-    void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
+    void createPipelineLayout(VkDescriptorSetLayout *globalSetLayout);
     void createPipeline(VkRenderPass renderPass);
 
     std::unique_ptr<Buffer> vertexBuffer_;

@@ -50,6 +50,7 @@ namespace ve {
     void computeWait();
     void computeResetFences();
     size_t getComputeCurrentFrame() const { return currentComputeFrame_; }
+    // size_t getCurrentFrame() const { return currentFrame_; }
     void computeQueueSubmit(const VkCommandBuffer *buffers);
 
     // Getter
@@ -107,7 +108,7 @@ namespace ve {
     std::vector<VkFence> computeInFlightFences;
     std::vector<VkSemaphore> computeFinishedSemaphores;
 
-    size_t currentFrame_ = 0;
+    // size_t currentFrame_ = 0;
     size_t currentComputeFrame_ = 0;
   };
 

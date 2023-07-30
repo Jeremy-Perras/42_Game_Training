@@ -1,5 +1,6 @@
 #include "window.hpp"
 
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
@@ -25,6 +26,7 @@ namespace ve {
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     window_ = glfwCreateWindow(width_, height_, name_.c_str(), nullptr, nullptr);
     glfwSetWindowUserPointer(window_, this);
+
     glfwSetFramebufferSizeCallback(window_, framebufferResizeCallback);
   }
 
@@ -45,10 +47,14 @@ namespace ve {
   }
 
   void Window::framebufferResizeCallback(GLFWwindow *window, int width, int height) {
+    GLFWmonitor *primary = glfwGetPrimaryMonitor();
+    float xscale;
+    float yscale;
+    glfwGetMonitorContentScale(primary, &xscale, &yscale);
     auto *newWindow = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
     newWindow->frameBufferResized_ = true;
-    newWindow->width_ = width;
-    newWindow->height_ = height;
+    newWindow->width_ = static_cast<int>(static_cast<float>(width) / xscale);
+    newWindow->height_ = static_cast<int>(static_cast<float>(height) / yscale);
   }
 
 }  // namespace ve

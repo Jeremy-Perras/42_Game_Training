@@ -4,9 +4,11 @@
 #include <stdexcept>
 
 #include "app.hpp"
+#include "model.hpp"
 
 int main() {
   ve::Application app;
+  // ve::Application app;
   try {
     app.mainLoop();
   } catch (const std::exception& e) {

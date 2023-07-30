@@ -7,11 +7,11 @@
 #include "device.hpp"
 #include "frame_info.hpp"
 #include "game_object.hpp"
-#include "menu.hpp"
 #include "pipeline.hpp"
+#include "render_system.hpp"
 #include "renderer.hpp"
-#include "simple_render_system.hpp"
 #include "swap_chain.hpp"
+#include "texture_render_system.hpp"
 namespace ve {
 
   struct UniformBufferObject {
@@ -32,14 +32,9 @@ namespace ve {
       static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
     };
 
-    struct Builder {
-      std::vector<Particle> vertices{};
-      std::vector<uint32_t> indices{};
-    };
-
     const uint32_t PARTICLE_COUNT = 8192;
     void createComputePipeline();
-    ComputeShader(Device &device, VkRenderPass renderPass, Renderer &renderer, Builder &builder);
+    ComputeShader(Device &device, VkRenderPass renderPass, Renderer &renderer);
     ComputeShader(const ComputeShader &src) = delete;
     ComputeShader &operator=(const ComputeShader &rhs) = delete;
     ~ComputeShader();
@@ -118,6 +113,5 @@ namespace ve {
     std::vector<VkCommandBuffer> computeCommandBuffers_;
     VkDescriptorPool descriptorPool_;
     std::vector<VkDescriptorSet> computeDescriptorSets_;
-    SimpleRenderSystem simpleRenderSystem{device_, renderer_.getSwapChainRenderPass()};
   };
 }  // namespace ve
