@@ -11,10 +11,20 @@ namespace ve {
 
   TextureRenderSystem::TextureRenderSystem(Device& device, VkRenderPass renderPass,
                                            VkDescriptorSetLayout globalSetLayout,
-                                           const TextureRenderSystem::Builder& builder,
-                                           int textureIndex)
-      : device_(device), textureIndex_(textureIndex) {
-    builder_ = builder;
+                                           TextureRenderSystem::Builder& builder,
+                                           TextureIndex textureIndex)
+      : device_(device), builder_(builder), textureIndex_(textureIndex) {
+    if (textureIndex_ == TextureIndex::RED) {
+      color_ = glm::vec4(1.0, 0.0, 0.0, 1.0);
+    } else if (textureIndex_ == TextureIndex::GREEN) {
+      color_ = glm::vec4(0.0, 1.0, 0.0, 1.0);
+    } else if (textureIndex_ == TextureIndex::BLUE) {
+      color_ = glm::vec4(0.0, 0.0, 1.0, 1.0);
+    } else if (textureIndex_ == TextureIndex::WHITE) {
+      color_ = glm::vec4(1.0, 1.0, 1.0, 1.0);
+    } else {
+      color_ = builder.vertices[0].color;
+    }
     createPipelineLayout(&globalSetLayout);
     createPipeline(renderPass);
     createVertexBuffer(builder.vertices);
@@ -29,7 +39,7 @@ namespace ve {
     VkPushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(SimplePushConstantData);
+    pushConstantRange.size = sizeof(TexturePushConstantData);
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -70,7 +80,7 @@ namespace ve {
 
   std::vector<VkVertexInputAttributeDescription>
   TextureRenderSystem::Vertex::getAttributeDescriptions() {
-    std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
+    std::vector<VkVertexInputAttributeDescription> attributeDescriptions(3);
     attributeDescriptions[0].binding = 0;
     attributeDescriptions[0].location = 0;
     attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
@@ -80,6 +90,11 @@ namespace ve {
     attributeDescriptions[1].location = 1;
     attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
     attributeDescriptions[1].offset = offsetof(Vertex, texCoord);
+
+    attributeDescriptions[2].binding = 0;
+    attributeDescriptions[2].location = 2;
+    attributeDescriptions[2].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+    attributeDescriptions[2].offset = offsetof(Vertex, color);
 
     return attributeDescriptions;
   }
@@ -158,12 +173,12 @@ namespace ve {
 
   void TextureRenderSystem::render(FrameInfo& frameInfo) {
     pipeline_->bind(frameInfo.commandBuffer);
-    SimplePushConstantData push{};
+    TexturePushConstantData push{};
     push.index = this->textureIndex_;
-
+    push.color = this->color_;
     vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout_,
                        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
-                       sizeof(SimplePushConstantData), &push);
+                       sizeof(TexturePushConstantData), &push);
     vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             pipelineLayout_, 0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
 

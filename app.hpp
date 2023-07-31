@@ -10,15 +10,17 @@
 #include "descriptors.hpp"
 #include "game_object.hpp"
 #include "mouse_movement_controller.hpp"
+#include "parsing.hpp"
 #include "renderer.hpp"
 #include "swap_chain.hpp"
 #include "texture_render_system.hpp"
 
 namespace ve {
+
   struct GlobalUbo {
     float deltaTime;
   };
-  enum class GameState { START, PLAYING, MENU };
+  enum GameState { START, PLAYING, MENU };
 
   class Application {
   public:
@@ -50,6 +52,9 @@ namespace ve {
 
     std::chrono::steady_clock::time_point startFrameTime_;
     std::vector<GameObject> gameObjects_;
+    std::vector<std::vector<GameObject>> playerInterface_;
+    std::vector<GameObject> gameInterface_;
+
     std::unique_ptr<DescriptorSetLayout> descriptorSetLayout_;
     std::vector<TextureRenderSystem::Builder> builder_;
     GameState gameState_ = {GameState::PLAYING};

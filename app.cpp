@@ -14,6 +14,7 @@
 #include "game_object.hpp"
 #include "keyboard_movement_controller.hpp"
 #include "model.hpp"
+#include "parsing.hpp"
 #include "render_system.hpp"
 #include "swap_chain.hpp"
 #include "texture.hpp"
@@ -25,14 +26,23 @@ namespace ve {
   Application::~Application() {}
 
   void Application::mainLoop() {
-    Model model{device_};
+    Model model{device_, renderer_.getSwapChainRenderPass(),
+                descriptorSetLayout_->getDescriptorSetLayout()};
+    Parsing pars("lvl/lvl1.ber", device_, renderer_.getSwapChainRenderPass(),
+                 descriptorSetLayout_->getDescriptorSetLayout());
+    interfaceSize interfaceSize{3, 3, 4};
+
     std::vector<std::shared_ptr<Texture>> texture;
     model.loadTexture(&texture);
-    model.createMenu(&gameObjects_, renderer_.getSwapChainRenderPass(),
-                     descriptorSetLayout_->getDescriptorSetLayout());
+    model.menuInterface(&gameObjects_);
+    model.playerInterface(&playerInterface_, &gameObjects_, interfaceSize);
+    pars.createMap(&gameInterface_);
+
     std::vector<VkDescriptorImageInfo> textureDescriptors(textureSize);
     for (int i = 0; i < textureSize; i++) {
-      textureDescriptors[i] = texture[i]->getImageInfo();
+      if (texture[i]) {
+        textureDescriptors[i] = texture[i]->getImageInfo();
+      }
     }
 
     for (int i = 0; i < static_cast<int>(descriptorSets_.size()); i++) {
@@ -49,12 +59,35 @@ namespace ve {
     startFrameTime_ = std::chrono::high_resolution_clock::now();
     double newTimeCompute;
 
+    // std::vector<TextureRenderSystem::Builder> builder;
+    // builder.push_back({{{{-1, -1},
+
+    //                      {0.0F, 0.0F},
+    //                      {1.0, 1.0, 1.0, 1.0}},
+    //                     {{1, -1},
+
+    //                      {1.0F, 0.0F},
+    //                      {1.0, 1.0, 1.0, 1.0}},
+    //                     {{1, 1},
+
+    //                      {1.0F, 1.0F},
+    //                      {1.0, 1.0, 1.0, 1.0}},
+    //                     {{-1, 1},
+
+    //                      {0.0F, 1.0F},
+    //                      {1.0, 1.0, 1.0, 1.0}}},
+    //                    {0, 1, 2, 2, 3, 0}});
+    // auto start = GameObject::createGameObject();
+    // start.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+    //     device_, renderer_.getSwapChainRenderPass(),
+    //     descriptorSetLayout_->getDescriptorSetLayout(), builder[0], TextureIndex::BACKGROUND);
+
     while (static_cast<int>(window_.shouldClose()) == 0
            && static_cast<int>(glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
                   == 0) {
       glfwPollEvents();
       for (int i = 0; i < static_cast<int>(gameObjects_.size() - 1); i++) {
-        mouse_.getInput(gameObjects_[i]);
+        mouse_.getInput(gameObjects_[i], playerInterface_);
       }
       GlobalUbo ubo{};
       auto newTime = std::chrono::high_resolution_clock::now();
@@ -74,7 +107,7 @@ namespace ve {
 
             renderer_.beginSwapChainRenderPass(commandBuffer);
             frameInfo.commandBuffer = commandBuffer;
-            gameObjects_[gameObjects_.size() - 2].renderSystem->renderGameObjects(frameInfo);
+            // start.textureRenderSystem->render(frameInfo);
             renderer_.endSwapChainRenderPass(commandBuffer);
             renderer_.endFrame(false);
           }
@@ -92,7 +125,7 @@ namespace ve {
 
           FrameInfo frameInfo
               = {static_cast<int>(currentFrame), 0, descriptorSets_[currentFrame], newTimeCompute};
-          computeShader.render(frameInfo, gameObjects_);
+          computeShader.render(frameInfo, gameObjects_, playerInterface_, gameInterface_);
           break;
       }
 
@@ -119,7 +152,6 @@ namespace ve {
               .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
               .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                            textureSize * SwapChain::MAX_FRAMES_IN_FLIGHT)
-
               .build();
     uboBuffers_.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
 

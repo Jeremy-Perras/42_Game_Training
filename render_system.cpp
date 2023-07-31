@@ -9,6 +9,7 @@ namespace ve {
 
   struct SimplePushConstantData {
     int index;
+    glm::vec4 color;
   };
 
   RenderSystem::RenderSystem(Device &device, VkRenderPass renderPass,

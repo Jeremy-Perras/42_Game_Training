@@ -1,5 +1,6 @@
 #version 450
 
+
 struct Particle {
 	vec2 position;
 	vec2 velocity;

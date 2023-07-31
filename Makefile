@@ -2,7 +2,7 @@ NAME = library
 
 SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp model.cpp renderer.cpp render_system.cpp\
 keyboard_movement_controller.cpp buffer.cpp descriptors.cpp texture_render_system.cpp texture.cpp \
-compute_shader.cpp mouse_movement_controller.cpp
+compute_shader.cpp mouse_movement_controller.cpp parsing.cpp
 
 INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 
@@ -31,8 +31,8 @@ $(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(FLAGS) $(OBJS) $(INCLUDES) -o $(NAME)
 
 all : $(NAME) gl
-# -fsanitize=address
-debug: CXXFLAGS = -gdwarf-4  -std=c++17 
+
+debug: CXXFLAGS = -gdwarf-4 -fsanitize=address -std=c++17 
 
 debug: $(OBJS_DEBUG)
 	$(CC) $(CXXFLAGS) $(OBJS_DEBUG) $(LDFLAGS) $(INCLUDES) -o $(NAME)_debug

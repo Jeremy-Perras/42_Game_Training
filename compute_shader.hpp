@@ -17,6 +17,9 @@ namespace ve {
   struct UniformBufferObject {
     float deltaTime = 1.0F;
   };
+  struct SimplePushConstantData {
+    unsigned int index;
+  };
 
   class ComputeShader {
   public:
@@ -24,9 +27,6 @@ namespace ve {
       glm::vec2 position;
       glm::vec2 velocity;
       glm::vec4 color;
-
-      // glm::vec2 position;
-      // glm::vec3 color;
       // getters
       static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
       static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
@@ -45,7 +45,9 @@ namespace ve {
     void createIndexBuffers(const std::vector<uint32_t> &indices);
     void createComputeShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule);
     void createShaderStorageBuffers();
-    void render(FrameInfo &frameInfo, std::vector<GameObject> &gameObject);
+    void render(FrameInfo &frameInfo, std::vector<GameObject> &gameObject,
+                std::vector<std::vector<GameObject>> &playerInterface,
+                std::vector<GameObject> &gameInterface);
     void createDescriptorPool();
     void draw(uint32_t currentFrame);
     void recordComputeCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame);

@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <fstream>
+#include <glm/gtc/constants.hpp>
 #include <iostream>
 #include <random>
 #include <string>
@@ -14,12 +15,7 @@
 #include "pipeline.hpp"
 #include "texture_render_system.hpp"
 #include "vulkan/vulkan_core.h"
-
 namespace ve {
-
-  struct SimplePushConstantData {
-    unsigned int index;
-  };
 
   ComputeShader::ComputeShader(Device& device, VkRenderPass renderPass, Renderer& renderer)
       : device_(device), renderer_(renderer) {
@@ -102,7 +98,7 @@ namespace ve {
 
     attributeDescriptions[1].binding = 0;
     attributeDescriptions[1].location = 1;
-    attributeDescriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+    attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
     attributeDescriptions[1].offset = offsetof(Particle, color);
 
     return attributeDescriptions;
@@ -160,18 +156,19 @@ namespace ve {
       particle.color = glm::vec4(rndDist(rndEngine), rndDist(rndEngine), rndDist(rndEngine), 1.0F);
     }
     // float numSides = 64;
-    // std::vector<Particle> uniqueVertices{};
+    // std::vector<Particle> particles(PARTICLE_COUNT);
     // for (int i = 0; i < static_cast<int>(numSides); i++) {
     //   float angle = static_cast<float>(i) * glm::two_pi<float>() / numSides;
-    //   uniqueVertices.push_back({{glm::cos(angle), glm::sin(angle)}, {}});
+    //   particles.push_back({{glm::cos(angle), glm::sin(angle)}, {1.0, 1.0, 1.0}});
     // }
-    // uniqueVertices.push_back({});
+    // particles.push_back({});
     // std::vector<Particle> vertices{};
     // for (int i = 0; i < static_cast<int>(numSides); i++) {
-    //   vertices.push_back(uniqueVertices[i]);
-    //   vertices.push_back(uniqueVertices[(i + 1) % static_cast<int>(numSides)]);
-    //   vertices.push_back(uniqueVertices[static_cast<int>(numSides)]);
+    //   vertices.push_back(particles[i]);
+    //   vertices.push_back(particles[(i + 1) % static_cast<int>(numSides)]);
+    //   vertices.push_back(particles[static_cast<int>(numSides)]);
     // }
+
     VkDeviceSize bufferSize = sizeof(Particle) * particles.size();
 
     // Create a staging buffer used to upload data to the gpu
@@ -213,7 +210,9 @@ namespace ve {
     vkCmdDraw(commandBuffer, PARTICLE_COUNT, 1, 0, 0);
   }
 
-  void ComputeShader::render(FrameInfo& frameInfo, std::vector<GameObject>& gameObject) {
+  void ComputeShader::render(FrameInfo& frameInfo, std::vector<GameObject>& gameObject,
+                             std::vector<std::vector<GameObject>>& playerInterface,
+                             std::vector<GameObject>& gameInterface) {
     size_t currentFrame = frameInfo.frameIndex;
     renderer_.computeWait();
     updateUniformBuffer(currentFrame);
@@ -224,6 +223,25 @@ namespace ve {
     auto* commandBuffer = renderer_.beginFrame(true);
     frameInfo.commandBuffer = commandBuffer;
     renderer_.beginSwapChainRenderPass(commandBuffer);
+
+    for (const auto& obj : gameInterface) {
+      if (obj.textureRenderSystem) {
+        obj.textureRenderSystem->render(frameInfo);
+      } else {
+        obj.renderSystem->renderGameObjects(frameInfo);
+      }
+    }
+
+    for (const auto& ob : playerInterface) {
+      for (const auto& obj : ob) {
+        if (obj.textureRenderSystem) {
+          obj.textureRenderSystem->render(frameInfo);
+        } else {
+          obj.renderSystem->renderGameObjects(frameInfo);
+        }
+      }
+    }
+
     for (auto& obj : gameObject) {
       if (obj.textureRenderSystem) {
         obj.textureRenderSystem->render(frameInfo);
@@ -231,6 +249,7 @@ namespace ve {
         obj.renderSystem->renderGameObjects(frameInfo);
       }
     }
+
     pipeline_->bind(commandBuffer);
 
     ComputeShader::bind(commandBuffer, static_cast<int>(currentFrame));
