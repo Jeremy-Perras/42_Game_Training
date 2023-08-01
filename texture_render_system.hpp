@@ -18,6 +18,7 @@ namespace ve {
   class TextureRenderSystem {
     struct TexturePushConstantData {
       glm::vec4 color{1.0, 1.0, 1.0, 1.0};
+      glm::vec2 offset{0.0, 0.0};
       unsigned int index;
     };
 
@@ -56,6 +57,25 @@ namespace ve {
       textureIndex_ = index;
     }
 
+    void setBuilderCoordinate(playerCoordinate *playerCoordinate) {
+      float x = glm::cos(glm::radians(playerCoordinate->Angle));
+      float y = glm::sin(glm::radians(playerCoordinate->Angle));
+
+      if (x == -1.0F) {
+        offset_.x = offset_.x - 0.05F;
+        playerCoordinate->x = playerCoordinate->x - 0.05F;
+      } else if (y == -1.0F) {
+        offset_.y = offset_.y + 0.05F;
+        playerCoordinate->y = playerCoordinate->y + 0.05F;
+      } else if (x == 1.0F) {
+        offset_.x = offset_.x + 0.05F;
+        playerCoordinate->x = playerCoordinate->x + 0.05F;
+      } else if (y == 1.0F) {
+        offset_.y = offset_.y - 0.05F;
+        playerCoordinate->y = playerCoordinate->y - 0.05F;
+      }
+    }
+
     void setColor(glm::vec4 color) { color_ = color; }
 
     TextureIndex getIndexTexture() const { return textureIndex_; }
@@ -75,6 +95,7 @@ namespace ve {
     Device &device_;
     Builder builder_;
     glm::vec4 color_{};
+    glm::vec2 offset_{};
 
     std::unique_ptr<Pipeline> pipeline_;
     VkPipelineLayout pipelineLayout_;

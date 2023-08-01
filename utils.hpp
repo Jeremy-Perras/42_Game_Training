@@ -1,4 +1,9 @@
 namespace ve {
+  struct playerCoordinate {
+    float x;
+    float y;
+    float Angle;
+  };
 
   enum TextureIndex {
     ARROWLEFT,
@@ -16,6 +21,9 @@ namespace ve {
     PLAYER,
     STAR,
     WHITE,
+    PLAY,
+    PAUSE,
+    STOP,
     BACKGROUND,
     TEXTURESIZE,
   };

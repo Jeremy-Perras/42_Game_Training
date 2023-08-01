@@ -106,11 +106,26 @@ namespace ve {
            {0, 1, 2, 2, 3, 0}});
     }
 
-    builder.push_back({{{{0.0, 0.0}, {1.0F, 0.0F}, {1.0, 1.0, 1.0, 1.0}},
-                        {{0.05, 0.0}, {0.0F, 0.0F}, {1.0, 1.0, 1.0, 1.0}},
-                        {{0.05, 0.05}, {0.0F, 1.0F}, {1.0, 1.0, 1.0, 1.0}},
-                        {{0.0, 0.05}, {1.0F, 1.0F}, {1.0, 1.0, 1.0, 1.0}}},
-                       {0, 1, 2, 2, 3, 0}});
+    for (int i = 0; i < 3; i++) {
+      builder.push_back({{{{xStart + i * 0.05, yStart - 0.06},
+
+                           {1.0F, 0.0F},
+                           {1.0, 1.0, 1.0, 1.0}},
+                          {{xStart + i * 0.05 + 0.05F, yStart - 0.06},
+
+                           {0.0F, 0.0F},
+                           {1.0, 1.0, 1.0, 1.0}},
+                          {{xStart + i * 0.05 + 0.05, yStart - 0.01},
+
+                           {0.0F, 1.0F},
+                           {1.0, 1.0, 1.0, 1.0}},
+                          {{xStart + i * 0.05, yStart - 0.01},
+
+                           {1.0F, 1.0F},
+                           {1.0, 1.0, 1.0, 1.0}}},
+                         {0, 1, 2, 2, 3, 0}});
+    }
+
     auto squareMenuTop = GameObject::createGameObject();
     auto squareMenuTop2 = GameObject::createGameObject();
     auto squareMenuTop3 = GameObject::createGameObject();
@@ -165,6 +180,19 @@ namespace ve {
     menuInterface->push_back(std::move(squareMenuBack2));
     menuInterface->push_back(std::move(squareMenuBack3));
     menuInterface->push_back(std::move(squareMenuBack4));
+
+    auto play = GameObject::createGameObject();
+    auto pause = GameObject::createGameObject();
+    auto stop = GameObject::createGameObject();
+    play.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+        device_, renderPass_, descriptorLayout_, builder[12], TextureIndex::PLAY);
+    pause.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+        device_, renderPass_, descriptorLayout_, builder[13], TextureIndex::PAUSE);
+    stop.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+        device_, renderPass_, descriptorLayout_, builder[14], TextureIndex::STOP);
+    menuInterface->push_back(std::move(play));
+    menuInterface->push_back(std::move(pause));
+    menuInterface->push_back(std::move(stop));
   }
 
   void Model::playerInterface(std::vector<std::vector<GameObject>> *playerInterface,

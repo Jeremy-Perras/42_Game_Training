@@ -20,7 +20,16 @@ namespace ve {
   struct GlobalUbo {
     float deltaTime;
   };
-  enum GameState { START, PLAYING, MENU };
+  enum GameState { START, PLAYING, MENU, GAMELOOP };
+  struct playerInterfaceCoordinate {
+    int ligne = 0;
+    int colone[3] = {0, 0, 0};
+    void incremetation(int size, int ligne) {
+      if (colone[ligne] < size) {
+        colone[ligne]++;
+      }
+    }
+  };
 
   class Application {
   public:
@@ -36,6 +45,7 @@ namespace ve {
     VkImageView createImageView(VkImage image, VkFormat format);
     void updateFPS(std::chrono::steady_clock::time_point newTime);
     void initDescriptor();
+    void gameLoop();
 
     Window window_{WIDTH, HEIGHT, "GameEngine"};
     Device device_{window_};
@@ -58,5 +68,11 @@ namespace ve {
     std::unique_ptr<DescriptorSetLayout> descriptorSetLayout_;
     std::vector<TextureRenderSystem::Builder> builder_;
     GameState gameState_ = {GameState::PLAYING};
+
+    playerCoordinate playerCoordinate_;
+    GameObject *playerPointer_;
+    playerInterfaceCoordinate playerStatue_{0, {0, 0, 0}};
+
+    // std::vector<std::pair<class T1, class T2>>
   };
 }  // namespace ve

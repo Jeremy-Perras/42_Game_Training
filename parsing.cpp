@@ -33,6 +33,7 @@ namespace ve {
         map_[i].append("\n");
       }
     }
+    file.close();
   }
 
   void Parsing::createMap(std::vector<GameObject> *gameInterface) {
@@ -88,14 +89,23 @@ namespace ve {
           auto object2 = GameObject::createGameObject();
           switch (map_[1][i + j * static_cast<int>(line)]) {
             case 'S':
+              countStar_++;
               object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
                   device_, renderPass_, descriptorLayout_, builder[inc], TextureIndex::STAR);
               gameInterface->push_back(std::move(object2));
               break;
             case 'P':
+              playerStart_.x
+                  = (builder[inc].vertices[0].pos.x + builder[inc].vertices[1].pos.x) / 2;
+              playerStart_.y
+                  = (builder[inc].vertices[0].pos.y + builder[inc].vertices[2].pos.y) / 2;
+
+              playerStart_.Angle = 90.0F;
               object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
                   device_, renderPass_, descriptorLayout_, builder[inc], TextureIndex::PLAYER);
-              gameInterface->push_back(std::move(object2));
+              gameInterface->emplace(gameInterface->begin(), std::move(object2));
+              playerPointer_ = gameInterface->data();
+
               break;
             default:
               break;

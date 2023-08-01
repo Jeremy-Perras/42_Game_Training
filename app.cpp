@@ -1,5 +1,7 @@
 #include "app.hpp"
 
+#include <unistd.h>
+
 #include <algorithm>
 #include <glm/gtc/constants.hpp>
 #include <memory>
@@ -18,6 +20,7 @@
 #include "render_system.hpp"
 #include "swap_chain.hpp"
 #include "texture.hpp"
+#include "texture_render_system.hpp"
 
 namespace ve {
 
@@ -28,15 +31,18 @@ namespace ve {
   void Application::mainLoop() {
     Model model{device_, renderer_.getSwapChainRenderPass(),
                 descriptorSetLayout_->getDescriptorSetLayout()};
-    Parsing pars("lvl/lvl1.ber", device_, renderer_.getSwapChainRenderPass(),
-                 descriptorSetLayout_->getDescriptorSetLayout());
+    Parsing parsing("lvl/lvl1.ber", device_, renderer_.getSwapChainRenderPass(),
+                    descriptorSetLayout_->getDescriptorSetLayout());
+
     interfaceSize interfaceSize{3, 3, 4};
 
     std::vector<std::shared_ptr<Texture>> texture;
     model.loadTexture(&texture);
     model.menuInterface(&gameObjects_);
     model.playerInterface(&playerInterface_, &gameObjects_, interfaceSize);
-    pars.createMap(&gameInterface_);
+    parsing.createMap(&gameInterface_);
+    playerPointer_ = parsing.getPlayerPointer();
+    playerCoordinate_ = parsing.getStartCoordinate();
 
     std::vector<VkDescriptorImageInfo> textureDescriptors(textureSize);
     for (int i = 0; i < textureSize; i++) {
@@ -56,6 +62,7 @@ namespace ve {
     ComputeShader computeShader{device_, renderer_.getSwapChainRenderPass(), renderer_};
 
     auto startTime_ = std::chrono::high_resolution_clock::now();
+    auto startGameLoop = std::chrono::high_resolution_clock::now();
     startFrameTime_ = std::chrono::high_resolution_clock::now();
     double newTimeCompute;
 
@@ -89,6 +96,14 @@ namespace ve {
       for (int i = 0; i < static_cast<int>(gameObjects_.size() - 1); i++) {
         mouse_.getInput(gameObjects_[i], playerInterface_);
       }
+      if (mouse_.getGameLoop()) {
+        gameState_ = GameState::GAMELOOP;
+      } else if (gameState_ != GameState::PLAYING) {
+        parsing.createMap(&gameInterface_);
+        playerPointer_ = parsing.getPlayerPointer();
+        playerCoordinate_ = parsing.getStartCoordinate();
+        gameState_ = GameState::PLAYING;
+      }
       GlobalUbo ubo{};
       auto newTime = std::chrono::high_resolution_clock::now();
       ubo.deltaTime
@@ -99,8 +114,7 @@ namespace ve {
       m_fpscount_++;
 
       switch (gameState_) {
-        case GameState::START:
-
+        case GameState::START: {
           if (auto *commandBuffer = renderer_.beginFrame(false)) {
             FrameInfo frameInfo
                 = {static_cast<int>(currentFrame), 0, descriptorSets_[currentFrame], 0.0};
@@ -119,14 +133,39 @@ namespace ve {
             gameState_ = GameState::PLAYING;
           }
           break;
-        case GameState::MENU:
-          break;
-        case GameState::PLAYING:
+        }
 
+        case GameState::MENU: {
+          break;
+        }
+
+        case GameState::PLAYING: {
           FrameInfo frameInfo
               = {static_cast<int>(currentFrame), 0, descriptorSets_[currentFrame], newTimeCompute};
           computeShader.render(frameInfo, gameObjects_, playerInterface_, gameInterface_);
           break;
+        }
+
+        case GameState::GAMELOOP: {
+          // for (const auto &obj : gameInterface_){
+
+          // }
+          FrameInfo frameInfo
+              = {static_cast<int>(currentFrame), 0, descriptorSets_[currentFrame], newTimeCompute};
+          computeShader.render(frameInfo, gameObjects_, playerInterface_, gameInterface_);
+
+          if ((std::chrono::duration<float, std::chrono::seconds::period>(newTime - startGameLoop)
+                   .count())
+              >= 0.5) {
+            startGameLoop = std::chrono::high_resolution_clock::now();
+            gameLoop();
+          }
+          break;
+        }
+
+        default: {
+          break;
+        }
       }
 
       updateFPS(newTime);
@@ -170,6 +209,77 @@ namespace ve {
               .build();
 
     descriptorSets_.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+  }
+
+  void Application::gameLoop() {
+    TextureIndex textureIndex
+        = playerInterface_[playerStatue_.ligne][playerStatue_.colone[playerStatue_.ligne]]
+              .textureRenderSystem->getIndexTexture();
+    glm::vec4 color
+        = playerInterface_[playerStatue_.ligne][playerStatue_.colone[playerStatue_.ligne]]
+              .textureRenderSystem->getColor();
+
+    if (textureIndex == TextureIndex::F0) {
+      playerStatue_.incremetation(static_cast<int>(playerInterface_[0].size()) - 1,
+                                  playerStatue_.ligne);
+      playerStatue_.ligne = 0;
+    } else if (textureIndex == TextureIndex::F1) {
+      playerStatue_.incremetation(static_cast<int>(playerInterface_[1].size()) - 1,
+                                  playerStatue_.ligne);
+      playerStatue_.ligne = 1;
+    } else if (textureIndex == TextureIndex::F2) {
+      playerStatue_.incremetation(static_cast<int>(playerInterface_[2].size()) - 1,
+                                  playerStatue_.ligne);
+      playerStatue_.ligne = 2;
+    }
+    if (textureIndex == TextureIndex::ARROWUP || textureIndex == TextureIndex::ARROWRIGHT
+        || textureIndex == TextureIndex::ARROWLEFT) {
+      for (const auto &obj : gameInterface_) {
+        if (&obj != playerPointer_
+            && obj.textureRenderSystem->isInside(playerCoordinate_.x, playerCoordinate_.y)) {
+          if (obj.textureRenderSystem->getColor() == color
+              || color == glm::vec4(1.0, 1.0, 1.0, 1.0)) {
+            std::cout << "test" << std::endl;
+            if (textureIndex == TextureIndex::ARROWUP) {
+              playerPointer_->textureRenderSystem->setBuilderCoordinate(&playerCoordinate_);
+            }
+            if (textureIndex == TextureIndex::ARROWLEFT) {
+              playerCoordinate_.Angle = playerCoordinate_.Angle + 90.0F;
+            }
+            if (textureIndex == TextureIndex::ARROWRIGHT) {
+              playerCoordinate_.Angle = playerCoordinate_.Angle - 90.0F;
+            }
+            if (playerCoordinate_.Angle == 360.0F || playerCoordinate_.Angle == -360.0F) {
+              playerCoordinate_.Angle = 0.0F;
+            }
+            break;
+          }
+        }
+      }
+    }
+
+    if (textureIndex == TextureIndex::BRUSHRED || textureIndex == TextureIndex::BRUSHBLUE
+        || textureIndex == TextureIndex::BRUSHGREEN) {
+      for (const auto &obj : gameInterface_) {
+        if (&obj != playerPointer_
+            && obj.textureRenderSystem->isInside(playerCoordinate_.x, playerCoordinate_.y)) {
+          if (obj.textureRenderSystem->getColor() == color
+              || color == glm::vec4(1.0, 1.0, 1.0, 1.0)) {
+            if (textureIndex == TextureIndex::BRUSHRED) {
+              obj.textureRenderSystem->setColor(glm::vec4(1.0, 0.0, 0.0, 1.0));
+            }
+            if (textureIndex == TextureIndex::BRUSHBLUE) {
+              obj.textureRenderSystem->setColor(glm::vec4(0.0, 1.0, 0.0, 1.0));
+            }
+            if (textureIndex == TextureIndex::BRUSHGREEN) {
+              obj.textureRenderSystem->setColor(glm::vec4(0.0, 0.0, 1.0, 1.0));
+            }
+          }
+        }
+      }
+    }
+    playerStatue_.incremetation(static_cast<int>(playerInterface_[playerStatue_.ligne].size()) - 1,
+                                playerStatue_.ligne);
   }
 
 }  // namespace ve

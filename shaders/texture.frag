@@ -9,6 +9,7 @@ layout(binding = 1) uniform sampler2D texSampler[12];
 
 layout(push_constant) uniform Push {
    vec4 color;
+   vec2 offset;
   int index;
  
 } push;
@@ -52,7 +53,7 @@ void main() {
   outColor =push.color;
     break;
     case 12:
-   outColor = vec4( texture(texSampler[9], fragTexCoord).rgba);
+   outColor = vec4( push.color*texture(texSampler[9], fragTexCoord).rgba);
     if (outColor.w < 0.8) {
         discard;
     }
@@ -64,18 +65,20 @@ void main() {
     }break;
     case 14:
   outColor =push.color;
+  break; 
+  case 15:
+  outColor =push.color;
   break;
-  case 15 :
-  outColor = vec4(push.color.rgb * texture(texSampler[10], fragTexCoord).rgb,  push.color.a);
+   case 16:
+  outColor =push.color;
+  break;
+  case 17 :
+ outColor =push.color; 
     break;
-    case 101:
-   outColor = vec4( texture(texSampler[9], fragTexCoord).rgba);
-    if (outColor.w < 0.8) {
-        discard;
-    }
-    break;
+  
+   
   default:
-  outColor = push.color;
+ outColor = vec4(push.color.rgb * texture(texSampler[10], fragTexCoord).rgb,  push.color.a);
 
 }
 }
