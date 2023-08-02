@@ -1,5 +1,5 @@
 # 42_Game_Training
-Project training yourself 42 SCHOOL TEST.
+Project training yourself 42 SCHOOL TEST using vulkan.
 
 # Ressources
 * https://vulkan-tutorial.com/
