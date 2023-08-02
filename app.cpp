@@ -12,9 +12,9 @@ namespace ve {
   Application::~Application() {}
 
   void Application::mainLoop() {
+    Parsing parsing("lvl/lvl1.ber");
     InterfaceModel model{device_, renderer_.getSwapChainRenderPass(),
                          textureDescriptorSetLayout_->getDescriptorSetLayout()};
-    Parsing parsing("lvl/lvl1.ber");
 
     std::vector<std::shared_ptr<Texture>> texture;
     model.loadTexture(&texture);
@@ -86,17 +86,24 @@ namespace ve {
           FrameInfo frameInfo = {static_cast<int>(currentFrame), 0,
                                  textureDescriptorSets_[currentFrame], newTimeCompute};
           computeShader.render(frameInfo, menuInterface_, playerInterface_, gameInterface_);
+
           break;
         }
 
         case GameState::GAMELOOP: {
-          if (playerInput_.empty()) {
-            for (int i = 0; i < static_cast<int>(playerInterface_.size()); i++) {
-              playerInput_.push_back(
-                  std::make_pair(playerInterface_[0][i].textureRenderSystem->getIndexTexture(),
-                                 playerInterface_[0][i].textureRenderSystem->getColor()));
+          for (const auto &obj : gameInterface_) {
+            if (&obj != playerPointer_
+                && obj.textureRenderSystem->isInside(playerCoordinate_.x, playerCoordinate_.y)) {
+              if (obj.textureRenderSystem->getIndexTexture() == TextureIndex::LOST) {
+                model.resetToInitialState(&gameInterface_);
+                playerCoordinate_ = model.getStartCoordinate();
+                playerPointer_->textureRenderSystem->resetPushCoordinate();
+                gameState_ = GameState::PLAYING;
+                break;
+              }
             }
           }
+
           FrameInfo frameInfo = {static_cast<int>(currentFrame), 0,
                                  textureDescriptorSets_[currentFrame], newTimeCompute};
           computeShader.render(frameInfo, menuInterface_, playerInterface_, gameInterface_);
@@ -106,6 +113,7 @@ namespace ve {
               >= 0.5) {
             startGameLoop = std::chrono::high_resolution_clock::now();
             gameLoop();
+            std::cout << playerInput_.size() << std::endl;
           }
           break;
         }
@@ -228,6 +236,7 @@ namespace ve {
     if (playerIndexInput_ < static_cast<int>(playerInput_.size() - 1)) {
       playerIndexInput_++;
     }
+    playerInput_.erase(playerInput_.begin());
   }
 
 }  // namespace ve

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include "app.hpp"
 #include "texture.hpp"
 
@@ -18,6 +20,9 @@ namespace ve {
     void createPlayerInterface(std::vector<std::vector<GameObject>> *playerInterface,
                                std::vector<GameObject> *menuInterface, interfaceSize size);
     void createGameInterface(std::vector<std::string> map, std::vector<GameObject> *gameInterface);
+    void saveInitialState(std::vector<GameObject> &gameInterface);
+    void resetToInitialState(std::vector<GameObject> *gameInterface);
+
     // Getter
     playerCoordinate getStartCoordinate() { return playerStart_; }
     GameObject *getPlayerPointer() { return playerPointer_; }
@@ -29,6 +34,7 @@ namespace ve {
     int countStar_ = 0;
     playerCoordinate playerStart_;
     GameObject *playerPointer_;
+    std::vector<std::pair<TextureIndex, glm::vec4>> initialState_;
   };
 
 }  // namespace ve

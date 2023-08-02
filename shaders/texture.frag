@@ -11,10 +11,9 @@ layout(push_constant) uniform Push {
 }
 push;
 
-
-void discardAlpha(float w){
+void discardAlpha(float w) {
   if (outColor.w < 0.8) {
-        discard;
+    discard;
   }
 }
 
@@ -58,7 +57,7 @@ void main() {
       break;
     case 12:
       outColor = vec4(push.color * texture(texSampler[9], fragTexCoord).rgba);
-     discardAlpha(outColor.w);
+      discardAlpha(outColor.w);
       break;
     case 13:
       outColor = vec4(texture(texSampler[11], fragTexCoord).rgba);
@@ -77,6 +76,9 @@ void main() {
       outColor = push.color;
       break;
     case 20:
+      discard;
+      break;
+    case 21:
       discard;
       break;
     default:

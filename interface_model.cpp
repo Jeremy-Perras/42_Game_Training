@@ -1,5 +1,7 @@
 #include "interface_model.hpp"
 
+#include <utility>
+
 namespace ve {
 
   InterfaceModel::InterfaceModel(Device &device, VkRenderPass renderPass,
@@ -266,8 +268,7 @@ namespace ve {
         switch (map[0][i + j * static_cast<int>(line)]) {
           case '1':
             object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-                device_, renderPass_, descriptorLayout_, builder[inc], TextureIndex::WHITE);
-
+                device_, renderPass_, descriptorLayout_, builder[inc], TextureIndex::LOST);
             gameInterface->push_back(std::move(object));
             break;
           case 'R':
@@ -290,6 +291,21 @@ namespace ve {
         }
         inc++;
       }
+    }
+    saveInitialState(*gameInterface);
+  }
+
+  void InterfaceModel::saveInitialState(std::vector<GameObject> &gameInterface) {
+    for (const auto &obj : gameInterface) {
+      initialState_.push_back(std::make_pair(obj.textureRenderSystem->getIndexTexture(),
+                                             obj.textureRenderSystem->getColor()));
+    }
+  }
+
+  void InterfaceModel::resetToInitialState(std::vector<GameObject> *gameInterface) {
+    for (int i = 0; i < static_cast<int>(gameInterface->size()); i++) {
+      (*gameInterface)[i].textureRenderSystem->setIndexTexture(initialState_[i].first);
+      (*gameInterface)[i].textureRenderSystem->setColor(initialState_[i].second);
     }
   }
 }  // namespace ve

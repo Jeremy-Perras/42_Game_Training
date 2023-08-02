@@ -67,6 +67,10 @@ namespace ve {
         playerCoordinate->y = playerCoordinate->y - 0.05F;
       }
     }
+    void resetPushCoordinate() {
+      offset_.x = 0.0F;
+      offset_.y = 0.0F;
+    }
 
     void setColor(glm::vec4 color) { color_ = color; }
 
