@@ -30,16 +30,14 @@ namespace ve {
 
   void Application::mainLoop() {
     Model model{device_, renderer_.getSwapChainRenderPass(),
-                descriptorSetLayout_->getDescriptorSetLayout()};
+                textureDescriptorSetLayout_->getDescriptorSetLayout()};
     Parsing parsing("lvl/lvl1.ber", device_, renderer_.getSwapChainRenderPass(),
-                    descriptorSetLayout_->getDescriptorSetLayout());
-
-    interfaceSize interfaceSize{3, 3, 4};
+                    textureDescriptorSetLayout_->getDescriptorSetLayout());
 
     std::vector<std::shared_ptr<Texture>> texture;
     model.loadTexture(&texture);
     model.menuInterface(&gameObjects_);
-    model.playerInterface(&playerInterface_, &gameObjects_, interfaceSize);
+    model.playerInterface(&playerInterface_, &gameObjects_, interfaceSize_);
     parsing.createMap(&gameInterface_);
     playerPointer_ = parsing.getPlayerPointer();
     playerCoordinate_ = parsing.getStartCoordinate();
@@ -51,12 +49,12 @@ namespace ve {
       }
     }
 
-    for (int i = 0; i < static_cast<int>(descriptorSets_.size()); i++) {
+    for (int i = 0; i < static_cast<int>(textureDescriptorSets_.size()); i++) {
       auto bufferInfo = uboBuffers_[i]->descriptorInfo();
-      DescriptorWriter(*descriptorSetLayout_, *globalPool_)
+      DescriptorWriter(*textureDescriptorSetLayout_, *texturePool_)
           .writeBuffer(0, &bufferInfo)
           .writeImage(1, textureDescriptors.data(), textureSize)
-          .build(descriptorSets_[i]);
+          .build(textureDescriptorSets_[i]);
     }
 
     ComputeShader computeShader{device_, renderer_.getSwapChainRenderPass(), renderer_};
@@ -66,58 +64,27 @@ namespace ve {
     startFrameTime_ = std::chrono::high_resolution_clock::now();
     double newTimeCompute;
 
-    // std::vector<TextureRenderSystem::Builder> builder;
-    // builder.push_back({{{{-1, -1},
-
-    //                      {0.0F, 0.0F},
-    //                      {1.0, 1.0, 1.0, 1.0}},
-    //                     {{1, -1},
-
-    //                      {1.0F, 0.0F},
-    //                      {1.0, 1.0, 1.0, 1.0}},
-    //                     {{1, 1},
-
-    //                      {1.0F, 1.0F},
-    //                      {1.0, 1.0, 1.0, 1.0}},
-    //                     {{-1, 1},
-
-    //                      {0.0F, 1.0F},
-    //                      {1.0, 1.0, 1.0, 1.0}}},
-    //                    {0, 1, 2, 2, 3, 0}});
-    // auto start = GameObject::createGameObject();
-    // start.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-    //     device_, renderer_.getSwapChainRenderPass(),
-    //     descriptorSetLayout_->getDescriptorSetLayout(), builder[0], TextureIndex::BACKGROUND);
-
     while (static_cast<int>(window_.shouldClose()) == 0
            && static_cast<int>(glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
                   == 0) {
       glfwPollEvents();
-      for (int i = 0; i < static_cast<int>(gameObjects_.size() - 1); i++) {
+      for (int i = 0; i < static_cast<int>(gameObjects_.size()); i++) {
         mouse_.getInput(gameObjects_[i], playerInterface_);
       }
       if (mouse_.getGameLoop()) {
         gameState_ = GameState::GAMELOOP;
       } else if (gameState_ != GameState::PLAYING) {
-        parsing.createMap(&gameInterface_);
-        playerPointer_ = parsing.getPlayerPointer();
-        playerCoordinate_ = parsing.getStartCoordinate();
+        playerInput_.clear();
         gameState_ = GameState::PLAYING;
       }
-      GlobalUbo ubo{};
       auto newTime = std::chrono::high_resolution_clock::now();
-      ubo.deltaTime
-          = std::chrono::duration<float, std::chrono::seconds::period>(newTime - startTime_)
-                .count();
       size_t currentFrame = renderer_.getComputeCurrentFrame();
-
-      m_fpscount_++;
 
       switch (gameState_) {
         case GameState::START: {
           if (auto *commandBuffer = renderer_.beginFrame(false)) {
             FrameInfo frameInfo
-                = {static_cast<int>(currentFrame), 0, descriptorSets_[currentFrame], 0.0};
+                = {static_cast<int>(currentFrame), 0, textureDescriptorSets_[currentFrame], 0.0};
 
             renderer_.beginSwapChainRenderPass(commandBuffer);
             frameInfo.commandBuffer = commandBuffer;
@@ -140,18 +107,22 @@ namespace ve {
         }
 
         case GameState::PLAYING: {
-          FrameInfo frameInfo
-              = {static_cast<int>(currentFrame), 0, descriptorSets_[currentFrame], newTimeCompute};
+          FrameInfo frameInfo = {static_cast<int>(currentFrame), 0,
+                                 textureDescriptorSets_[currentFrame], newTimeCompute};
           computeShader.render(frameInfo, gameObjects_, playerInterface_, gameInterface_);
           break;
         }
 
         case GameState::GAMELOOP: {
-          // for (const auto &obj : gameInterface_){
-
-          // }
-          FrameInfo frameInfo
-              = {static_cast<int>(currentFrame), 0, descriptorSets_[currentFrame], newTimeCompute};
+          if (playerInput_.empty()) {
+            for (int i = 0; i < static_cast<int>(playerInterface_.size()); i++) {
+              playerInput_.push_back(
+                  std::make_pair(playerInterface_[0][i].textureRenderSystem->getIndexTexture(),
+                                 playerInterface_[0][i].textureRenderSystem->getColor()));
+            }
+          }
+          FrameInfo frameInfo = {static_cast<int>(currentFrame), 0,
+                                 textureDescriptorSets_[currentFrame], newTimeCompute};
           computeShader.render(frameInfo, gameObjects_, playerInterface_, gameInterface_);
 
           if ((std::chrono::duration<float, std::chrono::seconds::period>(newTime - startGameLoop)
@@ -167,6 +138,7 @@ namespace ve {
           break;
         }
       }
+      m_fpscount_++;
 
       updateFPS(newTime);
     }
@@ -185,7 +157,7 @@ namespace ve {
   }
 
   void Application::initDescriptor() {
-    globalPool_
+    texturePool_
         = DescriptorPool::Builder(device_)
               .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
               .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
@@ -201,52 +173,52 @@ namespace ve {
       uboBuffers_[i]->map();
     }
 
-    descriptorSetLayout_
+    textureDescriptorSetLayout_
         = DescriptorSetLayout::Builder(device_)
               .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
               .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                           VK_SHADER_STAGE_FRAGMENT_BIT, textureSize)
               .build();
 
-    descriptorSets_.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    textureDescriptorSets_.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
   }
 
   void Application::gameLoop() {
-    TextureIndex textureIndex
-        = playerInterface_[playerStatue_.ligne][playerStatue_.colone[playerStatue_.ligne]]
-              .textureRenderSystem->getIndexTexture();
-    glm::vec4 color
-        = playerInterface_[playerStatue_.ligne][playerStatue_.colone[playerStatue_.ligne]]
-              .textureRenderSystem->getColor();
-
-    if (textureIndex == TextureIndex::F0) {
-      playerStatue_.incremetation(static_cast<int>(playerInterface_[0].size()) - 1,
-                                  playerStatue_.ligne);
-      playerStatue_.ligne = 0;
-    } else if (textureIndex == TextureIndex::F1) {
-      playerStatue_.incremetation(static_cast<int>(playerInterface_[1].size()) - 1,
-                                  playerStatue_.ligne);
-      playerStatue_.ligne = 1;
-    } else if (textureIndex == TextureIndex::F2) {
-      playerStatue_.incremetation(static_cast<int>(playerInterface_[2].size()) - 1,
-                                  playerStatue_.ligne);
-      playerStatue_.ligne = 2;
+    if (playerInput_[playerIndexInput_].first == TextureIndex::F0) {
+      for (int i = 0; i < static_cast<int>(playerInterface_.size()); i++) {
+        playerInput_.push_back(
+            std::make_pair(playerInterface_[0][i].textureRenderSystem->getIndexTexture(),
+                           playerInterface_[0][i].textureRenderSystem->getColor()));
+      }
+    } else if (playerInput_[playerIndexInput_].first == TextureIndex::F1) {
+      for (int i = 0; i < static_cast<int>(playerInterface_.size()); i++) {
+        playerInput_.push_back(
+            std::make_pair(playerInterface_[1][i].textureRenderSystem->getIndexTexture(),
+                           playerInterface_[1][i].textureRenderSystem->getColor()));
+      }
+    } else if (playerInput_[playerIndexInput_].first == TextureIndex::F2) {
+      for (int i = 0; i < static_cast<int>(playerInterface_.size()); i++) {
+        playerInput_.push_back(
+            std::make_pair(playerInterface_[2][i].textureRenderSystem->getIndexTexture(),
+                           playerInterface_[2][i].textureRenderSystem->getColor()));
+      }
     }
-    if (textureIndex == TextureIndex::ARROWUP || textureIndex == TextureIndex::ARROWRIGHT
-        || textureIndex == TextureIndex::ARROWLEFT) {
+
+    if (playerInput_[playerIndexInput_].first == TextureIndex::ARROWUP
+        || playerInput_[playerIndexInput_].first == TextureIndex::ARROWRIGHT
+        || playerInput_[playerIndexInput_].first == TextureIndex::ARROWLEFT) {
       for (const auto &obj : gameInterface_) {
         if (&obj != playerPointer_
             && obj.textureRenderSystem->isInside(playerCoordinate_.x, playerCoordinate_.y)) {
-          if (obj.textureRenderSystem->getColor() == color
-              || color == glm::vec4(1.0, 1.0, 1.0, 1.0)) {
-            std::cout << "test" << std::endl;
-            if (textureIndex == TextureIndex::ARROWUP) {
+          if (obj.textureRenderSystem->getColor() == playerInput_[playerIndexInput_].second
+              || playerInput_[playerIndexInput_].second == glm::vec4(1.0, 1.0, 1.0, 1.0)) {
+            if (playerInput_[playerIndexInput_].first == TextureIndex::ARROWUP) {
               playerPointer_->textureRenderSystem->setBuilderCoordinate(&playerCoordinate_);
             }
-            if (textureIndex == TextureIndex::ARROWLEFT) {
+            if (playerInput_[playerIndexInput_].first == TextureIndex::ARROWLEFT) {
               playerCoordinate_.Angle = playerCoordinate_.Angle + 90.0F;
             }
-            if (textureIndex == TextureIndex::ARROWRIGHT) {
+            if (playerInput_[playerIndexInput_].first == TextureIndex::ARROWRIGHT) {
               playerCoordinate_.Angle = playerCoordinate_.Angle - 90.0F;
             }
             if (playerCoordinate_.Angle == 360.0F || playerCoordinate_.Angle == -360.0F) {
@@ -258,28 +230,40 @@ namespace ve {
       }
     }
 
-    if (textureIndex == TextureIndex::BRUSHRED || textureIndex == TextureIndex::BRUSHBLUE
-        || textureIndex == TextureIndex::BRUSHGREEN) {
+    if (playerInput_[playerIndexInput_].first == TextureIndex::BRUSHRED
+        || playerInput_[playerIndexInput_].first == TextureIndex::BRUSHBLUE
+        || playerInput_[playerIndexInput_].first == TextureIndex::BRUSHGREEN) {
       for (const auto &obj : gameInterface_) {
         if (&obj != playerPointer_
             && obj.textureRenderSystem->isInside(playerCoordinate_.x, playerCoordinate_.y)) {
-          if (obj.textureRenderSystem->getColor() == color
-              || color == glm::vec4(1.0, 1.0, 1.0, 1.0)) {
-            if (textureIndex == TextureIndex::BRUSHRED) {
+          if (obj.textureRenderSystem->getColor() == playerInput_[playerIndexInput_].second
+              || playerInput_[playerIndexInput_].second == glm::vec4(1.0, 1.0, 1.0, 1.0)) {
+            if (playerInput_[playerIndexInput_].first == TextureIndex::BRUSHRED) {
               obj.textureRenderSystem->setColor(glm::vec4(1.0, 0.0, 0.0, 1.0));
             }
-            if (textureIndex == TextureIndex::BRUSHBLUE) {
+            if (playerInput_[playerIndexInput_].first == TextureIndex::BRUSHGREEN) {
               obj.textureRenderSystem->setColor(glm::vec4(0.0, 1.0, 0.0, 1.0));
             }
-            if (textureIndex == TextureIndex::BRUSHGREEN) {
+            if (playerInput_[playerIndexInput_].first == TextureIndex::BRUSHBLUE) {
               obj.textureRenderSystem->setColor(glm::vec4(0.0, 0.0, 1.0, 1.0));
             }
           }
         }
       }
     }
-    playerStatue_.incremetation(static_cast<int>(playerInterface_[playerStatue_.ligne].size()) - 1,
-                                playerStatue_.ligne);
+
+    for (const auto &obj : gameInterface_) {
+      if (&obj != playerPointer_
+          && obj.textureRenderSystem->isInside(playerCoordinate_.x, playerCoordinate_.y)) {
+        if (obj.textureRenderSystem->getIndexTexture() == TextureIndex::STAR) {
+          obj.textureRenderSystem->setIndexTexture(TextureIndex::DISCARD);
+        }
+      }
+    }
+
+    if (playerIndexInput_ < static_cast<int>(playerInput_.size() - 1)) {
+      playerIndexInput_++;
+    }
   }
 
 }  // namespace ve

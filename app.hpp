@@ -17,19 +17,17 @@
 
 namespace ve {
 
+  struct interfaceSize {
+    int f0;
+    int f1;
+    int f2;
+  };
+
   struct GlobalUbo {
     float deltaTime;
   };
+
   enum GameState { START, PLAYING, MENU, GAMELOOP };
-  struct playerInterfaceCoordinate {
-    int ligne = 0;
-    int colone[3] = {0, 0, 0};
-    void incremetation(int size, int ligne) {
-      if (colone[ligne] < size) {
-        colone[ligne]++;
-      }
-    }
-  };
 
   class Application {
   public:
@@ -38,8 +36,14 @@ namespace ve {
     Application &operator=(const Application &rhs) = delete;
     ~Application();
     void mainLoop();
+
     static constexpr int WIDTH = 800;
     static constexpr int HEIGHT = 600;
+
+    // Getter
+    GameState getGameState() const { return gameState_; }
+    // Setter
+    void setGameState(GameState gameState) { gameState_ = gameState; }
 
   private:
     VkImageView createImageView(VkImage image, VkFormat format);
@@ -47,32 +51,31 @@ namespace ve {
     void initDescriptor();
     void gameLoop();
 
+    interfaceSize interfaceSize_{3, 3, 4};
+
     Window window_{WIDTH, HEIGHT, "GameEngine"};
     Device device_{window_};
     Renderer renderer_{window_, device_};
     MouseMovementController mouse_{window_};
 
-    std::unique_ptr<DescriptorPool> globalPool_{};
-    std::unique_ptr<DescriptorPool> computePool_{};
-
-    unsigned int m_fpscount_;
     std::vector<std::unique_ptr<Buffer>> uboBuffers_;
+    std::unique_ptr<DescriptorPool> texturePool_{};
+    std::vector<VkDescriptorSet> textureDescriptorSets_;
+    std::unique_ptr<DescriptorSetLayout> textureDescriptorSetLayout_;
 
-    std::vector<VkDescriptorSet> descriptorSets_;
-
-    std::chrono::steady_clock::time_point startFrameTime_;
     std::vector<GameObject> gameObjects_;
     std::vector<std::vector<GameObject>> playerInterface_;
     std::vector<GameObject> gameInterface_;
 
-    std::unique_ptr<DescriptorSetLayout> descriptorSetLayout_;
-    std::vector<TextureRenderSystem::Builder> builder_;
+    unsigned int m_fpscount_;
+    std::chrono::steady_clock::time_point startFrameTime_;
+
     GameState gameState_ = {GameState::PLAYING};
 
     playerCoordinate playerCoordinate_;
     GameObject *playerPointer_;
-    playerInterfaceCoordinate playerStatue_{0, {0, 0, 0}};
 
-    // std::vector<std::pair<class T1, class T2>>
+    std::vector<std::pair<TextureIndex, glm::vec4>> playerInput_;
+    int playerIndexInput_ = 0;
   };
 }  // namespace ve

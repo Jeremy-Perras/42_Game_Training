@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <memory>
 
 #include "buffer.hpp"
 #include "descriptors.hpp"

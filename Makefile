@@ -2,7 +2,7 @@ NAME = library
 
 SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp model.cpp renderer.cpp render_system.cpp\
 keyboard_movement_controller.cpp buffer.cpp descriptors.cpp texture_render_system.cpp texture.cpp \
-compute_shader.cpp mouse_movement_controller.cpp parsing.cpp
+compute_shader.cpp mouse_movement_controller.cpp parsing.cpp game_loop.cpp
 
 INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 
@@ -45,8 +45,6 @@ debug_fclean: debug_clean
 
 debug_re: debug_fclean debug
 
-
-
 gl: 
 	
 	glslc  shaders/compute_shader.comp -o shaders/comp.spv
@@ -64,6 +62,11 @@ fclean : clean
 	rm -rf $(NAME)
 
 re : fclean all 
+
+format: 
+	clang-format -i shaders/*.frag
+	clang-format -i shaders/*.vert
+	clang-format -i shaders/*.comp
 
 cc:
 	bear -- make re

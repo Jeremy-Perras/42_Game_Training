@@ -26,6 +26,7 @@ namespace ve {
     STOP,
     BACKGROUND,
     TEXTURESIZE,
+    DISCARD,
   };
   // constexpr int textureSize = TextureIndex::TEXTURESIZE;
   constexpr int textureSize = 12;

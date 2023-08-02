@@ -4,11 +4,6 @@
 
 namespace ve {
 
-  struct interfaceSize {
-    int f0;
-    int f1;
-    int f2;
-  };
   class Model {
   public:
     Model(Device &device, VkRenderPass renderPass, VkDescriptorSetLayout descriptorLayout);
