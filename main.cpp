@@ -1,11 +1,4 @@
-#include <cstdlib>
-#include <functional>
-#include <iostream>
-#include <stdexcept>
-
 #include "app.hpp"
-#include "model.hpp"
-#include "parsing.hpp"
 
 int main() {
   ve::Application app;

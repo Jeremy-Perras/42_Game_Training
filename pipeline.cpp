@@ -1,13 +1,5 @@
 #include "pipeline.hpp"
 
-#include <_types/_uint32_t.h>
-
-#include <iostream>
-#include <stdexcept>
-
-#include "model.hpp"
-#include "vulkan/vulkan_core.h"
-
 namespace ve {
 
   Pipeline::Pipeline(Device &device, const std::string &vertFilepath,

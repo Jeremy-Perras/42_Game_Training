@@ -1,26 +1,9 @@
 #include "app.hpp"
 
-#include <unistd.h>
-
-#include <algorithm>
-#include <glm/gtc/constants.hpp>
-#include <memory>
-#include <ostream>
-#include <string>
-#include <utility>
-#include <vector>
-
-#include "buffer.hpp"
 #include "compute_shader.hpp"
-#include "frame_info.hpp"
-#include "game_object.hpp"
-#include "keyboard_movement_controller.hpp"
-#include "model.hpp"
+#include "interface_model.hpp"
 #include "parsing.hpp"
-#include "render_system.hpp"
-#include "swap_chain.hpp"
 #include "texture.hpp"
-#include "texture_render_system.hpp"
 
 namespace ve {
 
@@ -29,18 +12,17 @@ namespace ve {
   Application::~Application() {}
 
   void Application::mainLoop() {
-    Model model{device_, renderer_.getSwapChainRenderPass(),
-                textureDescriptorSetLayout_->getDescriptorSetLayout()};
-    Parsing parsing("lvl/lvl1.ber", device_, renderer_.getSwapChainRenderPass(),
-                    textureDescriptorSetLayout_->getDescriptorSetLayout());
+    InterfaceModel model{device_, renderer_.getSwapChainRenderPass(),
+                         textureDescriptorSetLayout_->getDescriptorSetLayout()};
+    Parsing parsing("lvl/lvl1.ber");
 
     std::vector<std::shared_ptr<Texture>> texture;
     model.loadTexture(&texture);
-    model.menuInterface(&gameObjects_);
-    model.playerInterface(&playerInterface_, &gameObjects_, interfaceSize_);
-    parsing.createMap(&gameInterface_);
-    playerPointer_ = parsing.getPlayerPointer();
-    playerCoordinate_ = parsing.getStartCoordinate();
+    model.createMenuInterface(&menuInterface_);
+    model.createPlayerInterface(&playerInterface_, &menuInterface_, interfaceSize_);
+    model.createGameInterface(parsing.getMap(), &gameInterface_);
+    playerPointer_ = model.getPlayerPointer();
+    playerCoordinate_ = model.getStartCoordinate();
 
     std::vector<VkDescriptorImageInfo> textureDescriptors(textureSize);
     for (int i = 0; i < textureSize; i++) {
@@ -50,10 +32,8 @@ namespace ve {
     }
 
     for (int i = 0; i < static_cast<int>(textureDescriptorSets_.size()); i++) {
-      auto bufferInfo = uboBuffers_[i]->descriptorInfo();
-      DescriptorWriter(*textureDescriptorSetLayout_, *texturePool_)
-          .writeBuffer(0, &bufferInfo)
-          .writeImage(1, textureDescriptors.data(), textureSize)
+      DescriptorWriter(*textureDescriptorSetLayout_, *textureDescriptorPool_)
+          .writeImage(0, textureDescriptors.data(), textureSize)
           .build(textureDescriptorSets_[i]);
     }
 
@@ -68,15 +48,10 @@ namespace ve {
            && static_cast<int>(glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
                   == 0) {
       glfwPollEvents();
-      for (int i = 0; i < static_cast<int>(gameObjects_.size()); i++) {
-        mouse_.getInput(gameObjects_[i], playerInterface_);
+      for (int i = 0; i < static_cast<int>(menuInterface_.size()); i++) {
+        mouse_.getInput(menuInterface_[i], playerInterface_);
       }
-      if (mouse_.getGameLoop()) {
-        gameState_ = GameState::GAMELOOP;
-      } else if (gameState_ != GameState::PLAYING) {
-        playerInput_.clear();
-        gameState_ = GameState::PLAYING;
-      }
+
       auto newTime = std::chrono::high_resolution_clock::now();
       size_t currentFrame = renderer_.getComputeCurrentFrame();
 
@@ -107,9 +82,10 @@ namespace ve {
         }
 
         case GameState::PLAYING: {
+          playerInput_.clear();
           FrameInfo frameInfo = {static_cast<int>(currentFrame), 0,
                                  textureDescriptorSets_[currentFrame], newTimeCompute};
-          computeShader.render(frameInfo, gameObjects_, playerInterface_, gameInterface_);
+          computeShader.render(frameInfo, menuInterface_, playerInterface_, gameInterface_);
           break;
         }
 
@@ -123,7 +99,7 @@ namespace ve {
           }
           FrameInfo frameInfo = {static_cast<int>(currentFrame), 0,
                                  textureDescriptorSets_[currentFrame], newTimeCompute};
-          computeShader.render(frameInfo, gameObjects_, playerInterface_, gameInterface_);
+          computeShader.render(frameInfo, menuInterface_, playerInterface_, gameInterface_);
 
           if ((std::chrono::duration<float, std::chrono::seconds::period>(newTime - startGameLoop)
                    .count())
@@ -157,28 +133,16 @@ namespace ve {
   }
 
   void Application::initDescriptor() {
-    texturePool_
-        = DescriptorPool::Builder(device_)
-              .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
-              .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
-              .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                           textureSize * SwapChain::MAX_FRAMES_IN_FLIGHT)
-              .build();
-    uboBuffers_.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    textureDescriptorPool_ = DescriptorPool::Builder(device_)
+                                 .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+                                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                              textureSize * SwapChain::MAX_FRAMES_IN_FLIGHT)
+                                 .build();
 
-    for (int i = 0; i < static_cast<int>(uboBuffers_.size()); i++) {
-      uboBuffers_[i] = std::make_unique<Buffer>(device_, sizeof(GlobalUbo), 1,
-                                                VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-      uboBuffers_[i]->map();
-    }
-
-    textureDescriptorSetLayout_
-        = DescriptorSetLayout::Builder(device_)
-              .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
-              .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                          VK_SHADER_STAGE_FRAGMENT_BIT, textureSize)
-              .build();
+    textureDescriptorSetLayout_ = DescriptorSetLayout::Builder(device_)
+                                      .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                                  VK_SHADER_STAGE_FRAGMENT_BIT, textureSize)
+                                      .build();
 
     textureDescriptorSets_.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
   }

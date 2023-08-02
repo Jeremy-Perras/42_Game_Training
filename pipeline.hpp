@@ -1,12 +1,8 @@
 #pragma once
-#include <_types/_uint32_t.h>
 
 #include <fstream>
-#include <string>
-#include <vector>
 
 #include "device.hpp"
-#include "vulkan/vulkan_core.h"
 
 namespace ve {
 

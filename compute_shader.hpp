@@ -1,20 +1,11 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <memory>
 
-#include "buffer.hpp"
-#include "descriptors.hpp"
-#include "device.hpp"
-#include "frame_info.hpp"
 #include "game_object.hpp"
-#include "pipeline.hpp"
-#include "render_system.hpp"
 #include "renderer.hpp"
 #include "swap_chain.hpp"
-#include "texture_render_system.hpp"
 namespace ve {
-
   struct UniformBufferObject {
     float deltaTime = 1.0F;
   };
@@ -91,30 +82,29 @@ namespace ve {
     void createComputeDescriptorSets();
     void createShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule);
 
-    double lastTime = 0.0F;
-    double lastFrameTime = 0.0F;
-    static constexpr int WIDTH = 800;
-    static constexpr int HEIGHT = 600;
+    double lastTime_ = 0.0F;
+    double lastFrameTime_ = 0.0F;
 
     Device &device_;
-
     Renderer &renderer_;
-
     std::unique_ptr<Pipeline> pipeline_;
     VkPipelineLayout pipelineLayout_;
 
-    VkDescriptorSetLayout computeDescriptorSetLayout_;
-    VkPipelineLayout computePipelineLayout_;
     VkPipeline computePipeline_;
-    VkShaderModule computeShaderModule_;
+    VkPipelineLayout computePipelineLayout_;
+
+    VkDescriptorSetLayout computeDescriptorSetLayout_;
+
     std::vector<VkBuffer> shaderStorageBuffers_;
     std::vector<VkDeviceMemory> shaderStorageBuffersMemory_;
-    std::vector<VkBuffer> uniformBuffers_;
 
+    std::vector<VkBuffer> uniformBuffers_;
     std::vector<VkDeviceMemory> uniformBuffersMemory_;
+
+    VkDescriptorPool computeDescriptorPool_;
+    std::vector<VkDescriptorSet> computeDescriptorSets_;
+
     std::vector<void *> uniformBuffersMapped_;
     std::vector<VkCommandBuffer> computeCommandBuffers_;
-    VkDescriptorPool descriptorPool_;
-    std::vector<VkDescriptorSet> computeDescriptorSets_;
   };
 }  // namespace ve

@@ -1,9 +1,8 @@
 #version 450
 
 layout(location = 0) in vec2 fragTexCoord;
-layout(location = 1) in vec4 fragColor;
 layout(location = 0) out vec4 outColor;
-layout(binding = 1) uniform sampler2D texSampler[12];
+layout(binding = 0) uniform sampler2D texSampler[12];
 
 layout(push_constant) uniform Push {
   vec4 color;
@@ -11,6 +10,13 @@ layout(push_constant) uniform Push {
   int index;
 }
 push;
+
+
+void discardAlpha(float w){
+  if (outColor.w < 0.8) {
+        discard;
+  }
+}
 
 void main() {
   switch (push.index) {
@@ -52,15 +58,11 @@ void main() {
       break;
     case 12:
       outColor = vec4(push.color * texture(texSampler[9], fragTexCoord).rgba);
-      if (outColor.w < 0.8) {
-        discard;
-      }
+     discardAlpha(outColor.w);
       break;
     case 13:
       outColor = vec4(texture(texSampler[11], fragTexCoord).rgba);
-      if (outColor.w < 0.8) {
-        discard;
-      }
+      discardAlpha(outColor.w);
       break;
     case 14:
       outColor = push.color;
@@ -77,7 +79,6 @@ void main() {
     case 20:
       discard;
       break;
-
     default:
       outColor = vec4(push.color.rgb * texture(texSampler[10], fragTexCoord).rgb, push.color.a);
   }

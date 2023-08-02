@@ -1,20 +1,7 @@
 #include "compute_shader.hpp"
 
-#include <_types/_uint32_t.h>
-
-#include <cstddef>
-#include <fstream>
-#include <glm/gtc/constants.hpp>
-#include <iostream>
 #include <random>
-#include <string>
-#include <vector>
 
-#include "device.hpp"
-#include "frame_info.hpp"
-#include "pipeline.hpp"
-#include "texture_render_system.hpp"
-#include "vulkan/vulkan_core.h"
 namespace ve {
 
   ComputeShader::ComputeShader(Device& device, VkRenderPass renderPass, Renderer& renderer)
@@ -34,7 +21,7 @@ namespace ve {
     vkDestroyPipeline(device_.getDevice(), computePipeline_, nullptr);
     vkDestroyPipelineLayout(device_.getDevice(), computePipelineLayout_, nullptr);
     vkDestroyPipelineLayout(device_.getDevice(), pipelineLayout_, nullptr);
-    vkDestroyDescriptorPool(device_.getDevice(), descriptorPool_, nullptr);
+    vkDestroyDescriptorPool(device_.getDevice(), computeDescriptorPool_, nullptr);
     vkDestroyDescriptorSetLayout(device_.getDevice(), computeDescriptorSetLayout_, nullptr);
     for (size_t i = 0; i < SwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
       vkDestroyBuffer(device_.getDevice(), shaderStorageBuffers_[i], nullptr);
@@ -106,13 +93,14 @@ namespace ve {
 
   void ComputeShader::createComputePipeline() {
     auto computeShaderCode = Pipeline::readFile("shaders/comp.spv");
+    VkShaderModule computeShaderModule;
 
-    createShaderModule(computeShaderCode, &computeShaderModule_);
+    createShaderModule(computeShaderCode, &computeShaderModule);
 
     VkPipelineShaderStageCreateInfo computeShaderStageInfo{};
     computeShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     computeShaderStageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
-    computeShaderStageInfo.module = computeShaderModule_;
+    computeShaderStageInfo.module = computeShaderModule;
     computeShaderStageInfo.pName = "main";
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -137,7 +125,7 @@ namespace ve {
       throw std::runtime_error("failed to create compute pipeline!");
     }
 
-    vkDestroyShaderModule(device_.getDevice(), computeShaderModule_, nullptr);
+    vkDestroyShaderModule(device_.getDevice(), computeShaderModule, nullptr);
   }
 
   void ComputeShader::createShaderStorageBuffers() {
@@ -156,19 +144,20 @@ namespace ve {
       particle.color = glm::vec4(rndDist(rndEngine), rndDist(rndEngine), rndDist(rndEngine), 1.0F);
     }
 
+    uint32_t vertexCount_ = static_cast<uint32_t>(particles.size());
+    uint32_t vertexSize = sizeof(particles[0]);
     VkDeviceSize bufferSize = sizeof(Particle) * particles.size();
 
     // Create a staging buffer used to upload data to the gpu
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    device_.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                         stagingBuffer, stagingBufferMemory);
-
-    void* data;
-    vkMapMemory(device_.getDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, particles.data(), (size_t)bufferSize);
-    vkUnmapMemory(device_.getDevice(), stagingBufferMemory);
+    Buffer stagingBuffer{
+        device_,
+        vertexSize,
+        vertexCount_,
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+    };
+    stagingBuffer.map();
+    stagingBuffer.writeToBuffer(particles.data());
 
     shaderStorageBuffers_.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
     shaderStorageBuffersMemory_.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -180,11 +169,8 @@ namespace ve {
                                | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, shaderStorageBuffers_[i],
                            shaderStorageBuffersMemory_[i]);
-      device_.copyBuffer(stagingBuffer, shaderStorageBuffers_[i], bufferSize);
+      device_.copyBuffer(stagingBuffer.getBuffer(), shaderStorageBuffers_[i], bufferSize);
     }
-
-    vkDestroyBuffer(device_.getDevice(), stagingBuffer, nullptr);
-    vkFreeMemory(device_.getDevice(), stagingBufferMemory, nullptr);
   }
 
   void ComputeShader::bind(VkCommandBuffer commandBuffer, int currentFrame) {
@@ -246,8 +232,8 @@ namespace ve {
     renderer_.endFrame(true);
 
     double currentTime = glfwGetTime() - frameInfo.Time;
-    lastFrameTime = (currentTime - lastTime) * 1000.0;
-    lastTime = currentTime;
+    lastFrameTime_ = (currentTime - lastTime_) * 1000.0;
+    lastTime_ = currentTime;
   }
 
   void ComputeShader::createShaderModule(const std::vector<char>& code,
@@ -308,7 +294,7 @@ namespace ve {
     poolInfo.pPoolSizes = poolSizes.data();
     poolInfo.maxSets = static_cast<uint32_t>(SwapChain::MAX_FRAMES_IN_FLIGHT);
 
-    if (vkCreateDescriptorPool(device_.getDevice(), &poolInfo, nullptr, &descriptorPool_)
+    if (vkCreateDescriptorPool(device_.getDevice(), &poolInfo, nullptr, &computeDescriptorPool_)
         != VK_SUCCESS) {
       throw std::runtime_error("failed to create descriptor pool!");
     }
@@ -320,7 +306,7 @@ namespace ve {
     VkDescriptorSetAllocateInfo allocInfo{};
 
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = descriptorPool_;
+    allocInfo.descriptorPool = computeDescriptorPool_;
     allocInfo.descriptorSetCount = static_cast<uint32_t>(SwapChain::MAX_FRAMES_IN_FLIGHT);
     allocInfo.pSetLayouts = layouts.data();
 
@@ -396,7 +382,7 @@ namespace ve {
 
   void ComputeShader::updateUniformBuffer(uint32_t currentImage) {
     UniformBufferObject ubo{};
-    ubo.deltaTime = static_cast<float>(lastFrameTime) * 2.0F;
+    ubo.deltaTime = static_cast<float>(lastFrameTime_) * 2.0F;
 
     memcpy(uniformBuffersMapped_[currentImage], &ubo, sizeof(ubo));
   }

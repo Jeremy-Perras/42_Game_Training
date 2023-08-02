@@ -1,23 +1,28 @@
 #pragma once
+
 #include "game_object.hpp"
-#include "window.hpp"
+
 namespace ve {
   class MouseMovementController {
   public:
-    MouseMovementController(Window &window);
+    MouseMovementController(Window &window, GameState &gameState);
     MouseMovementController(const MouseMovementController &src) = delete;
     MouseMovementController &operator=(const MouseMovementController &rhs) = delete;
     ~MouseMovementController();
+    void getUserClick(GameObject &menuObject);
+    void changeUserInterface(std::vector<std::vector<GameObject>> &playerInterface_);
+
     // getter
     void getInput(GameObject &menuObject, std::vector<std::vector<GameObject>> &playerInterface_);
-    bool getGameLoop() const { return gameLoop_; }
 
   private:
     Window &window_;
+    GameState &gameState_;
+
     double xpos_;
     double ypos_;
     TextureIndex index_ = TextureIndex::WHITE;
-    bool gameLoop_ = false;
+
     glm::vec4 color_{};
   };
 

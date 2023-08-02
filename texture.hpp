@@ -1,7 +1,5 @@
 #pragma once
-#include <memory>
 
-#include "descriptors.hpp"
 #include "device.hpp"
 
 namespace ve {

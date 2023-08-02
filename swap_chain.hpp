@@ -1,23 +1,10 @@
 #pragma once
 
 #include "device.hpp"
-#include "vulkan/vulkan_core.h"
 
 // vulkan headers
-#include <vulkan/vulkan.h>
 
 // std lib headers
-#include <array>
-#include <cstdlib>
-#include <cstring>
-#include <iostream>
-#include <limits>
-#include <memory>
-#include <set>
-#include <stdexcept>
-#include <string>
-#include <vector>
-
 namespace ve {
 
   class SwapChain {

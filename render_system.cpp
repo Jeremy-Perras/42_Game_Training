@@ -1,10 +1,5 @@
 #include "render_system.hpp"
 
-#include <glm/gtc/constants.hpp>
-
-#include "device.hpp"
-#include "pipeline.hpp"
-#include "vulkan/vulkan_core.h"
 namespace ve {
 
   struct SimplePushConstantData {

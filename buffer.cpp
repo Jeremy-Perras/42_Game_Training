@@ -174,15 +174,6 @@ namespace ve {
     return descriptorInfo(alignmentSize_, index * alignmentSize_);
   }
 
-  /**
-   * Invalidate a memory range of the buffer to make it visible to the host
-   *
-   * @note Only required for non-coherent memory
-   *
-   * @param index Specifies the region to invalidate: index * alignmentSize
-   *
-   * @return VkResult of the invalidate call
-   */
   VkResult Buffer::invalidateIndex(int index) {
     return invalidate(alignmentSize_, index * alignmentSize_);
   }

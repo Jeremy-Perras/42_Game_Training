@@ -1,18 +1,11 @@
 #pragma once
-#include <_types/_uint32_t.h>
-#include <sys/time.h>
 
 #include <glm/glm.hpp>
-#include <stdexcept>
 
 #include "buffer.hpp"
-#include "device.hpp"
 #include "frame_info.hpp"
 #include "pipeline.hpp"
-#include "renderer.hpp"
-#include "texture.hpp"
 #include "utils.hpp"
-#include "vulkan/vulkan_core.h"
 namespace ve {
 
   class TextureRenderSystem {
@@ -26,7 +19,6 @@ namespace ve {
     struct Vertex {
       glm::vec2 pos;
       glm::vec2 texCoord;
-      glm::vec4 color;
 
       // getters
       static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();

@@ -1,12 +1,5 @@
 #include "texture_render_system.hpp"
 
-#include <_types/_uint32_t.h>
-#include <sys/_types/_id_t.h>
-
-#include "device.hpp"
-#include "frame_info.hpp"
-#include "pipeline.hpp"
-#include "vulkan/vulkan_core.h"
 namespace ve {
 
   TextureRenderSystem::TextureRenderSystem(Device& device, VkRenderPass renderPass,
@@ -20,10 +13,8 @@ namespace ve {
       color_ = glm::vec4(0.0, 1.0, 0.0, 1.0);
     } else if (textureIndex_ == TextureIndex::BLUE) {
       color_ = glm::vec4(0.0, 0.0, 1.0, 1.0);
-    } else if (textureIndex_ == TextureIndex::WHITE) {
-      color_ = glm::vec4(1.0, 1.0, 1.0, 1.0);
     } else {
-      color_ = builder.vertices[0].color;
+      color_ = glm::vec4(1.0, 1.0, 1.0, 1.0);
     }
     createPipelineLayout(&globalSetLayout);
     createPipeline(renderPass);
@@ -80,7 +71,7 @@ namespace ve {
 
   std::vector<VkVertexInputAttributeDescription>
   TextureRenderSystem::Vertex::getAttributeDescriptions() {
-    std::vector<VkVertexInputAttributeDescription> attributeDescriptions(3);
+    std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
     attributeDescriptions[0].binding = 0;
     attributeDescriptions[0].location = 0;
     attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
@@ -90,11 +81,6 @@ namespace ve {
     attributeDescriptions[1].location = 1;
     attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
     attributeDescriptions[1].offset = offsetof(Vertex, texCoord);
-
-    attributeDescriptions[2].binding = 0;
-    attributeDescriptions[2].location = 2;
-    attributeDescriptions[2].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-    attributeDescriptions[2].offset = offsetof(Vertex, color);
 
     return attributeDescriptions;
   }

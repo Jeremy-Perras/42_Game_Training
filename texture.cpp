@@ -1,7 +1,5 @@
 #include "texture.hpp"
 
-#include "buffer.hpp"
-
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 namespace ve {

@@ -1,11 +1,6 @@
 #include "window.hpp"
 
-#include <iostream>
 #include <sstream>
-#include <stdexcept>
-#include <utility>
-
-#include "vulkan/vulkan_core.h"
 
 namespace ve {
 

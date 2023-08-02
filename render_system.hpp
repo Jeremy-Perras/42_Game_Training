@@ -1,13 +1,10 @@
 #pragma once
-#include <_types/_uint32_t.h>
-#include <sys/time.h>
 
 #include <glm/glm.hpp>
 
 #include "buffer.hpp"
 #include "frame_info.hpp"
 #include "pipeline.hpp"
-#include "renderer.hpp"
 #include "vulkan/vulkan_core.h"
 
 namespace ve {

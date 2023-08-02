@@ -11,9 +11,5 @@ namespace ve {
       int moveUp = GLFW_KEY_W;
       int moveDown = GLFW_KEY_S;
     };
-
-    void moveInPlaneXZ(GLFWwindow* window, GameObject& gameObject);
-
-    KeyMappings keys{};
   };
 }  // namespace ve

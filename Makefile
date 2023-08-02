@@ -1,6 +1,6 @@
 NAME = library
 
-SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp model.cpp renderer.cpp render_system.cpp\
+SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp interface_model.cpp renderer.cpp render_system.cpp\
 keyboard_movement_controller.cpp buffer.cpp descriptors.cpp texture_render_system.cpp texture.cpp \
 compute_shader.cpp mouse_movement_controller.cpp parsing.cpp game_loop.cpp
 

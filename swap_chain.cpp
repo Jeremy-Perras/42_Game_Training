@@ -1,12 +1,5 @@
 #include "swap_chain.hpp"
 
-#include <sys/_types/_size_t.h>
-
-#include <memory>
-#include <utility>
-
-#include "vulkan/vulkan_core.h"
-
 // std
 
 namespace ve {

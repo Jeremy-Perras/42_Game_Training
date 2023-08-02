@@ -1,12 +1,4 @@
 #pragma once
-#include <_types/_uint32_t.h>
-#include <sys/time.h>
-
-#include <cassert>
-#include <memory>
-#include <stdexcept>
-#include <utility>
-
 #include "swap_chain.hpp"
 
 namespace ve {

@@ -1,13 +1,5 @@
 #include "renderer.hpp"
 
-#include <_types/_uint32_t.h>
-
-#include <glm/gtc/constants.hpp>
-#include <memory>
-#include <stdexcept>
-
-#include "swap_chain.hpp"
-#include "vulkan/vulkan_core.h"
 namespace ve {
 
   Renderer::Renderer(Window &window, Device &device) : window_(window), device_(device) {

@@ -2,7 +2,6 @@
 
 #include "render_system.hpp"
 #include "texture_render_system.hpp"
-
 namespace ve {
   class GameObject {
   public:

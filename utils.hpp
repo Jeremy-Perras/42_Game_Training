@@ -1,4 +1,10 @@
 namespace ve {
+  static constexpr int WIDTH = 800;
+  static constexpr int HEIGHT = 600;
+  static constexpr float HEIGHTVERTEX = 0.05F;
+  static constexpr float WIDTHVERTEX = 0.05F;
+
+  enum GameState { START, PLAYING, MENU, GAMELOOP };
   struct playerCoordinate {
     float x;
     float y;
@@ -28,7 +34,7 @@ namespace ve {
     TEXTURESIZE,
     DISCARD,
   };
-  // constexpr int textureSize = TextureIndex::TEXTURESIZE;
+
   constexpr int textureSize = 12;
 
 }  // namespace ve
