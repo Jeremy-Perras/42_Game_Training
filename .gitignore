@@ -4,6 +4,8 @@
 .VSCodeCounter/
 *.DS_Store
 shaders/*.spv
+library
+library_debug
 
 # Compiled Object files
 *.slo
