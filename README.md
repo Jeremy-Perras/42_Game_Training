@@ -1,7 +1,6 @@
-# GameEngine
+# 42_Game_Training
+Project training yourself 42 SCHOOL TEST.
 
-https://www.learncpp.com/cpp-tutorial/introduction-to-smart-pointers-move-semantics/#:~:text=A%20Smart%20pointer%20is%20a,t%20clean%20up%20after%20themselves
-
-https://austinmorlan.com/posts/entity_component_system/
-
-https://gameprogrammingpatterns.com/game-loop.html
+# Ressources
+* https://vulkan-tutorial.com/
+* https://www.youtube.com/playlist?list=PL8327DO66nu9qYVKLDmdLW_84-yE4auCR
