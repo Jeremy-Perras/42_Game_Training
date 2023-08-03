@@ -6,7 +6,7 @@ layout(location = 1) in vec2 inTexCoord;
 layout(location = 0) out vec2 fragTexCoord;
 layout(push_constant) uniform Push {
   vec4 color;
-  vec2 offset;
+  vec4 offset;
   int index;
 }
 push;

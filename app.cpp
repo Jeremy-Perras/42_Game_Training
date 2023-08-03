@@ -12,15 +12,15 @@ namespace ve {
   Application::~Application() {}
 
   void Application::mainLoop() {
-    Parsing parsing("lvl/lvl1.ber");
+    std::string lvlPath = "lvl/lvl1.ber";
     InterfaceModel model{device_, renderer_.getSwapChainRenderPass(),
-                         textureDescriptorSetLayout_->getDescriptorSetLayout()};
+                         textureDescriptorSetLayout_->getDescriptorSetLayout(), lvlPath};
 
     std::vector<std::shared_ptr<Texture>> texture;
     model.loadTexture(&texture);
     model.createMenuInterface(&menuInterface_);
     model.createPlayerInterface(&playerInterface_, &menuInterface_, interfaceSize_);
-    model.createGameInterface(parsing.getMap(), &gameInterface_);
+    model.createGameMap(&gameInterface_);
     playerPointer_ = model.getPlayerPointer();
     playerCoordinate_ = model.getStartCoordinate();
 
@@ -83,14 +83,24 @@ namespace ve {
 
         case GameState::PLAYING: {
           playerInput_.clear();
+          isAlreadyDone_ = false;
+
           FrameInfo frameInfo = {static_cast<int>(currentFrame), 0,
                                  textureDescriptorSets_[currentFrame], newTimeCompute};
           computeShader.render(frameInfo, menuInterface_, playerInterface_, gameInterface_);
-
           break;
         }
 
         case GameState::GAMELOOP: {
+          if (playerInput_.empty() && !isAlreadyDone_) {
+            for (int i = 0; i < static_cast<int>(playerInterface_.size()); i++) {
+              playerInput_.push_back(
+                  std::make_pair(playerInterface_[0][i].textureRenderSystem->getIndexTexture(),
+                                 playerInterface_[0][i].textureRenderSystem->getColor()));
+            }
+            isAlreadyDone_ = true;
+          }
+
           for (const auto &obj : gameInterface_) {
             if (&obj != playerPointer_
                 && obj.textureRenderSystem->isInside(playerCoordinate_.x, playerCoordinate_.y)) {
@@ -112,8 +122,9 @@ namespace ve {
                    .count())
               >= 0.5) {
             startGameLoop = std::chrono::high_resolution_clock::now();
-            gameLoop();
-            std::cout << playerInput_.size() << std::endl;
+            if (!playerInput_.empty()) {
+              gameLoop();
+            }
           }
           break;
         }
@@ -156,19 +167,19 @@ namespace ve {
   }
 
   void Application::gameLoop() {
-    if (playerInput_[playerIndexInput_].first == TextureIndex::F0) {
+    if (playerInput_[0].first == TextureIndex::F0) {
       for (int i = 0; i < static_cast<int>(playerInterface_.size()); i++) {
         playerInput_.push_back(
             std::make_pair(playerInterface_[0][i].textureRenderSystem->getIndexTexture(),
                            playerInterface_[0][i].textureRenderSystem->getColor()));
       }
-    } else if (playerInput_[playerIndexInput_].first == TextureIndex::F1) {
+    } else if (playerInput_[0].first == TextureIndex::F1) {
       for (int i = 0; i < static_cast<int>(playerInterface_.size()); i++) {
         playerInput_.push_back(
             std::make_pair(playerInterface_[1][i].textureRenderSystem->getIndexTexture(),
                            playerInterface_[1][i].textureRenderSystem->getColor()));
       }
-    } else if (playerInput_[playerIndexInput_].first == TextureIndex::F2) {
+    } else if (playerInput_[0].first == TextureIndex::F2) {
       for (int i = 0; i < static_cast<int>(playerInterface_.size()); i++) {
         playerInput_.push_back(
             std::make_pair(playerInterface_[2][i].textureRenderSystem->getIndexTexture(),
@@ -176,47 +187,46 @@ namespace ve {
       }
     }
 
-    if (playerInput_[playerIndexInput_].first == TextureIndex::ARROWUP
-        || playerInput_[playerIndexInput_].first == TextureIndex::ARROWRIGHT
-        || playerInput_[playerIndexInput_].first == TextureIndex::ARROWLEFT) {
+    if (playerInput_[0].first == TextureIndex::ARROWUP
+        || playerInput_[0].first == TextureIndex::ARROWRIGHT
+        || playerInput_[0].first == TextureIndex::ARROWLEFT) {
       for (const auto &obj : gameInterface_) {
         if (&obj != playerPointer_
             && obj.textureRenderSystem->isInside(playerCoordinate_.x, playerCoordinate_.y)) {
-          if (obj.textureRenderSystem->getColor() == playerInput_[playerIndexInput_].second
-              || playerInput_[playerIndexInput_].second == glm::vec4(1.0, 1.0, 1.0, 1.0)) {
-            if (playerInput_[playerIndexInput_].first == TextureIndex::ARROWUP) {
+          if (obj.textureRenderSystem->getColor() == playerInput_[0].second
+              || playerInput_[0].second == glm::vec4(1.0, 1.0, 1.0, 1.0)) {
+            if (playerInput_[0].first == TextureIndex::ARROWUP) {
               playerPointer_->textureRenderSystem->setBuilderCoordinate(&playerCoordinate_);
             }
-            if (playerInput_[playerIndexInput_].first == TextureIndex::ARROWLEFT) {
+            if (playerInput_[0].first == TextureIndex::ARROWLEFT) {
               playerCoordinate_.Angle = playerCoordinate_.Angle + 90.0F;
             }
-            if (playerInput_[playerIndexInput_].first == TextureIndex::ARROWRIGHT) {
+            if (playerInput_[0].first == TextureIndex::ARROWRIGHT) {
               playerCoordinate_.Angle = playerCoordinate_.Angle - 90.0F;
             }
             if (playerCoordinate_.Angle == 360.0F || playerCoordinate_.Angle == -360.0F) {
               playerCoordinate_.Angle = 0.0F;
             }
-            break;
           }
         }
       }
     }
 
-    if (playerInput_[playerIndexInput_].first == TextureIndex::BRUSHRED
-        || playerInput_[playerIndexInput_].first == TextureIndex::BRUSHBLUE
-        || playerInput_[playerIndexInput_].first == TextureIndex::BRUSHGREEN) {
+    if (playerInput_[0].first == TextureIndex::BRUSHRED
+        || playerInput_[0].first == TextureIndex::BRUSHBLUE
+        || playerInput_[0].first == TextureIndex::BRUSHGREEN) {
       for (const auto &obj : gameInterface_) {
         if (&obj != playerPointer_
             && obj.textureRenderSystem->isInside(playerCoordinate_.x, playerCoordinate_.y)) {
-          if (obj.textureRenderSystem->getColor() == playerInput_[playerIndexInput_].second
-              || playerInput_[playerIndexInput_].second == glm::vec4(1.0, 1.0, 1.0, 1.0)) {
-            if (playerInput_[playerIndexInput_].first == TextureIndex::BRUSHRED) {
+          if (obj.textureRenderSystem->getColor() == playerInput_[0].second
+              || playerInput_[0].second == glm::vec4(1.0, 1.0, 1.0, 1.0)) {
+            if (playerInput_[0].first == TextureIndex::BRUSHRED) {
               obj.textureRenderSystem->setColor(glm::vec4(1.0, 0.0, 0.0, 1.0));
             }
-            if (playerInput_[playerIndexInput_].first == TextureIndex::BRUSHGREEN) {
+            if (playerInput_[0].first == TextureIndex::BRUSHGREEN) {
               obj.textureRenderSystem->setColor(glm::vec4(0.0, 1.0, 0.0, 1.0));
             }
-            if (playerInput_[playerIndexInput_].first == TextureIndex::BRUSHBLUE) {
+            if (playerInput_[0].first == TextureIndex::BRUSHBLUE) {
               obj.textureRenderSystem->setColor(glm::vec4(0.0, 0.0, 1.0, 1.0));
             }
           }
@@ -233,10 +243,9 @@ namespace ve {
       }
     }
 
-    if (playerIndexInput_ < static_cast<int>(playerInput_.size() - 1)) {
-      playerIndexInput_++;
+    if (!playerInput_.empty()) {
+      playerInput_.erase(playerInput_.begin());
     }
-    playerInput_.erase(playerInput_.begin());
   }
 
 }  // namespace ve

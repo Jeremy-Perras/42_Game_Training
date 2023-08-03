@@ -198,10 +198,9 @@ namespace ve {
     renderer_.beginSwapChainRenderPass(commandBuffer);
 
     for (const auto& obj : gameInterface) {
-      if (obj.textureRenderSystem) {
+      if (obj.textureRenderSystem
+          && obj.textureRenderSystem->getIndexTexture() != TextureIndex::LOST) {
         obj.textureRenderSystem->render(frameInfo);
-      } else {
-        obj.renderSystem->renderGameObjects(frameInfo);
       }
     }
 

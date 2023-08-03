@@ -11,7 +11,7 @@ namespace ve {
   class TextureRenderSystem {
     struct TexturePushConstantData {
       glm::vec4 color{1.0, 1.0, 1.0, 1.0};
-      glm::vec2 offset{0.0, 0.0};
+      glm::vec4 offset{0.0, 0.0, 0.0, 0.0};
       unsigned int index;
     };
 
@@ -67,6 +67,7 @@ namespace ve {
         playerCoordinate->y = playerCoordinate->y - 0.05F;
       }
     }
+
     void resetPushCoordinate() {
       offset_.x = 0.0F;
       offset_.y = 0.0F;
@@ -76,6 +77,7 @@ namespace ve {
 
     TextureIndex getIndexTexture() const { return textureIndex_; }
     glm::vec4 getColor() const { return color_; }
+
     bool isInside(double x, double y) {
       return x > builder_.vertices[0].pos.x && x < builder_.vertices[1].pos.x
              && y > builder_.vertices[0].pos.y && y < builder_.vertices[2].pos.y;
@@ -91,7 +93,7 @@ namespace ve {
     Device &device_;
     Builder builder_;
     glm::vec4 color_{};
-    glm::vec2 offset_{};
+    glm::vec2 offset_{0.0F, 0.0F};
 
     std::unique_ptr<Pipeline> pipeline_;
     VkPipelineLayout pipelineLayout_;

@@ -1,12 +1,22 @@
 #include "interface_model.hpp"
 
+#include <iostream>
 #include <utility>
+
+#include "parsing.hpp"
 
 namespace ve {
 
   InterfaceModel::InterfaceModel(Device &device, VkRenderPass renderPass,
-                                 VkDescriptorSetLayout descriptorLayout)
-      : device_(device), renderPass_(renderPass), descriptorLayout_(descriptorLayout) {}
+                                 VkDescriptorSetLayout descriptorLayout, std::string &lvlPath)
+      : device_(device), renderPass_(renderPass), descriptorLayout_(descriptorLayout) {
+    Parsing parsing(lvlPath);
+    xStart_ = parsing.getXStart();
+    yStart_ = parsing.getYStart();
+    lineSize_ = parsing.getLineSize();
+    coloneSize_ = parsing.getColoneSize();
+    map_ = parsing.getMap();
+  }
 
   InterfaceModel::~InterfaceModel() {}
 
@@ -191,109 +201,209 @@ namespace ve {
     menuInterface->push_back(std::move(whiteSquare));
   }
 
-  void InterfaceModel::createGameInterface(std::vector<std::string> map,
-                                           std::vector<GameObject> *gameInterface) {
-    unsigned long line = map[0].substr(0, map[0].find('\n')).size();
-    int lineStart = static_cast<int>(line) / 2;
-    int colone = 0;
-    int inc = 0;
-    std::string::size_type n = 0;
+  void InterfaceModel::createGameMap(std::vector<GameObject> *gameInterface) {
+    TextureRenderSystem::Builder builder;
+    int lineMapSize = static_cast<int>((2 / HEIGHTVERTEX) - (0.2) / HEIGHTVERTEX);
+    int coloneMapSize = static_cast<int>(2 / WIDTHVERTEX);
+    int lineMap = 0;
+    int coloneMap = 0;
+    float xStart = xStart_;
+    float yStart = yStart_;
+    gameInterface->size();
+    unsigned long indexPlayer;
 
-    for (auto c : map[0]) {
-      if (c == '\n') {
-        colone++;
-      }
-    }
-    int coloneStart = static_cast<int>(colone) / 2;
-    float xStart = -0.05F * static_cast<float>(lineStart);
-    float yStart = -0.05F * static_cast<float>(coloneStart);
-    std::vector<TextureRenderSystem::Builder> builder;
+    for (int j = 0; j < lineMapSize; j++) {
+      for (int i = 0; i < coloneMapSize; i++) {
+        builder
+            = {{{{-1 + static_cast<float>(i) * 0.05F, -1 + static_cast<float>(j) * 0.05},
 
-    while ((n = map[0].find('\n')) != std::string::npos) {
-      map[0].erase(n, 1);
-    }
-    n = 0;
-    while ((n = map[1].find('\n')) != std::string::npos) {
-      map[1].erase(n, 1);
-    }
+                 {0.0F, 0.0F}},
+                {{-1 + 0.05F + static_cast<float>(i) * 0.05F, -1 + static_cast<float>(j) * 0.05},
 
-    for (int j = 0; j < colone; j++) {
-      for (int i = 0; i < static_cast<int>(line); i++) {
-        builder.push_back(
-            {{{{xStart + static_cast<float>(i) * 0.05F, yStart + static_cast<float>(j) * 0.05},
+                 {1.0F, 0.0F}},
+                {{-1 + 0.05F + static_cast<float>(i) * 0.05F,
+                  0.05F + -1 + static_cast<float>(j) * 0.05},
 
-               {0.0F, 0.0F}},
-              {{xStart + 0.05F + static_cast<float>(i) * 0.05F,
-                yStart + static_cast<float>(j) * 0.05},
+                 {1.0F, 1.0F}},
+                {{-1 + static_cast<float>(i) * 0.05F, -1 + static_cast<float>(j) * 0.05 + 0.05},
 
-               {1.0F, 0.0F}},
-              {{xStart + 0.05F + static_cast<float>(i) * 0.05F,
-                yStart + 0.05F + static_cast<float>(j) * 0.05},
+                 {0.0F, 1.0F}}},
+               {0, 1, 2, 2, 3, 0}};
 
-               {1.0F, 1.0F}},
-              {{xStart + static_cast<float>(i) * 0.05F,
-                yStart + 0.05F + static_cast<float>(j) * 0.05},
+        auto object = GameObject::createGameObject();
+        object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+            device_, renderPass_, descriptorLayout_, builder, TextureIndex::LOST);
 
-               {0.0F, 1.0F}}},
-             {0, 1, 2, 2, 3, 0}});
+        if (isInside(xStart, yStart, static_cast<float>(i), static_cast<float>(j))
+            && coloneMap != coloneSize_) {
+          xStart = xStart + 0.05F;
 
-        if (map[1][i + j * static_cast<int>(line)] != '1') {
-          auto object2 = GameObject::createGameObject();
-          switch (map[1][i + j * static_cast<int>(line)]) {
-            case 'S':
-              countStar_++;
+          switch (map_[1][lineMap + coloneMap * static_cast<int>(lineSize_)]) {
+            case 'S': {
+              auto object2 = GameObject::createGameObject();
               object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-                  device_, renderPass_, descriptorLayout_, builder[inc], TextureIndex::STAR);
+                  device_, renderPass_, descriptorLayout_, builder, TextureIndex::STAR);
               gameInterface->push_back(std::move(object2));
+              countStar_++;
               break;
-            case 'P':
-              playerStart_.x
-                  = (builder[inc].vertices[0].pos.x + builder[inc].vertices[1].pos.x) / 2;
-              playerStart_.y
-                  = (builder[inc].vertices[0].pos.y + builder[inc].vertices[2].pos.y) / 2;
-
+            }
+            case 'N': {
+              auto object2 = GameObject::createGameObject();
+              playerStart_.x = (builder.vertices[0].pos.x + builder.vertices[1].pos.x) / 2;
+              playerStart_.y = (builder.vertices[0].pos.y + builder.vertices[2].pos.y) / 2;
               playerStart_.Angle = 90.0F;
-              object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-                  device_, renderPass_, descriptorLayout_, builder[inc], TextureIndex::PLAYER);
-              gameInterface->emplace(gameInterface->begin(), std::move(object2));
-              playerPointer_ = gameInterface->data();
 
+              object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+                  device_, renderPass_, descriptorLayout_, builder, TextureIndex::PLAYER);
+              gameInterface->emplace(gameInterface->begin(), std::move(object2));
+              // gameInterface->push_back(std::move(object2));
+
+              indexPlayer = 0;
+
+              break;
+            }
+            default:
+              break;
+          }
+
+          switch (map_[0][lineMap + coloneMap * static_cast<int>(lineSize_)]) {
+            case 'R':
+              object.textureRenderSystem->setIndexTexture(TextureIndex::RED);
+              object.textureRenderSystem->setColor(glm::vec4(1.0, 0.0, 0.0, 1.0));
+              break;
+            case 'G':
+              object.textureRenderSystem->setIndexTexture(TextureIndex::GREEN);
+              object.textureRenderSystem->setColor(glm::vec4(0.0, 1.0, 0.0, 1.0));
+              break;
+            case 'B':
+              object.textureRenderSystem->setIndexTexture(TextureIndex::BLUE);
+              object.textureRenderSystem->setColor(glm::vec4(0.0, 0.0, 1.0, 1.0));
               break;
             default:
               break;
           }
+
+          lineMap++;
+          if (lineMap == lineSize_) {
+            xStart = xStart_;
+            yStart = yStart + 0.05F;
+            lineMap = 0;
+            coloneMap++;
+          }
         }
 
-        auto object = GameObject::createGameObject();
-        switch (map[0][i + j * static_cast<int>(line)]) {
-          case '1':
-            object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-                device_, renderPass_, descriptorLayout_, builder[inc], TextureIndex::LOST);
-            gameInterface->push_back(std::move(object));
-            break;
-          case 'R':
-            object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-                device_, renderPass_, descriptorLayout_, builder[inc], TextureIndex::RED);
-            gameInterface->push_back(std::move(object));
-            break;
-          case 'G':
-            object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-                device_, renderPass_, descriptorLayout_, builder[inc], TextureIndex::GREEN);
-            gameInterface->push_back(std::move(object));
-            break;
-          case 'B':
-            object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-                device_, renderPass_, descriptorLayout_, builder[inc], TextureIndex::BLUE);
-            gameInterface->push_back(std::move(object));
-            break;
-          default:
-            break;
-        }
-        inc++;
+        gameInterface->push_back(std::move(object));
       }
     }
+    playerPointer_ = &(*gameInterface)[indexPlayer];
     saveInitialState(*gameInterface);
   }
+
+  // void InterfaceModel::createGameInterface(std::vector<GameObject> *gameInterface) {
+  //   unsigned long line = map[0].substr(0, map[0].find('\n')).size();
+
+  //   int colone = 0;
+  //   int inc = 0;
+  //   std::string::size_type n = 0;
+
+  //   for (auto c : map[0]) {
+  //     if (c == '\n') {
+  //       colone++;
+  //     }
+  //   }
+
+  //   int lineStart = static_cast<int>(line) / 2;
+  //   int coloneStart = static_cast<int>(colone) / 2;
+
+  //   float xStart = -0.05F * static_cast<float>(lineStart);
+  //   float yStart = -0.05F * static_cast<float>(coloneStart);
+  //   std::vector<TextureRenderSystem::Builder> builder;
+
+  //   while ((n = map[0].find('\n')) != std::string::npos) {
+  //     map[0].erase(n, 1);
+  //   }
+  //   n = 0;
+  //   while ((n = map[1].find('\n')) != std::string::npos) {
+  //     map[1].erase(n, 1);
+  //   }
+
+  //   for (int j = 0; j < colone; j++) {
+  //     for (int i = 0; i < static_cast<int>(line); i++) {
+  //       builder.push_back(
+  //           {{{{xStart + static_cast<float>(i) * 0.05F, yStart + static_cast<float>(j) * 0.05},
+
+  //              {0.0F, 0.0F}},
+  //             {{xStart + 0.05F + static_cast<float>(i) * 0.05F,
+  //               yStart + static_cast<float>(j) * 0.05},
+
+  //              {1.0F, 0.0F}},
+  //             {{xStart + 0.05F + static_cast<float>(i) * 0.05F,
+  //               yStart + 0.05F + static_cast<float>(j) * 0.05},
+
+  //              {1.0F, 1.0F}},
+  //             {{xStart + static_cast<float>(i) * 0.05F,
+  //               yStart + 0.05F + static_cast<float>(j) * 0.05},
+
+  //              {0.0F, 1.0F}}},
+  //            {0, 1, 2, 2, 3, 0}});
+
+  //       if (map[1][i + j * static_cast<int>(line)] != '1') {
+  //         auto object2 = GameObject::createGameObject();
+  //         switch (map[1][i + j * static_cast<int>(line)]) {
+  //           case 'S':
+  //             countStar_++;
+  //             object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+  //                 device_, renderPass_, descriptorLayout_, builder[inc], TextureIndex::STAR);
+  //             gameInterface->push_back(std::move(object2));
+  //             break;
+  //           case 'P':
+  //             playerStart_.x
+  //                 = (builder[inc].vertices[0].pos.x + builder[inc].vertices[1].pos.x) / 2;
+  //             playerStart_.y
+  //                 = (builder[inc].vertices[0].pos.y + builder[inc].vertices[2].pos.y) / 2;
+
+  //             playerStart_.Angle = 90.0F;
+  //             object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+  //                 device_, renderPass_, descriptorLayout_, builder[inc], TextureIndex::PLAYER);
+  //             gameInterface->emplace(gameInterface->begin(), std::move(object2));
+  //             playerPointer_ = gameInterface->data();
+
+  //             break;
+  //           default:
+  //             break;
+  //         }
+  //       }
+
+  //       auto object = GameObject::createGameObject();
+  //       switch (map[0][i + j * static_cast<int>(line)]) {
+  //         case '1':
+  //           object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+  //               device_, renderPass_, descriptorLayout_, builder[inc], TextureIndex::LOST);
+  //           gameInterface->push_back(std::move(object));
+  //           break;
+  //         case 'R':
+  //           object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+  //               device_, renderPass_, descriptorLayout_, builder[inc], TextureIndex::RED);
+  //           gameInterface->push_back(std::move(object));
+  //           break;
+  //         case 'G':
+  //           object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+  //               device_, renderPass_, descriptorLayout_, builder[inc], TextureIndex::GREEN);
+  //           gameInterface->push_back(std::move(object));
+  //           break;
+  //         case 'B':
+  //           object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+  //               device_, renderPass_, descriptorLayout_, builder[inc], TextureIndex::BLUE);
+  //           gameInterface->push_back(std::move(object));
+  //           break;
+  //         default:
+  //           break;
+  //       }
+  //       inc++;
+  //     }
+  //   }
+  //   saveInitialState(*gameInterface);
+  // }
 
   void InterfaceModel::saveInitialState(std::vector<GameObject> &gameInterface) {
     for (const auto &obj : gameInterface) {

@@ -6,13 +6,13 @@ layout(binding = 0) uniform sampler2D texSampler[12];
 
 layout(push_constant) uniform Push {
   vec4 color;
-  vec2 offset;
+  vec4 offset;
   int index;
 }
 push;
 
 void discardAlpha(float w) {
-  if (outColor.w < 0.8) {
+  if (outColor.w < .8) {
     discard;
   }
 }

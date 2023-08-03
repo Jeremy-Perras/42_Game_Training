@@ -5,7 +5,7 @@
 namespace ve {
   class GameObject {
   public:
-    using id_t = unsigned int;
+    // using id_t = unsigned int;
 
     GameObject(const GameObject &) = delete;
     GameObject &operator=(const GameObject &) = delete;

@@ -161,7 +161,7 @@ namespace ve {
     pipeline_->bind(frameInfo.commandBuffer);
     TexturePushConstantData push{};
     push.index = this->textureIndex_;
-    push.offset = offset_;
+    push.offset = glm::vec4(offset_.x, offset_.y, 0.0, 0.0);
     push.color = this->color_;
     vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout_,
                        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,

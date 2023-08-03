@@ -54,6 +54,6 @@ namespace ve {
     GameObject *playerPointer_;
 
     std::vector<std::pair<TextureIndex, glm::vec4>> playerInput_;
-    int playerIndexInput_ = 0;
+    bool isAlreadyDone_ = false;
   };
 }  // namespace ve

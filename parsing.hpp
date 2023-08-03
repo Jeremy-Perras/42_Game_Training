@@ -13,8 +13,16 @@ namespace ve {
     void initParsing(const std::string &filepath);
     // Getter
     std::vector<std::string> getMap() { return map_; }
+    float getXStart() const { return xStart_; }
+    float getYStart() const { return yStart_; }
+    int getLineSize() const { return lineSize_; }
+    int getColoneSize() const { return coloneSize_; }
 
   private:
     std::vector<std::string> map_;
+    float xStart_;
+    float yStart_;
+    int lineSize_;
+    int coloneSize_;
   };
 }  // namespace ve

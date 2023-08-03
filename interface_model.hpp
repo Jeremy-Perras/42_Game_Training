@@ -9,7 +9,8 @@ namespace ve {
 
   class InterfaceModel {
   public:
-    InterfaceModel(Device &device, VkRenderPass renderPass, VkDescriptorSetLayout descriptorLayout);
+    InterfaceModel(Device &device, VkRenderPass renderPass, VkDescriptorSetLayout descriptorLayout,
+                   std::string &lvlPath);
     InterfaceModel(const InterfaceModel &src) = delete;
     InterfaceModel &operator=(const InterfaceModel &rhs) = delete;
     ~InterfaceModel();
@@ -23,6 +24,15 @@ namespace ve {
     void saveInitialState(std::vector<GameObject> &gameInterface);
     void resetToInitialState(std::vector<GameObject> *gameInterface);
 
+    void createGameMap(std::vector<GameObject> *gameInterface);
+    static bool isInside(float x, float y, float i, float j) {
+      (void)y;
+      (void)j;
+
+      return (i * 0.05 - 1.0F > x && x < (i + 1) * 0.05 - 1.0F) && j * 0.05 - 1.0F > y
+             && y < (j + 1) * 0.05 - 1.0F;
+    }
+
     // Getter
     playerCoordinate getStartCoordinate() { return playerStart_; }
     GameObject *getPlayerPointer() { return playerPointer_; }
@@ -35,6 +45,11 @@ namespace ve {
     playerCoordinate playerStart_;
     GameObject *playerPointer_;
     std::vector<std::pair<TextureIndex, glm::vec4>> initialState_;
+    float xStart_;
+    float yStart_;
+    int lineSize_;
+    int coloneSize_;
+    std::vector<std::string> map_;
   };
 
 }  // namespace ve
