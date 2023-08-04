@@ -1,9 +1,11 @@
 #pragma once
 
 #include <chrono>
+#include <memory>
 
 #include "descriptors.hpp"
 #include "device.hpp"
+#include "interface_model.hpp"
 #include "mouse_movement_controller.hpp"
 #include "renderer.hpp"
 #include "vulkan/vulkan_core.h"
@@ -30,8 +32,9 @@ namespace ve {
     void updateFPS(std::chrono::steady_clock::time_point newTime);
     void initDescriptor();
     void gameLoop();
+    void playerDead();
+    void resetStatePlaying();
 
-    interfaceSize interfaceSize_{3, 3, 4};
     GameState gameState_ = {GameState::PLAYING};
 
     Window window_{WIDTH, HEIGHT, "GameEngine"};
@@ -55,5 +58,9 @@ namespace ve {
 
     std::vector<std::pair<TextureIndex, glm::vec4>> playerInput_;
     bool isAlreadyDone_ = false;
+
+    std::unique_ptr<InterfaceModel> model_;
+
+    // std::unique_ptr<G> gameLoop;
   };
 }  // namespace ve

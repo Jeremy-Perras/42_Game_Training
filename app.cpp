@@ -1,5 +1,7 @@
 #include "app.hpp"
 
+#include <memory>
+
 #include "compute_shader.hpp"
 #include "interface_model.hpp"
 #include "parsing.hpp"
@@ -13,16 +15,17 @@ namespace ve {
 
   void Application::mainLoop() {
     std::string lvlPath = "lvl/lvl1.ber";
-    InterfaceModel model{device_, renderer_.getSwapChainRenderPass(),
-                         textureDescriptorSetLayout_->getDescriptorSetLayout(), lvlPath};
+    model_ = std::make_unique<InterfaceModel>(device_, renderer_.getSwapChainRenderPass(),
+                                              textureDescriptorSetLayout_->getDescriptorSetLayout(),
+                                              lvlPath);
 
     std::vector<std::shared_ptr<Texture>> texture;
-    model.loadTexture(&texture);
-    model.createMenuInterface(&menuInterface_);
-    model.createPlayerInterface(&playerInterface_, &menuInterface_, interfaceSize_);
-    model.createGameMap(&gameInterface_);
-    playerPointer_ = model.getPlayerPointer();
-    playerCoordinate_ = model.getStartCoordinate();
+    model_->loadTexture(&texture);
+    model_->createMenuInterface(&menuInterface_);
+    model_->createPlayerInterface(&playerInterface_, &menuInterface_);
+    model_->createGameMap(&gameInterface_);
+    playerPointer_ = model_->getPlayerPointer();
+    playerCoordinate_ = model_->getStartCoordinate();
 
     std::vector<VkDescriptorImageInfo> textureDescriptors(textureSize);
     for (int i = 0; i < textureSize; i++) {
@@ -82,9 +85,11 @@ namespace ve {
         }
 
         case GameState::PLAYING: {
-          playerInput_.clear();
-          isAlreadyDone_ = false;
-
+          if (isAlreadyDone_) {
+            resetStatePlaying();
+            playerInput_.clear();
+            isAlreadyDone_ = false;
+          }
           FrameInfo frameInfo = {static_cast<int>(currentFrame), 0,
                                  textureDescriptorSets_[currentFrame], newTimeCompute};
           computeShader.render(frameInfo, menuInterface_, playerInterface_, gameInterface_);
@@ -93,27 +98,14 @@ namespace ve {
 
         case GameState::GAMELOOP: {
           if (playerInput_.empty() && !isAlreadyDone_) {
-            for (int i = 0; i < static_cast<int>(playerInterface_.size()); i++) {
+            for (int i = 0; i < static_cast<int>(playerInterface_[0].size()); i++) {
               playerInput_.push_back(
                   std::make_pair(playerInterface_[0][i].textureRenderSystem->getIndexTexture(),
                                  playerInterface_[0][i].textureRenderSystem->getColor()));
             }
             isAlreadyDone_ = true;
           }
-
-          for (const auto &obj : gameInterface_) {
-            if (&obj != playerPointer_
-                && obj.textureRenderSystem->isInside(playerCoordinate_.x, playerCoordinate_.y)) {
-              if (obj.textureRenderSystem->getIndexTexture() == TextureIndex::LOST) {
-                model.resetToInitialState(&gameInterface_);
-                playerCoordinate_ = model.getStartCoordinate();
-                playerPointer_->textureRenderSystem->resetPushCoordinate();
-                gameState_ = GameState::PLAYING;
-                break;
-              }
-            }
-          }
-
+          playerDead();
           FrameInfo frameInfo = {static_cast<int>(currentFrame), 0,
                                  textureDescriptorSets_[currentFrame], newTimeCompute};
           computeShader.render(frameInfo, menuInterface_, playerInterface_, gameInterface_);
@@ -168,19 +160,19 @@ namespace ve {
 
   void Application::gameLoop() {
     if (playerInput_[0].first == TextureIndex::F0) {
-      for (int i = 0; i < static_cast<int>(playerInterface_.size()); i++) {
+      for (int i = 0; i < static_cast<int>(playerInterface_[0].size()); i++) {
         playerInput_.push_back(
             std::make_pair(playerInterface_[0][i].textureRenderSystem->getIndexTexture(),
                            playerInterface_[0][i].textureRenderSystem->getColor()));
       }
     } else if (playerInput_[0].first == TextureIndex::F1) {
-      for (int i = 0; i < static_cast<int>(playerInterface_.size()); i++) {
+      for (int i = 0; i < static_cast<int>(playerInterface_[1].size()); i++) {
         playerInput_.push_back(
             std::make_pair(playerInterface_[1][i].textureRenderSystem->getIndexTexture(),
                            playerInterface_[1][i].textureRenderSystem->getColor()));
       }
     } else if (playerInput_[0].first == TextureIndex::F2) {
-      for (int i = 0; i < static_cast<int>(playerInterface_.size()); i++) {
+      for (int i = 0; i < static_cast<int>(playerInterface_[2].size()); i++) {
         playerInput_.push_back(
             std::make_pair(playerInterface_[2][i].textureRenderSystem->getIndexTexture(),
                            playerInterface_[2][i].textureRenderSystem->getColor()));
@@ -194,9 +186,11 @@ namespace ve {
         if (&obj != playerPointer_
             && obj.textureRenderSystem->isInside(playerCoordinate_.x, playerCoordinate_.y)) {
           if (obj.textureRenderSystem->getColor() == playerInput_[0].second
-              || playerInput_[0].second == glm::vec4(1.0, 1.0, 1.0, 1.0)) {
+              || (playerInput_[0].second == glm::vec4(1.0, 1.0, 1.0, 1.0)
+                  && playerInput_[0].first != TextureIndex::WHITE)) {
             if (playerInput_[0].first == TextureIndex::ARROWUP) {
               playerPointer_->textureRenderSystem->setBuilderCoordinate(&playerCoordinate_);
+              break;
             }
             if (playerInput_[0].first == TextureIndex::ARROWLEFT) {
               playerCoordinate_.Angle = playerCoordinate_.Angle + 90.0F;
@@ -239,6 +233,7 @@ namespace ve {
           && obj.textureRenderSystem->isInside(playerCoordinate_.x, playerCoordinate_.y)) {
         if (obj.textureRenderSystem->getIndexTexture() == TextureIndex::STAR) {
           obj.textureRenderSystem->setIndexTexture(TextureIndex::DISCARD);
+          break;
         }
       }
     }
@@ -246,6 +241,25 @@ namespace ve {
     if (!playerInput_.empty()) {
       playerInput_.erase(playerInput_.begin());
     }
+  }
+
+  void Application::playerDead() {
+    for (const auto &obj : gameInterface_) {
+      if (&obj != playerPointer_
+          && obj.textureRenderSystem->isInside(playerCoordinate_.x, playerCoordinate_.y)) {
+        if (obj.textureRenderSystem->getIndexTexture() == TextureIndex::LOST) {
+          resetStatePlaying();
+          break;
+        }
+      }
+    }
+  }
+
+  void Application::resetStatePlaying() {
+    model_->resetToInitialState(&gameInterface_);
+    playerCoordinate_ = model_->getStartCoordinate();
+    playerPointer_->textureRenderSystem->resetPushCoordinate();
+    gameState_ = GameState::PLAYING;
   }
 
 }  // namespace ve

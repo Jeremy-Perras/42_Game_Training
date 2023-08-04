@@ -42,12 +42,7 @@ namespace ve {
     ~TextureRenderSystem();
 
     void render(FrameInfo &info);
-    void setIndexTexture(TextureIndex index) {
-      if (index == TextureIndex::F0 || index == TextureIndex::F1 || index == TextureIndex::F2) {
-        setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));
-      }
-      textureIndex_ = index;
-    }
+    void setIndexTexture(TextureIndex index) { textureIndex_ = index; }
 
     void setBuilderCoordinate(playerCoordinate *playerCoordinate) {
       float x = glm::cos(glm::radians(playerCoordinate->Angle));
