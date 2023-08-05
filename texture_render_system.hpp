@@ -47,7 +47,6 @@ namespace ve {
     void setBuilderCoordinate(playerCoordinate *playerCoordinate) {
       float x = glm::cos(glm::radians(playerCoordinate->Angle));
       float y = glm::sin(glm::radians(playerCoordinate->Angle));
-
       if (x == -1.0F) {
         offset_.x = offset_.x - 0.05F;
         playerCoordinate->x = playerCoordinate->x - 0.05F;

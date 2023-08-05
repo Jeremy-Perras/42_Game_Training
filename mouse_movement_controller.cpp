@@ -8,32 +8,33 @@ namespace ve {
 
   MouseMovementController::~MouseMovementController() {}
 
-  void MouseMovementController::getInput(GameObject &menuObject,
+  void MouseMovementController::getInput(GameObject &menuInterface,
                                          std::vector<std::vector<GameObject>> &playerInterface_) {
     if (glfwGetMouseButton(window_.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) != 0) {
       glfwGetCursorPos(window_.getGLFWwindow(), &xpos_, &ypos_);
-      getUserClick(menuObject);
+      getUserClick(menuInterface);
 
-      if (gameState_ == GameState::PLAYING) {
-        changeUserInterface(playerInterface_);
-      }
       if (index_ == TextureIndex::PLAY) {
         gameState_ = GameState::GAMELOOP;
+        index_ = TextureIndex::WHITE;
       }
       if (index_ == TextureIndex::STOP || index_ == TextureIndex::PAUSE) {
         gameState_ = GameState::PLAYING;
       }
+      if (gameState_ == GameState::PLAYING) {
+        changeUserInterface(playerInterface_);
+      }
     }
   }
 
-  void MouseMovementController::getUserClick(GameObject &menuObject) {
-    if (menuObject.textureRenderSystem
-        && menuObject.textureRenderSystem->isInside(
+  void MouseMovementController::getUserClick(GameObject &menuInterface) {
+    if (menuInterface.textureRenderSystem
+        && menuInterface.textureRenderSystem->isInside(
             ((xpos_ / window_.getExtent().width) - 0.5F) * 2,
             ((ypos_ / window_.getExtent().height) - 0.5F) * 2)
         && ((xpos_ / window_.getExtent().width) - 0.5F) * 2 < -0.6) {
-      index_ = menuObject.textureRenderSystem->getIndexTexture();
-      color_ = menuObject.textureRenderSystem->getColor();
+      index_ = menuInterface.textureRenderSystem->getIndexTexture();
+      color_ = menuInterface.textureRenderSystem->getColor();
     }
   }
 

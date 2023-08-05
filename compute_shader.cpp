@@ -183,7 +183,7 @@ namespace ve {
     vkCmdDraw(commandBuffer, PARTICLE_COUNT, 1, 0, 0);
   }
 
-  void ComputeShader::render(FrameInfo& frameInfo, std::vector<GameObject>& gameObject,
+  void ComputeShader::render(FrameInfo& frameInfo, std::vector<GameObject>& menuInterface,
                              std::vector<std::vector<GameObject>>& playerInterface,
                              std::vector<GameObject>& gameInterface) {
     size_t currentFrame = frameInfo.frameIndex;
@@ -214,7 +214,7 @@ namespace ve {
       }
     }
 
-    for (auto& obj : gameObject) {
+    for (auto& obj : menuInterface) {
       if (obj.textureRenderSystem) {
         obj.textureRenderSystem->render(frameInfo);
       } else {

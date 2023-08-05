@@ -5,9 +5,9 @@
 
 namespace ve {
   struct FrameInfo {
-    int frameIndex;
+    size_t frameIndex;
     VkCommandBuffer commandBuffer;
-    VkDescriptorSet globalDescriptorSet;
+    VkDescriptorSet descriptorSet;
     double Time;
   };
 }  // namespace ve

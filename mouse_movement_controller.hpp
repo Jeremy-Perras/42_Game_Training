@@ -9,11 +9,12 @@ namespace ve {
     MouseMovementController(const MouseMovementController &src) = delete;
     MouseMovementController &operator=(const MouseMovementController &rhs) = delete;
     ~MouseMovementController();
-    void getUserClick(GameObject &menuObject);
+    void getUserClick(GameObject &menuInterface);
     void changeUserInterface(std::vector<std::vector<GameObject>> &playerInterface_);
 
     // getter
-    void getInput(GameObject &menuObject, std::vector<std::vector<GameObject>> &playerInterface_);
+    void getInput(GameObject &menuInterface,
+                  std::vector<std::vector<GameObject>> &playerInterface_);
 
   private:
     Window &window_;

@@ -167,7 +167,7 @@ namespace ve {
                        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
                        sizeof(TexturePushConstantData), &push);
     vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                            pipelineLayout_, 0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
+                            pipelineLayout_, 0, 1, &frameInfo.descriptorSet, 0, nullptr);
 
     TextureRenderSystem::bind(frameInfo.commandBuffer);
     TextureRenderSystem::draw(frameInfo.commandBuffer);
