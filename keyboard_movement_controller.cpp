@@ -11,29 +11,24 @@
 namespace ve {
   void KeyboardMovementController::moveInPlaneXY(GLFWwindow* window, float dt,
                                                  std::vector<GameObject>& gameInterface) const {
-    if (glfwGetKey(window, keys.moveUp) == GLFW_PRESS) {
+    if (glfwGetKey(window, keys_.moveUp) == GLFW_PRESS) {
       for (auto& obj : gameInterface) {
-        obj.textureRenderSystem->setPushTranslationCoordinate(-moveSpeed * dt, false, true);
+        obj.textureRenderSystem->setPushTranslationCoordinate(-moveSpeed_ * dt, false, true);
       }
     }
-    if (glfwGetKey(window, keys.moveDown) == GLFW_PRESS) {
+    if (glfwGetKey(window, keys_.moveDown) == GLFW_PRESS) {
       for (auto& obj : gameInterface) {
-        obj.textureRenderSystem->setPushTranslationCoordinate(moveSpeed * dt, false, true);
+        obj.textureRenderSystem->setPushTranslationCoordinate(moveSpeed_ * dt, false, true);
       }
     }
-    if (glfwGetKey(window, keys.moveRight) == GLFW_PRESS) {
+    if (glfwGetKey(window, keys_.moveRight) == GLFW_PRESS) {
       for (auto& obj : gameInterface) {
-        obj.textureRenderSystem->setPushTranslationCoordinate(moveSpeed * dt, true, false);
+        obj.textureRenderSystem->setPushTranslationCoordinate(moveSpeed_ * dt, true, false);
       }
     }
-    if (glfwGetKey(window, keys.moveLeft) == GLFW_PRESS) {
+    if (glfwGetKey(window, keys_.moveLeft) == GLFW_PRESS) {
       for (auto& obj : gameInterface) {
-        obj.textureRenderSystem->setPushTranslationCoordinate(-moveSpeed * dt, true, false);
-      }
-    }
-    if (glfwGetKey(window, keys.moveLeft) == GLFW_PRESS) {
-      for (auto& obj : gameInterface) {
-        obj.textureRenderSystem->setPushTranslationCoordinate(-moveSpeed * dt, true, false);
+        obj.textureRenderSystem->setPushTranslationCoordinate(-moveSpeed_ * dt, true, false);
       }
     }
   }

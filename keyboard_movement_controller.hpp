@@ -13,8 +13,7 @@ namespace ve {
       int moveDown = GLFW_KEY_S;
     };
     void moveInPlaneXY(GLFWwindow* window, float dt, std::vector<GameObject>& gameInterface) const;
-    KeyMappings keys{};
-    float moveSpeed{0.01};
-    float lookSpeed{1.5F};
+    KeyMappings keys_{};
+    float moveSpeed_{0.5F};
   };
 }  // namespace ve

@@ -27,7 +27,7 @@ namespace ve {
     startGameLoop_ = std::chrono::high_resolution_clock::now();
     fpsTime_ = std::chrono::high_resolution_clock::now();
     auto currentTime = std::chrono::high_resolution_clock::now();
-
+    auto newTime = std::chrono::high_resolution_clock::now();
     TextureRenderSystem::Builder builder;
     builder = {{{
                     {-1, -1},
@@ -66,12 +66,12 @@ namespace ve {
       for (int i = 0; i < static_cast<int>((menuInterface_).size()); i++) {
         mouse_.getInput((menuInterface_)[i], (playerInterface_));
       }
+      resetTime(&currentTime);
       float frameTime
-          = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - fpsTime_)
+          = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - newTime)
                 .count();
       cameraController.moveInPlaneXY(window_.getGLFWwindow(), frameTime, gameInterface_);
-
-      resetTime(&currentTime);
+      newTime = currentTime;
       updateFrameInfo();
 
       switch (gameState_) {
@@ -197,7 +197,7 @@ namespace ve {
   }
 
   void Application::updateGameLvl() {
-    if (indexLvl < 4) {
+    if (indexLvl < 16) {
       indexLvl++;
     }
     gameLoop_->setTexturePath(indexLvl);

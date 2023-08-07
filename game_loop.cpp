@@ -67,21 +67,24 @@ namespace ve {
 
   void GameLoop::gameLoop() {
     checkFunction();
-    checkArrow();
-    checkBrush();
-    for (const auto &obj : gameInterface_) {
-      if (checkIsNotPlayerAndIsInside(obj)) {
-        if (obj.textureRenderSystem->getIndexTexture() == TextureIndex::STAR) {
-          obj.textureRenderSystem->setIndexTexture(TextureIndex::DISCARD);
-          countStar_--;
-          if (countStar_ == 0) {
-            gameState_ = MENU;
+    if (!function_) {
+      checkArrow();
+      checkBrush();
+      for (const auto &obj : gameInterface_) {
+        if (checkIsNotPlayerAndIsInside(obj)) {
+          if (obj.textureRenderSystem->getIndexTexture() == TextureIndex::STAR) {
+            obj.textureRenderSystem->setIndexTexture(TextureIndex::DISCARD);
+            countStar_--;
+            if (countStar_ == 0) {
+              gameState_ = MENU;
+            }
+            break;
           }
-          break;
         }
       }
+      deletePlayerInputFirstElement();
     }
-    deletePlayerInputFirstElement();
+    function_ = false;
   }
 
   void GameLoop::playerDead() {
@@ -220,13 +223,15 @@ namespace ve {
           if (playerInput.first == TextureIndex::F0) {
             deletePlayerInputFirstElement();
             addToPlayerInput(0);
+            function_ = true;
           } else if (functionTexture == TextureIndex::F1) {
             deletePlayerInputFirstElement();
             addToPlayerInput(1);
-
+            function_ = true;
           } else if (functionTexture == TextureIndex::F2) {
             deletePlayerInputFirstElement();
             addToPlayerInput(2);
+            function_ = true;
           }
         }
       }
@@ -243,7 +248,8 @@ namespace ve {
   void GameLoop::addToPlayerInput(int index) {
     if (index == 0) {
       for (int i = 0; i < static_cast<int>(playerInterface_[0].size()); i++) {
-        if (!isTextureWhite(playerInterface_[0][i].textureRenderSystem->getIndexTexture())) {
+        if (!isTextureWhite(playerInterface_[0][playerInterface_[0].size() - i - 1]
+                                .textureRenderSystem->getIndexTexture())) {
           playerInput_.emplace(
               playerInput_.begin(),
               std::make_pair(playerInterface_[0][playerInterface_[0].size() - i - 1]
@@ -254,7 +260,8 @@ namespace ve {
       }
     } else if (index == 1) {
       for (int i = 0; i < static_cast<int>(playerInterface_[1].size()); i++) {
-        if (!isTextureWhite(playerInterface_[1][i].textureRenderSystem->getIndexTexture())) {
+        if (!isTextureWhite(playerInterface_[1][playerInterface_[1].size() - i - 1]
+                                .textureRenderSystem->getIndexTexture())) {
           playerInput_.emplace(
               playerInput_.begin(),
               std::make_pair(playerInterface_[1][playerInterface_[1].size() - i - 1]
@@ -265,7 +272,8 @@ namespace ve {
       }
     } else if (index == 2) {
       for (int i = 0; i < static_cast<int>(playerInterface_[2].size()); i++) {
-        if (!isTextureWhite(playerInterface_[2][i].textureRenderSystem->getIndexTexture())) {
+        if (!isTextureWhite(playerInterface_[2][playerInterface_[2].size() - i - 1]
+                                .textureRenderSystem->getIndexTexture())) {
           playerInput_.emplace(
               playerInput_.begin(),
               std::make_pair(playerInterface_[2][playerInterface_[2].size() - i - 1]

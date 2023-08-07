@@ -79,7 +79,8 @@ namespace ve {
     GameObject *playerPointer_;
 
     std::vector<std::pair<TextureIndex, glm::vec4>> playerInput_;
-    std::string lvlPath_ = "lvl/lvl5.ber";
+    std::string lvlPath_ = "lvl/lvl1.ber";
     int countStar_;
+    bool function_ = false;
   };
 }  // namespace ve
