@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+
 #include "descriptors.hpp"
 #include "interface_model.hpp"
 #include "renderer.hpp"
@@ -8,7 +10,7 @@ namespace ve {
     GameLoop(Device &device, Renderer &renderer, GameState &gameState,
              std::vector<GameObject> &menuInterface,
              std::vector<std::vector<GameObject>> &playerInterface,
-             std::vector<GameObject> &gameInterface);
+             std::vector<GameObject> &gameInterface, std::vector<GameObject> &displayInterface_);
     GameLoop(const GameLoop &src) = delete;
     GameLoop &operator=(const GameLoop &rhs) = delete;
     ~GameLoop(){};
@@ -18,13 +20,28 @@ namespace ve {
     void playerDead();
     void resetStatePlaying();
     static bool isTextureWhite(TextureIndex texture);
+    void updateGameLvl();
+    bool checkIsPlayerDead();
+    void updateDisplay();
+    void deletePlayerInputFirstElement();
     // Getter
 
     VkDescriptorSet getDescriptorSets(unsigned long currentFrame) {
       return textureDescriptorSets_[currentFrame];
     }
 
+    VkDescriptorSetLayout_T *getDescriptorSetsLayout() {
+      return textureDescriptorSetLayout_->getDescriptorSetLayout();
+    }
+
     std::vector<std::pair<TextureIndex, glm::vec4>> *getPlayerInput() { return &playerInput_; }
+    // Setter
+    void setTexturePath(int lvl) {
+      std::string s = "lvl/lvl";
+      s.append(std::to_string(lvl));
+      s.append(".ber");
+      lvlPath_ = s;
+    }
 
   private:
     void gameInit();
@@ -46,7 +63,7 @@ namespace ve {
     std::vector<GameObject> &gameInterface_;
     std::vector<GameObject> &menuInterface_;
     std::vector<std::vector<GameObject>> &playerInterface_;
-
+    std::vector<GameObject> &displayInterface_;
     std::vector<std::shared_ptr<Texture>> texture_;
 
     Device &device_;
@@ -62,7 +79,7 @@ namespace ve {
     GameObject *playerPointer_;
 
     std::vector<std::pair<TextureIndex, glm::vec4>> playerInput_;
-    std::string lvlPath_ = "lvl/lvl1.ber";
+    std::string lvlPath_ = "lvl/lvl5.ber";
     int countStar_;
   };
 }  // namespace ve

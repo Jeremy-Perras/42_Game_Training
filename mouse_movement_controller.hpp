@@ -19,7 +19,6 @@ namespace ve {
   private:
     Window &window_;
     GameState &gameState_;
-
     double xpos_;
     double ypos_;
     TextureIndex index_ = TextureIndex::WHITE;

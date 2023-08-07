@@ -38,7 +38,11 @@ void main() {
       outColor = vec4(push.color.rgb * texture(texSampler[5], fragTexCoord).rgb, push.color.a);
       break;
     case 6:
-      outColor = vec4(push.color.rgb * texture(texSampler[6], fragTexCoord).rgb, push.color.a);
+    if(texture(texSampler[6], fragTexCoord).rgb !=vec3(1.0,1.0,1.0)){
+     outColor= vec4(texture(texSampler[6], fragTexCoord).rgb, push.color.a); 
+    }
+    else 
+      outColor = push.color;
       break;
     case 7:
       outColor = vec4(push.color.rgb * texture(texSampler[7], fragTexCoord).rgb, push.color.a);

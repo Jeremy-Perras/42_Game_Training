@@ -5,6 +5,7 @@
 #include "buffer.hpp"
 #include "frame_info.hpp"
 #include "pipeline.hpp"
+#include "renderer.hpp"
 #include "utils.hpp"
 namespace ve {
 
@@ -34,8 +35,7 @@ namespace ve {
     void draw(VkCommandBuffer commandBuffer) const;
     void createVertexBuffer(const std::vector<Vertex> &vertices);
     void createIndexBuffers(const std::vector<uint32_t> &indices);
-    TextureRenderSystem(Device &device, VkRenderPass renderPass,
-                        VkDescriptorSetLayout globalSetLayout,
+    TextureRenderSystem(Device &device, Renderer &renderer, VkDescriptorSetLayout globalSetLayout,
                         TextureRenderSystem::Builder &builder, TextureIndex textureIndex);
     TextureRenderSystem(const TextureRenderSystem &src) = delete;
     TextureRenderSystem &operator=(const TextureRenderSystem &rhs) = delete;
@@ -50,21 +50,34 @@ namespace ve {
       if (x == -1.0F) {
         offset_.x = offset_.x - 0.05F;
         playerCoordinate->x = playerCoordinate->x - 0.05F;
+        playerCountOffsetX_--;
       } else if (y == -1.0F) {
         offset_.y = offset_.y + 0.05F;
         playerCoordinate->y = playerCoordinate->y + 0.05F;
+        playerCountOffsetY_++;
       } else if (x == 1.0F) {
         offset_.x = offset_.x + 0.05F;
         playerCoordinate->x = playerCoordinate->x + 0.05F;
+        playerCountOffsetX_++;
       } else if (y == 1.0F) {
         offset_.y = offset_.y - 0.05F;
         playerCoordinate->y = playerCoordinate->y - 0.05F;
+        playerCountOffsetY_--;
+      }
+    }
+    void setPushTranslationCoordinate(float translation, bool x, bool y) {
+      if (x) {
+        offset_.x += translation;
+      } else if (y) {
+        offset_.y += translation;
       }
     }
 
     void resetPushCoordinate() {
-      offset_.x = 0.0F;
-      offset_.y = 0.0F;
+      offset_.x -= 0.05F * playerCountOffsetX_;
+      offset_.y -= 0.05F * playerCountOffsetY_;
+      playerCountOffsetX_ = 0;
+      playerCountOffsetY_ = 0;
     }
 
     void setColor(glm::vec4 color) { color_ = color; }
@@ -73,18 +86,26 @@ namespace ve {
     glm::vec4 getColor() const { return color_; }
 
     bool isInside(double x, double y) {
-      return x > builder_.vertices[0].pos.x && x < builder_.vertices[1].pos.x
-             && y > builder_.vertices[0].pos.y && y < builder_.vertices[2].pos.y;
+      // TODO Handle offset
+      // if (textureIndex_ == TextureIndex::PLAYER) {
+      return x > (builder_.vertices[0].pos.x) && (x < builder_.vertices[1].pos.x)
+             && y > (builder_.vertices[0].pos.y) && (y < builder_.vertices[2].pos.y);
+      // }
+      // return x > (builder_.vertices[0].pos.x + offset_.x)
+      //        && (x < builder_.vertices[1].pos.x + offset_.x)
+      //        && y > (offset_.y + builder_.vertices[0].pos.y)
+      //        && (y < builder_.vertices[2].pos.y + offset_.y);
     }
 
   private:
     void createPipelineLayout(VkDescriptorSetLayout *globalSetLayout);
-    void createPipeline(VkRenderPass renderPass);
+    void createPipeline();
 
     std::unique_ptr<Buffer> vertexBuffer_;
     uint32_t vertexCount_;
 
     Device &device_;
+    Renderer &renderer_;
     Builder builder_;
     glm::vec4 color_{};
     glm::vec2 offset_{0.0F, 0.0F};
@@ -97,5 +118,7 @@ namespace ve {
     uint32_t indexCount_;
 
     TextureIndex textureIndex_;
+    float playerCountOffsetX_ = 0;
+    float playerCountOffsetY_ = 0;
   };
 }  // namespace ve

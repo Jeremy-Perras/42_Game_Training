@@ -10,19 +10,20 @@ namespace ve {
 
   void MouseMovementController::getInput(GameObject &menuInterface,
                                          std::vector<std::vector<GameObject>> &playerInterface_) {
-    if (glfwGetMouseButton(window_.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) != 0) {
+    if (glfwGetMouseButton(window_.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
       glfwGetCursorPos(window_.getGLFWwindow(), &xpos_, &ypos_);
       getUserClick(menuInterface);
-
-      if (index_ == TextureIndex::PLAY) {
-        gameState_ = GameState::GAMELOOP;
-        index_ = TextureIndex::WHITE;
-      }
-      if (index_ == TextureIndex::STOP || index_ == TextureIndex::PAUSE) {
-        gameState_ = GameState::PLAYING;
-      }
-      if (gameState_ == GameState::PLAYING) {
-        changeUserInterface(playerInterface_);
+      if (color_.w > 0.4F) {
+        if (index_ == TextureIndex::PLAY) {
+          gameState_ = GameState::GAMELOOP;
+          index_ = TextureIndex::WHITE;
+        }
+        if (index_ == TextureIndex::STOP || index_ == TextureIndex::PAUSE) {
+          gameState_ = GameState::PLAYING;
+        }
+        if (gameState_ == GameState::PLAYING) {
+          changeUserInterface(playerInterface_);
+        }
       }
     }
   }

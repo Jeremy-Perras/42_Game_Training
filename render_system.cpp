@@ -7,13 +7,13 @@ namespace ve {
     glm::vec4 color;
   };
 
-  RenderSystem::RenderSystem(Device &device, VkRenderPass renderPass,
+  RenderSystem::RenderSystem(Device &device, Renderer &renderer,
                              VkDescriptorSetLayout globalSetLayout,
                              const RenderSystem::Builder &builder)
-      : device_(device) {
+      : device_(device), renderer_(renderer) {
     {
       createPipelineLayout(globalSetLayout);
-      createPipeline(renderPass);
+      createPipeline();
       createVertexBuffer(builder.vertices);
       createIndexBuffers(builder.indices);
     }
@@ -132,13 +132,13 @@ namespace ve {
     }
   }
 
-  void RenderSystem::createPipeline(VkRenderPass renderPass) {
+  void RenderSystem::createPipeline() {
     assert(pipelineLayout_ != nullptr && "Cannot create pipeline before pipeline layout");
 
     PipelineConfigInfo pipelineConfig{};
     Pipeline::defaultPipelineConfigInfo(pipelineConfig);
     Pipeline::enableAlphaBlending(pipelineConfig);
-    pipelineConfig.renderPass = renderPass;
+    pipelineConfig.renderPass = renderer_.getSwapChainRenderPass();
     pipelineConfig.pipelineLayout = pipelineLayout_;
     pipelineConfig.attributeDescriptions = RenderSystem::Vertex::getAttributeDescriptions();
     pipelineConfig.bindingDescriptions = RenderSystem::Vertex::getBindingDescriptions();

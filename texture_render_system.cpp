@@ -2,11 +2,11 @@
 
 namespace ve {
 
-  TextureRenderSystem::TextureRenderSystem(Device& device, VkRenderPass renderPass,
+  TextureRenderSystem::TextureRenderSystem(Device& device, Renderer& renderer,
                                            VkDescriptorSetLayout globalSetLayout,
                                            TextureRenderSystem::Builder& builder,
                                            TextureIndex textureIndex)
-      : device_(device), builder_(builder), textureIndex_(textureIndex) {
+      : device_(device), renderer_(renderer), builder_(builder), textureIndex_(textureIndex) {
     if (textureIndex_ == TextureIndex::RED) {
       color_ = glm::vec4(1.0, 0.0, 0.0, 1.0);
     } else if (textureIndex_ == TextureIndex::GREEN) {
@@ -17,7 +17,7 @@ namespace ve {
       color_ = glm::vec4(1.0, 1.0, 1.0, 1.0);
     }
     createPipelineLayout(&globalSetLayout);
-    createPipeline(renderPass);
+    createPipeline();
     createVertexBuffer(builder.vertices);
     createIndexBuffers(builder.indices);
   }
@@ -44,9 +44,8 @@ namespace ve {
     }
   }
 
-  void TextureRenderSystem::createPipeline(VkRenderPass renderPass) {
+  void TextureRenderSystem::createPipeline() {
     assert(pipelineLayout_ != nullptr && "Cannot create pipeline before pipeline layout");
-
     PipelineConfigInfo pipelineConfig{};
     Pipeline::defaultPipelineConfigInfo(pipelineConfig);
     Pipeline::enableAlphaBlending(pipelineConfig);
@@ -54,7 +53,7 @@ namespace ve {
     pipelineConfig.attributeDescriptions = TextureRenderSystem::Vertex::getAttributeDescriptions();
     pipelineConfig.bindingDescriptions = TextureRenderSystem::Vertex::getBindingDescriptions();
 
-    pipelineConfig.renderPass = renderPass;
+    pipelineConfig.renderPass = renderer_.getSwapChainRenderPass();
     pipelineConfig.pipelineLayout = pipelineLayout_;
     pipeline_ = std::make_unique<Pipeline>(device_, "shaders/texture.vert.spv",
                                            "shaders/texture.frag.spv", pipelineConfig);

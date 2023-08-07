@@ -5,6 +5,7 @@
 #include "buffer.hpp"
 #include "frame_info.hpp"
 #include "pipeline.hpp"
+#include "renderer.hpp"
 #include "vulkan/vulkan_core.h"
 
 namespace ve {
@@ -23,7 +24,7 @@ namespace ve {
       std::vector<uint32_t> indices{};
     };
 
-    RenderSystem(Device &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout,
+    RenderSystem(Device &device, Renderer &renderer, VkDescriptorSetLayout globalSetLayout,
                  const RenderSystem::Builder &builder);
     RenderSystem(const RenderSystem &src) = delete;
     RenderSystem &operator=(const RenderSystem &rhs) = delete;
@@ -39,10 +40,10 @@ namespace ve {
     VkImageView createImageView(VkImage image, VkFormat format);
     void createIndexBuffers(const std::vector<uint32_t> &indices);
     void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
-    void createPipeline(VkRenderPass renderPass);
+    void createPipeline();
 
     Device &device_;
-
+    Renderer &renderer_;
     std::unique_ptr<Pipeline> pipeline_;
     VkPipelineLayout pipelineLayout_;
 

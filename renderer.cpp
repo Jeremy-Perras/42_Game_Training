@@ -20,7 +20,7 @@ namespace ve {
       swapChain_ = std::make_unique<SwapChain>(device_, extent);
     } else {
       std::shared_ptr<SwapChain> oldSwapChain = std::move(swapChain_);
-      swapChain_ = std::make_unique<SwapChain>(device_, extent, std::move(swapChain_));
+      swapChain_ = std::make_unique<SwapChain>(device_, extent, oldSwapChain);
       if (!oldSwapChain->compareSwapFormat(*swapChain_)) {
         throw std::runtime_error("Swap chain or depth format has changed");
       }

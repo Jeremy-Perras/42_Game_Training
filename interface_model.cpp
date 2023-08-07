@@ -5,20 +5,23 @@
 
 #include "game_object.hpp"
 #include "parsing.hpp"
+#include "renderer.hpp"
 
 namespace ve {
 
-  InterfaceModel::InterfaceModel(Device &device, VkRenderPass renderPass,
+  InterfaceModel::InterfaceModel(Device &device, Renderer &renderer,
                                  VkDescriptorSetLayout descriptorLayout, std::string &lvlPath,
                                  std::vector<std::shared_ptr<Texture>> &texture,
                                  std::vector<GameObject> &menuInterface,
                                  std::vector<std::vector<GameObject>> &playerInterface,
-                                 std::vector<GameObject> &gameInterface)
+                                 std::vector<GameObject> &gameInterface,
+                                 std::vector<GameObject> &displayInterface)
       : device_(device),
-        renderPass_(renderPass),
+        renderer_(renderer),
         gameInterface_(gameInterface),
         menuInterface_(menuInterface),
         playerInterface_(playerInterface),
+        displayInterface_(displayInterface),
         texture_(texture),
         descriptorLayout_(descriptorLayout) {
     Parsing parsing(lvlPath);
@@ -72,10 +75,13 @@ namespace ve {
     TextureRenderSystem::Builder builder;
     float xStart = -0.95;
     float yStart = 0.80F;
-    int squareSize = 3;
+    int squareNumbers = 3;
+
+    int mapLineSize = static_cast<int>(map_[2].find('\n'));
+
     // create menu
-    for (int j = 0; j < squareSize; j++) {
-      for (int i = 0; i < squareSize; i++) {
+    for (int j = 0; j < squareNumbers; j++) {
+      for (int i = 0; i < squareNumbers; i++) {
         builder = {{{{xStart + static_cast<float>(i) * WIDTHVERTEX,
                       yStart + static_cast<float>(j) * HEIGHTVERTEX},
 
@@ -95,13 +101,14 @@ namespace ve {
                    {0, 1, 2, 2, 3, 0}};
         auto object = GameObject::createGameObject();
         object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-            device_, renderPass_, descriptorLayout_, builder,
-            static_cast<TextureIndex>(i + j * squareSize));
+            device_, renderer_, descriptorLayout_, builder,
+            static_cast<TextureIndex>(i + j * squareNumbers));
+        setAlphaColor(object, i + j * (mapLineSize + 1));
         menuInterface_.push_back(std::move(object));
       }
     }
     // create color square
-    for (int j = 0; j < squareSize; j++) {
+    for (int j = 0; j < squareNumbers; j++) {
       builder
           = {{{{xStart + 0.01F + 3 * WIDTHVERTEX, yStart + static_cast<float>(j) * HEIGHTVERTEX},
 
@@ -121,12 +128,13 @@ namespace ve {
              {0, 1, 2, 2, 3, 0}};
       auto object = GameObject::createGameObject();
       object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-          device_, renderPass_, descriptorLayout_, builder,
-          static_cast<TextureIndex>(j + squareSize * squareSize));
+          device_, renderer_, descriptorLayout_, builder,
+          static_cast<TextureIndex>(j + squareNumbers * squareNumbers));
+      setAlphaColor(object, mapLineSize + (mapLineSize + 1) * j);
       menuInterface_.push_back(std::move(object));
     }
     // create Button play stop and pause
-    for (int i = 0; i < squareSize; i++) {
+    for (int i = 0; i < squareNumbers; i++) {
       builder = {{{{xStart + static_cast<float>(i) * WIDTHVERTEX, yStart - 0.06},
 
                    {1.0F, 0.0F}},
@@ -142,11 +150,41 @@ namespace ve {
 
                    {1.0F, 1.0F}}},
                  {0, 1, 2, 2, 3, 0}};
+
       auto object = GameObject::createGameObject();
       object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-          device_, renderPass_, descriptorLayout_, builder,
+          device_, renderer_, descriptorLayout_, builder,
           static_cast<TextureIndex>(i + TextureIndex::PLAY));
       menuInterface_.push_back(std::move(object));
+    }
+  }
+
+  void InterfaceModel::createDisplayInterface() {  // create display
+    float xStart = -0.25;
+    int displayNumbers = 10;
+    float yStart = 0.80F;
+    TextureRenderSystem::Builder builder;
+    for (int i = 0; i < displayNumbers; i++) {
+      builder = {{{{xStart + static_cast<float>(i) * WIDTHVERTEX, yStart - 0.06},
+
+                   {0.0F, 0.0F}},
+                  {
+                      {xStart + static_cast<float>(i) * WIDTHVERTEX + WIDTHVERTEX, yStart - 0.06},
+
+                      {1.0F, 0.0F},
+                  },
+                  {{xStart + static_cast<float>(i) * WIDTHVERTEX + WIDTHVERTEX, yStart - 0.01},
+
+                   {1.0F, 1.0F}},
+                  {{xStart + static_cast<float>(i) * WIDTHVERTEX, yStart - 0.01},
+
+                   {0.0F, 1.0F}}},
+                 {0, 1, 2, 2, 3, 0}};
+      auto object = GameObject::createGameObject();
+      object.textureRenderSystem
+          = std::make_unique<TextureRenderSystem>(device_, renderer_, descriptorLayout_, builder,
+                                                  static_cast<TextureIndex>(TextureIndex::WHITE));
+      displayInterface_.push_back(std::move(object));
     }
   }
 
@@ -179,77 +217,82 @@ namespace ve {
              {0, 1, 2, 2, 3, 0}});
         auto object = GameObject::createGameObject();
         object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-            device_, renderPass_, descriptorLayout_, builder[inc++], TextureIndex::WHITE);
+            device_, renderer_, descriptorLayout_, builder[inc++], TextureIndex::WHITE);
         playerInterface_[j].push_back(std::move(object));
       }
     }
 
     auto SquareF0 = GameObject::createGameObject();
     SquareF0.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-        device_, renderPass_, descriptorLayout_, builder[0], TextureIndex::F0);
+        device_, renderer_, descriptorLayout_, builder[0], TextureIndex::F0);
     menuInterface_.push_back(std::move(SquareF0));
     playerInterface_[0].erase(playerInterface_[0].begin());
 
     auto SquareF1 = GameObject::createGameObject();
     SquareF1.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-        device_, renderPass_, descriptorLayout_, builder[sizeF[0]], TextureIndex::F1);
+        device_, renderer_, descriptorLayout_, builder[sizeF[0]], TextureIndex::F1);
+
+    if (sizeF[1] == 1) {
+      SquareF1.textureRenderSystem->setColor(glm::vec4(1.0, 1.0, 1.0, 0.4));
+    }
     menuInterface_.push_back(std::move(SquareF1));
     playerInterface_[1].erase(playerInterface_[1].begin());
+
     auto SquareF2 = GameObject::createGameObject();
     SquareF2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-        device_, renderPass_, descriptorLayout_, builder[sizeF[0] + sizeF[1]], TextureIndex::F2);
+        device_, renderer_, descriptorLayout_, builder[sizeF[0] + sizeF[1]], TextureIndex::F2);
+    if (sizeF[2] == 1) {
+      SquareF2.textureRenderSystem->setColor(glm::vec4(1.0, 1.0, 1.0, 0.4));
+    }
     menuInterface_.push_back(std::move(SquareF2));
     playerInterface_[2].erase(playerInterface_[2].begin());
+
     RenderSystem::Builder renderBuilder;
     renderBuilder.vertices = InterfaceModel::createSquareModel();
     auto whiteSquare = GameObject::createGameObject();
     whiteSquare.renderSystem
-        = std::make_unique<RenderSystem>(device_, renderPass_, descriptorLayout_, renderBuilder);
+        = std::make_unique<RenderSystem>(device_, renderer_, descriptorLayout_, renderBuilder);
+
     menuInterface_.push_back(std::move(whiteSquare));
   }
 
   void InterfaceModel::createGameMap() {
     TextureRenderSystem::Builder builder;
-    int lineMapSize = static_cast<int>((2 / HEIGHTVERTEX) - (0.2) / HEIGHTVERTEX);
-    int coloneMapSize = static_cast<int>(2 / WIDTHVERTEX);
-    int lineMap = 0;
-    int coloneMap = 0;
-    float xStart = xStart_;
-    float yStart = yStart_;
+    for (int j = 0; j < coloneSize_; j++) {
+      for (int i = 0; i < lineSize_; i++) {
+        builder = {
+            {{
+                 {xStart_ + static_cast<float>(i) * 0.05F, yStart_ + static_cast<float>(j) * 0.05},
 
-    for (int j = 0; j < lineMapSize; j++) {
-      for (int i = 0; i < coloneMapSize; i++) {
-        builder
-            = {{{{-1 + static_cast<float>(i) * 0.05F, -1 + static_cast<float>(j) * 0.05},
+                 {0.0F, 0.0F},
+             },
+             {
+                 {xStart_ + 0.05F + static_cast<float>(i) * 0.05F,
+                  yStart_ + static_cast<float>(j) * 0.05},
 
-                 {0.0F, 0.0F}},
-                {{-1 + 0.05F + static_cast<float>(i) * 0.05F, -1 + static_cast<float>(j) * 0.05},
+                 {1.0F, 0.0F},
+             },
+             {
+                 {xStart_ + 0.05F + static_cast<float>(i) * 0.05F,
+                  yStart_ + 0.05F + static_cast<float>(j) * 0.05},
 
-                 {1.0F, 0.0F}},
-                {{-1 + 0.05F + static_cast<float>(i) * 0.05F,
-                  0.05F + -1 + static_cast<float>(j) * 0.05},
+                 {1.0F, 1.0F},
+             },
+             {
+                 {xStart_ + static_cast<float>(i) * 0.05F,
+                  yStart_ + 0.05F + static_cast<float>(j) * 0.05},
 
-                 {1.0F, 1.0F}},
-                {{-1 + static_cast<float>(i) * 0.05F, -1 + static_cast<float>(j) * 0.05 + 0.05},
-
-                 {0.0F, 1.0F}}},
-               {0, 1, 2, 2, 3, 0}};
-
-        auto object = GameObject::createGameObject();
-        object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-            device_, renderPass_, descriptorLayout_, builder, TextureIndex::LOST);
-
-        if (isInside(xStart, yStart, static_cast<float>(i), static_cast<float>(j))
-            && coloneMap != coloneSize_) {
-          xStart = xStart + 0.05F;
-
-          switch (map_[1][lineMap + coloneMap * static_cast<int>(lineSize_)]) {
+                 {0.0F, 1.0F},
+             }},
+            {0, 1, 2, 2, 3, 0}};
+        if (map_[0][i + j * static_cast<int>(lineSize_)] != 1) {
+          switch (map_[1][i + j * static_cast<int>(lineSize_)]) {
             case 'V': {
               auto object2 = GameObject::createGameObject();
               object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-                  device_, renderPass_, descriptorLayout_, builder, TextureIndex::STAR);
+                  device_, renderer_, descriptorLayout_, builder, TextureIndex::STAR);
               gameInterface_.push_back(std::move(object2));
-              countStar_++;
+              countStarStart_++;
               break;
             }
             case 'N': {
@@ -272,33 +315,35 @@ namespace ve {
               break;
           }
 
-          switch (map_[0][lineMap + coloneMap * static_cast<int>(lineSize_)]) {
-            case 'R':
-              object.textureRenderSystem->setIndexTexture(TextureIndex::RED);
+          switch (map_[0][i + j * static_cast<int>(lineSize_)]) {
+            case 'R': {
+              auto object = GameObject::createGameObject();
+              object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+                  device_, renderer_, descriptorLayout_, builder, TextureIndex::RED);
               object.textureRenderSystem->setColor(glm::vec4(1.0, 0.0, 0.0, 1.0));
+              gameInterface_.push_back(std::move(object));
               break;
-            case 'G':
-              object.textureRenderSystem->setIndexTexture(TextureIndex::GREEN);
+            }
+            case 'G': {
+              auto object = GameObject::createGameObject();
+              object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+                  device_, renderer_, descriptorLayout_, builder, TextureIndex::GREEN);
               object.textureRenderSystem->setColor(glm::vec4(0.0, 1.0, 0.0, 1.0));
+              gameInterface_.push_back(std::move(object));
               break;
-            case 'B':
-              object.textureRenderSystem->setIndexTexture(TextureIndex::BLUE);
+            }
+            case 'B': {
+              auto object = GameObject::createGameObject();
+              object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+                  device_, renderer_, descriptorLayout_, builder, TextureIndex::BLUE);
               object.textureRenderSystem->setColor(glm::vec4(0.0, 0.0, 1.0, 1.0));
+              gameInterface_.push_back(std::move(object));
               break;
+            }
             default:
               break;
           }
-
-          lineMap++;
-          if (lineMap == lineSize_) {
-            xStart = xStart_;
-            yStart = yStart + 0.05F;
-            lineMap = 0;
-            coloneMap++;
-          }
         }
-
-        gameInterface_.push_back(std::move(object));
       }
     }
     playerPointer_ = gameInterface_.data();
@@ -323,36 +368,52 @@ namespace ve {
     auto object2 = GameObject::createGameObject();
     playerStart_.x = (builder.vertices[0].pos.x + builder.vertices[1].pos.x) / 2;
     playerStart_.y = (builder.vertices[0].pos.y + builder.vertices[2].pos.y) / 2;
-
     switch (c) {
       case 'N': {
         playerStart_.Angle = 90.0F;
         object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-            device_, renderPass_, descriptorLayout_, builder, TextureIndex::PLAYER);
+            device_, renderer_, descriptorLayout_, builder, TextureIndex::PLAYER);
         gameInterface_.emplace(gameInterface_.begin(), std::move(object2));
         break;
       }
       case 'E': {
         playerStart_.Angle = 0.0F;
         object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-            device_, renderPass_, descriptorLayout_, builder, TextureIndex::PLAYER);
+            device_, renderer_, descriptorLayout_, builder, TextureIndex::PLAYER);
         gameInterface_.emplace(gameInterface_.begin(), std::move(object2));
         break;
       }
       case 'W': {
         playerStart_.Angle = 180.0F;
         object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-            device_, renderPass_, descriptorLayout_, builder, TextureIndex::PLAYER);
+            device_, renderer_, descriptorLayout_, builder, TextureIndex::PLAYER);
         gameInterface_.emplace(gameInterface_.begin(), std::move(object2));
         break;
       }
       case 'S': {
         playerStart_.Angle = 270.0F;
         object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-            device_, renderPass_, descriptorLayout_, builder, TextureIndex::PLAYER);
+            device_, renderer_, descriptorLayout_, builder, TextureIndex::PLAYER);
         gameInterface_.emplace(gameInterface_.begin(), std::move(object2));
         break;
       }
+    }
+  }
+
+  void InterfaceModel::uptateGameLvl(std::string &lvlPath) {
+    initialState_.clear();
+    countStarStart_ = 0;
+    Parsing parsing(lvlPath);
+    xStart_ = parsing.getXStart();
+    yStart_ = parsing.getYStart();
+    lineSize_ = parsing.getLineSize();
+    coloneSize_ = parsing.getColoneSize();
+    map_ = parsing.getMap();
+  }
+
+  void InterfaceModel::setAlphaColor(GameObject &obj, int indexMap) {
+    if (map_[2][indexMap] == '0') {
+      obj.textureRenderSystem->setColor(glm::vec4(1.0, 1.0, 1.0, 0.4));
     }
   }
 

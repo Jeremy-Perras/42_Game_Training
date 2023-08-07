@@ -185,7 +185,8 @@ namespace ve {
 
   void ComputeShader::render(FrameInfo& frameInfo, std::vector<GameObject>& menuInterface,
                              std::vector<std::vector<GameObject>>& playerInterface,
-                             std::vector<GameObject>& gameInterface) {
+                             std::vector<GameObject>& gameInterface,
+                             std::vector<GameObject>& displayInterface) {
     size_t currentFrame = frameInfo.frameIndex;
     renderer_.computeWait();
     updateUniformBuffer(currentFrame);
@@ -200,6 +201,12 @@ namespace ve {
     for (const auto& obj : gameInterface) {
       if (obj.textureRenderSystem
           && obj.textureRenderSystem->getIndexTexture() != TextureIndex::LOST) {
+        obj.textureRenderSystem->render(frameInfo);
+      }
+    }
+
+    for (const auto& obj : displayInterface) {
+      if (obj.textureRenderSystem) {
         obj.textureRenderSystem->render(frameInfo);
       }
     }

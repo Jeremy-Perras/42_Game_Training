@@ -1,15 +1,16 @@
 #include "app.hpp"
 
 #include <memory>
+#include <thread>
 
 #include "compute_shader.hpp"
 #include "device.hpp"
 #include "game_loop.hpp"
 #include "interface_model.hpp"
+#include "keyboard_movement_controller.hpp"
 #include "parsing.hpp"
 #include "texture.hpp"
 #include "texture_render_system.hpp"
-
 namespace ve {
 
   Application::Application() : fpscount_(0) {}
@@ -18,7 +19,7 @@ namespace ve {
 
   void Application::mainLoop() {
     gameLoop_ = std::make_unique<GameLoop>(device_, renderer_, gameState_, menuInterface_,
-                                           playerInterface_, gameInterface_);
+                                           playerInterface_, gameInterface_, displayInterface_);
     computeShader_
         = std::make_unique<ComputeShader>(device_, renderer_.getSwapChainRenderPass(), renderer_);
 
@@ -26,6 +27,36 @@ namespace ve {
     startGameLoop_ = std::chrono::high_resolution_clock::now();
     fpsTime_ = std::chrono::high_resolution_clock::now();
     auto currentTime = std::chrono::high_resolution_clock::now();
+
+    TextureRenderSystem::Builder builder;
+    builder = {{{
+                    {-1, -1},
+
+                    {0.0F, 0.0F},
+                },
+                {
+                    {1, -1},
+
+                    {1.0F, 0.0F},
+                },
+                {
+                    {1, 1},
+
+                    {1.0F, 1.0F},
+                },
+                {
+                    {-1, 1},
+
+                    {0.0F, 1.0F},
+                }},
+               {0, 1, 2, 2, 3, 0}};
+    auto start = GameObject::createGameObject();
+    KeyboardMovementController cameraController{};
+
+    start.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+        device_, renderer_, gameLoop_->getDescriptorSetsLayout(), builder,
+        TextureIndex::BACKGROUND);
+    frameInfo_.Time = 0.0F;
 
     while (static_cast<int>(window_.shouldClose()) == 0
            && static_cast<int>(glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -35,17 +66,22 @@ namespace ve {
       for (int i = 0; i < static_cast<int>((menuInterface_).size()); i++) {
         mouse_.getInput((menuInterface_)[i], (playerInterface_));
       }
+      float frameTime
+          = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - fpsTime_)
+                .count();
+      cameraController.moveInPlaneXY(window_.getGLFWwindow(), frameTime, gameInterface_);
 
       resetTime(&currentTime);
       updateFrameInfo();
 
       switch (gameState_) {
         case GameState::START: {
-          stateStart(currentTime);
+          stateStart(currentTime, start);
           break;
         }
 
         case GameState::MENU: {
+          stateMenu(start);
           break;
         }
 
@@ -80,11 +116,12 @@ namespace ve {
     }
   }
 
-  void Application::stateStart(std::chrono::steady_clock::time_point currentTime) {
+  void Application::stateStart(std::chrono::steady_clock::time_point currentTime,
+                               GameObject &start) {
     if (auto *commandBuffer = renderer_.beginFrame(false)) {
       renderer_.beginSwapChainRenderPass(commandBuffer);
       frameInfo_.commandBuffer = commandBuffer;
-      // start.textureRenderSystem->render(frameInfo);
+      start.textureRenderSystem->render(frameInfo_);
       renderer_.endSwapChainRenderPass(commandBuffer);
       renderer_.endFrame(false);
     }
@@ -92,7 +129,9 @@ namespace ve {
     if ((std::chrono::duration<float, std::chrono::seconds::period>(currentTime - firstScreenTime_)
              .count())
         >= 5) {
-      frameInfo_.Time = glfwGetTime();
+      frameInfo_.Time = std::chrono::duration<float, std::chrono::seconds::period>(
+                            currentTime - firstScreenTime_)
+                            .count();
       gameState_ = GameState::PLAYING;
     }
   }
@@ -103,7 +142,8 @@ namespace ve {
       gameLoop_->getPlayerInput()->clear();
       isAlreadyDone_ = false;
     }
-    computeShader_->render(frameInfo_, menuInterface_, playerInterface_, gameInterface_);
+    computeShader_->render(frameInfo_, menuInterface_, playerInterface_, gameInterface_,
+                           displayInterface_);
   }
 
   void Application::stateGameLoop(std::chrono::steady_clock::time_point currentTime) {
@@ -118,8 +158,10 @@ namespace ve {
       }
       isAlreadyDone_ = true;
     }
+    // gameLoop_->updateDisplay();
     gameLoop_->playerDead();
-    computeShader_->render(frameInfo_, menuInterface_, playerInterface_, gameInterface_);
+    computeShader_->render(frameInfo_, menuInterface_, playerInterface_, gameInterface_,
+                           displayInterface_);
     if ((std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startGameLoop_)
              .count())
         >= timeUpdateGame_) {
@@ -136,8 +178,36 @@ namespace ve {
 
   void Application::updateFrameInfo() {
     size_t currentFrame = renderer_.getComputeCurrentFrame();
-    frameInfo_
-        = {renderer_.getComputeCurrentFrame(), 0, gameLoop_->getDescriptorSets(currentFrame), 0.0F};
+    frameInfo_.frameIndex = renderer_.getComputeCurrentFrame();
+    frameInfo_.commandBuffer = 0;
+    frameInfo_.descriptorSet = gameLoop_->getDescriptorSets(currentFrame);
+  }
+  void task1() { std::cout << "task1 says: " << std::endl; }
+
+  void Application::stateMenu(GameObject &start) {
+    if (auto *commandBuffer = renderer_.beginFrame(false)) {
+      renderer_.beginSwapChainRenderPass(commandBuffer);
+      frameInfo_.commandBuffer = commandBuffer;
+      start.textureRenderSystem->render(frameInfo_);
+      renderer_.endSwapChainRenderPass(commandBuffer);
+      renderer_.endFrame(false);
+    }
+
+    updateGameLvl();
+  }
+
+  void Application::updateGameLvl() {
+    if (indexLvl < 4) {
+      indexLvl++;
+    }
+    gameLoop_->setTexturePath(indexLvl);
+    for (auto &obj : playerInterface_) {
+      obj.clear();
+    }
+    playerInterface_.clear();
+    gameInterface_.clear();
+    menuInterface_.clear();
+    gameLoop_->updateGameLvl();
   }
 
 }  // namespace ve

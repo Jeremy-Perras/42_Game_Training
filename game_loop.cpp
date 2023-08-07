@@ -1,13 +1,19 @@
 #include "game_loop.hpp"
+
+#include <algorithm>
+
+#include "game_object.hpp"
 namespace ve {
   GameLoop::GameLoop(Device &device, Renderer &renderer, GameState &gameState,
                      std::vector<GameObject> &menuInterface,
                      std::vector<std::vector<GameObject>> &playerInterface,
-                     std::vector<GameObject> &gameInterface)
+                     std::vector<GameObject> &gameInterface,
+                     std::vector<GameObject> &displayInterface)
       : gameState_(gameState),
         gameInterface_(gameInterface),
         menuInterface_(menuInterface),
         playerInterface_(playerInterface),
+        displayInterface_(displayInterface),
         device_(device),
         renderer_(renderer) {
     createDescriptor();
@@ -15,16 +21,16 @@ namespace ve {
   }
 
   void GameLoop::gameInit() {
-    model_ = std::make_unique<InterfaceModel>(device_, renderer_.getSwapChainRenderPass(),
-                                              textureDescriptorSetLayout_->getDescriptorSetLayout(),
-                                              lvlPath_, texture_, menuInterface_, playerInterface_,
-                                              gameInterface_);
+    model_ = std::make_unique<InterfaceModel>(
+        device_, renderer_, textureDescriptorSetLayout_->getDescriptorSetLayout(), lvlPath_,
+        texture_, menuInterface_, playerInterface_, gameInterface_, displayInterface_);
     model_->createMenuInterface();
     model_->createPlayerInterface();
     model_->createGameMap();
+    model_->createDisplayInterface();
     playerPointer_ = model_->getPlayerPointer();
     playerCoordinate_ = model_->getStartCoordinate();
-    countStar_ = model_->getCountStart();
+    countStar_ = model_->getCountStarStart();
     textureInit();
   }
 
@@ -69,22 +75,19 @@ namespace ve {
           obj.textureRenderSystem->setIndexTexture(TextureIndex::DISCARD);
           countStar_--;
           if (countStar_ == 0) {
-            resetStatePlaying();
+            gameState_ = MENU;
           }
           break;
         }
       }
     }
-    if (!playerInput_.empty()) {
-      playerInput_.erase(playerInput_.begin());
-    }
+    deletePlayerInputFirstElement();
   }
 
   void GameLoop::playerDead() {
     for (const auto &obj : gameInterface_) {
-      if (&obj != playerPointer_
-          && obj.textureRenderSystem->isInside(playerCoordinate_.x, playerCoordinate_.y)) {
-        if (obj.textureRenderSystem->getIndexTexture() == TextureIndex::LOST) {
+      if (&obj != playerPointer_) {
+        if (checkIsPlayerDead()) {
           resetStatePlaying();
           break;
         }
@@ -96,6 +99,11 @@ namespace ve {
     model_->resetToInitialState();
     playerCoordinate_ = model_->getStartCoordinate();
     playerPointer_->textureRenderSystem->resetPushCoordinate();
+    countStar_ = model_->getCountStarStart();
+    for (auto &obj : displayInterface_) {
+      obj.textureRenderSystem->setIndexTexture(TextureIndex::WHITE);
+      obj.textureRenderSystem->setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));
+    }
     gameState_ = GameState::PLAYING;
   }
 
@@ -210,10 +218,14 @@ namespace ve {
       if (checkIsNotPlayerAndNotStarAndIsInside(obj)) {
         if (checkColor(playerInput, obj)) {
           if (playerInput.first == TextureIndex::F0) {
+            deletePlayerInputFirstElement();
             addToPlayerInput(0);
           } else if (functionTexture == TextureIndex::F1) {
+            deletePlayerInputFirstElement();
             addToPlayerInput(1);
+
           } else if (functionTexture == TextureIndex::F2) {
+            deletePlayerInputFirstElement();
             addToPlayerInput(2);
           }
         }
@@ -221,29 +233,45 @@ namespace ve {
     }
   }
 
+  void GameLoop::deletePlayerInputFirstElement() {
+    if (!playerInput_.empty()) {
+      playerInput_.erase(playerInput_.begin());
+      updateDisplay();
+    }
+  }
+
   void GameLoop::addToPlayerInput(int index) {
     if (index == 0) {
       for (int i = 0; i < static_cast<int>(playerInterface_[0].size()); i++) {
         if (!isTextureWhite(playerInterface_[0][i].textureRenderSystem->getIndexTexture())) {
-          playerInput_.push_back(
-              std::make_pair(playerInterface_[0][i].textureRenderSystem->getIndexTexture(),
-                             playerInterface_[0][i].textureRenderSystem->getColor()));
+          playerInput_.emplace(
+              playerInput_.begin(),
+              std::make_pair(playerInterface_[0][playerInterface_[0].size() - i - 1]
+                                 .textureRenderSystem->getIndexTexture(),
+                             playerInterface_[0][playerInterface_[0].size() - i - 1]
+                                 .textureRenderSystem->getColor()));
         }
       }
     } else if (index == 1) {
       for (int i = 0; i < static_cast<int>(playerInterface_[1].size()); i++) {
         if (!isTextureWhite(playerInterface_[1][i].textureRenderSystem->getIndexTexture())) {
-          playerInput_.push_back(
-              std::make_pair(playerInterface_[1][i].textureRenderSystem->getIndexTexture(),
-                             playerInterface_[1][i].textureRenderSystem->getColor()));
+          playerInput_.emplace(
+              playerInput_.begin(),
+              std::make_pair(playerInterface_[1][playerInterface_[1].size() - i - 1]
+                                 .textureRenderSystem->getIndexTexture(),
+                             playerInterface_[1][playerInterface_[1].size() - i - 1]
+                                 .textureRenderSystem->getColor()));
         }
       }
     } else if (index == 2) {
       for (int i = 0; i < static_cast<int>(playerInterface_[2].size()); i++) {
         if (!isTextureWhite(playerInterface_[2][i].textureRenderSystem->getIndexTexture())) {
-          playerInput_.push_back(
-              std::make_pair(playerInterface_[2][i].textureRenderSystem->getIndexTexture(),
-                             playerInterface_[2][i].textureRenderSystem->getColor()));
+          playerInput_.emplace(
+              playerInput_.begin(),
+              std::make_pair(playerInterface_[2][playerInterface_[2].size() - i - 1]
+                                 .textureRenderSystem->getIndexTexture(),
+                             playerInterface_[2][playerInterface_[2].size() - i - 1]
+                                 .textureRenderSystem->getColor()));
         }
       }
     }
@@ -254,6 +282,45 @@ namespace ve {
       return true;
     }
     return false;
+  }
+
+  void GameLoop::updateGameLvl() {
+    playerInput_.clear();
+    model_->uptateGameLvl(lvlPath_);
+    model_->createMenuInterface();
+    model_->createPlayerInterface();
+    model_->createGameMap();
+    for (auto &obj : displayInterface_) {
+      obj.textureRenderSystem->setIndexTexture(TextureIndex::WHITE);
+      obj.textureRenderSystem->setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));
+    }
+    playerPointer_ = model_->getPlayerPointer();
+    playerCoordinate_ = model_->getStartCoordinate();
+    countStar_ = model_->getCountStarStart();
+    gameState_ = PLAYING;
+  }
+
+  bool GameLoop::checkIsPlayerDead() {
+    if (std::any_of(gameInterface_.begin(), gameInterface_.end(),
+                    [this](GameObject &obj) { return (checkIsNotPlayerAndIsInside(obj)); })) {
+      return false;
+    }
+
+    return true;
+  }
+
+  void GameLoop::updateDisplay() {
+    int i = 0;
+
+    for (auto &obj : displayInterface_) {
+      obj.textureRenderSystem->setIndexTexture(TextureIndex::WHITE);
+      obj.textureRenderSystem->setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));
+      if (i < static_cast<int>(playerInput_.size())) {
+        obj.textureRenderSystem->setIndexTexture(playerInput_[i].first);
+        obj.textureRenderSystem->setColor(playerInput_[i].second);
+        i++;
+      }
+    }
   }
 
 }  // namespace ve

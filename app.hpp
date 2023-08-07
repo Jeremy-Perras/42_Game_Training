@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <memory>
+#include <thread>
 
 #include "compute_shader.hpp"
 #include "descriptors.hpp"
@@ -33,11 +34,13 @@ namespace ve {
     VkImageView createImageView(VkImage image, VkFormat format);
     void updateFPS(std::chrono::steady_clock::time_point currentTime);
     void statePlaying();
+    void stateMenu(GameObject &start);
     void stateGameLoop(std::chrono::steady_clock::time_point currentTime);
-    void stateStart(std::chrono::steady_clock::time_point currentTime);
+    void stateStart(std::chrono::steady_clock::time_point currentTime, GameObject &start);
     static void resetTime(std::chrono::steady_clock::time_point *time);
     void updateFrameInfo();
-    GameState gameState_ = {GameState::PLAYING};
+    void updateGameLvl();
+    GameState gameState_ = {GameState::START};
 
     Window window_{WIDTH, HEIGHT, "GameEngine"};
     Device device_{window_};
@@ -56,9 +59,11 @@ namespace ve {
     FrameInfo frameInfo_{};
 
     std::vector<GameObject> menuInterface_;
+    std::vector<GameObject> displayInterface_;
     std::vector<std::vector<GameObject>> playerInterface_;
     std::vector<GameObject> gameInterface_;
 
-    float timeUpdateGame_ = 0.5;
+    float timeUpdateGame_ = 0.1;
+    int indexLvl = 1;
   };
 }  // namespace ve
