@@ -1,8 +1,12 @@
 #version 450
+#extension GL_EXT_nonuniform_qualifier : require
 
 layout(location = 0) in vec2 fragTexCoord;
 layout(location = 0) out vec4 outColor;
-layout(binding = 0) uniform sampler2D texSampler[12];
+layout (location = 1) flat in int inTexIndex;
+layout (set = 0, binding = 1) uniform sampler2D texSampler[];
+
+
 
 layout(push_constant) uniform Push {
   vec4 color;
@@ -12,7 +16,7 @@ layout(push_constant) uniform Push {
 push;
 
 void discardAlpha(float w) {
-  if (outColor.w < .8) {
+  if (outColor.w ==0.0) {
     discard;
   }
 }
@@ -20,13 +24,13 @@ void discardAlpha(float w) {
 void main() {
   switch (push.index) {
     case 0:
-      outColor = vec4(push.color.rgb * texture(texSampler[0], fragTexCoord).rgb, push.color.a);
+      outColor = vec4(push.color.rgb * texture(texSampler[nonuniformEXT(inTexIndex)], fragTexCoord).rgb, push.color.a);
       break;
     case 1:
-      outColor = vec4(push.color.rgb * texture(texSampler[1], fragTexCoord).rgb, push.color.a);
+      outColor = vec4(push.color.rgb * texture(texSampler[nonuniformEXT(inTexIndex)], fragTexCoord).rgb, push.color.a);
       break;
     case 2:
-      outColor = vec4(push.color.rgb * texture(texSampler[2], fragTexCoord).rgb, push.color.a);
+      outColor = vec4(push.color.rgb * texture(texSampler[nonuniformEXT(inTexIndex)], fragTexCoord).rgb, push.color.a);
       break;
     case 3:
       outColor = vec4(push.color.rgb * texture(texSampler[3], fragTexCoord).rgb, push.color.a);
@@ -38,11 +42,13 @@ void main() {
       outColor = vec4(push.color.rgb * texture(texSampler[5], fragTexCoord).rgb, push.color.a);
       break;
     case 6:
+    
     if(texture(texSampler[6], fragTexCoord).rgb !=vec3(1.0,1.0,1.0)){
      outColor= vec4(texture(texSampler[6], fragTexCoord).rgb, push.color.a); 
     }
-    else 
-      outColor = push.color;
+    else {
+      outColor = push.color;}
+    discardAlpha(outColor.w);
       break;
     case 7:
       outColor = vec4(push.color.rgb * texture(texSampler[7], fragTexCoord).rgb, push.color.a);
@@ -51,13 +57,13 @@ void main() {
       outColor = vec4(push.color.rgb * texture(texSampler[8], fragTexCoord).rgb, push.color.a);
       break;
     case 9:
-      outColor = push.color;
+     outColor = vec4(push.color.rgb * texture(texSampler[12], fragTexCoord).rgb, push.color.a);
       break;
     case 10:
-      outColor = push.color;
+     outColor = vec4(push.color.rgb * texture(texSampler[13], fragTexCoord).rgb, push.color.a);
       break;
     case 11:
-      outColor = push.color;
+     outColor = vec4(push.color.rgb * texture(texSampler[14], fragTexCoord).rgb, push.color.a);
       break;
     case 12:
       outColor = vec4(push.color * texture(texSampler[9], fragTexCoord).rgba);
@@ -68,13 +74,17 @@ void main() {
       discardAlpha(outColor.w);
       break;
     case 14:
-      outColor = push.color;
+     outColor = vec4(push.color.rgb * texture(texSampler[15], fragTexCoord).rgb, push.color.a);
+     
       break;
     case 15:
+    outColor = vec4(push.color.rgb * texture(texSampler[16], fragTexCoord).rgb, push.color.a); 
       outColor = push.color;
+
       break;
     case 16:
-      outColor = push.color;
+     
+  outColor = push.color; 
       break;
     case 17:
       outColor = push.color;
@@ -88,4 +98,5 @@ void main() {
     default:
       outColor = vec4(push.color.rgb * texture(texSampler[10], fragTexCoord).rgb, push.color.a);
   }
+  discardAlpha(outColor.w);
 }

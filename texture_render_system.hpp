@@ -20,7 +20,7 @@ namespace ve {
     struct Vertex {
       glm::vec2 pos;
       glm::vec2 texCoord;
-
+      int32_t textureIndex = 1;
       // getters
       static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
       static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
@@ -32,7 +32,7 @@ namespace ve {
     };
 
     void bind(VkCommandBuffer commandBuffer);
-    void draw(VkCommandBuffer commandBuffer) const;
+    void draw(FrameInfo &frameInfo) const;
     void createVertexBuffer(const std::vector<Vertex> &vertices);
     void createIndexBuffers(const std::vector<uint32_t> &indices);
     TextureRenderSystem(Device &device, Renderer &renderer, VkDescriptorSetLayout globalSetLayout,
@@ -86,15 +86,8 @@ namespace ve {
     glm::vec4 getColor() const { return color_; }
 
     bool isInside(double x, double y) {
-      // TODO Handle offset
-      // if (textureIndex_ == TextureIndex::PLAYER) {
       return x > (builder_.vertices[0].pos.x) && (x < builder_.vertices[1].pos.x)
              && y > (builder_.vertices[0].pos.y) && (y < builder_.vertices[2].pos.y);
-      // }
-      // return x > (builder_.vertices[0].pos.x + offset_.x)
-      //        && (x < builder_.vertices[1].pos.x + offset_.x)
-      //        && y > (offset_.y + builder_.vertices[0].pos.y)
-      //        && (y < builder_.vertices[2].pos.y + offset_.y);
     }
 
   private:

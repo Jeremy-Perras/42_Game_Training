@@ -1,5 +1,6 @@
 #include "compute_shader.hpp"
 
+#include <glm/gtc/constants.hpp>
 #include <random>
 
 namespace ve {
@@ -130,9 +131,12 @@ namespace ve {
 
   void ComputeShader::createShaderStorageBuffers() {
     // Initialize particles
+
     std::default_random_engine rndEngine((unsigned)time(nullptr));
     std::uniform_real_distribution<float> rndDist(0.0F, 1.0F);
     // Initial particle positions on a circle
+    std::vector<Particle> uniqueParticles{};
+
     std::vector<Particle> particles(PARTICLE_COUNT);
     for (auto& particle : particles) {
       float r = 0.25F * sqrt(rndDist(rndEngine));
@@ -199,8 +203,7 @@ namespace ve {
     renderer_.beginSwapChainRenderPass(commandBuffer);
 
     for (const auto& obj : gameInterface) {
-      if (obj.textureRenderSystem
-          && obj.textureRenderSystem->getIndexTexture() != TextureIndex::LOST) {
+      if (obj.textureRenderSystem) {
         obj.textureRenderSystem->render(frameInfo);
       }
     }

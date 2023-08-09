@@ -32,10 +32,11 @@ namespace ve {
     pushConstantRange.offset = 0;
     pushConstantRange.size = sizeof(TexturePushConstantData);
 
+    std::vector<VkDescriptorSetLayout> descriptorSetLayouts{*globalSetLayout};
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = globalSetLayout;
+    pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = 1;
     pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
     if (vkCreatePipelineLayout(device_.getDevice(), &pipelineLayoutInfo, nullptr, &pipelineLayout_)
@@ -70,7 +71,7 @@ namespace ve {
 
   std::vector<VkVertexInputAttributeDescription>
   TextureRenderSystem::Vertex::getAttributeDescriptions() {
-    std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
+    std::vector<VkVertexInputAttributeDescription> attributeDescriptions(3);
     attributeDescriptions[0].binding = 0;
     attributeDescriptions[0].location = 0;
     attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
@@ -80,6 +81,11 @@ namespace ve {
     attributeDescriptions[1].location = 1;
     attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
     attributeDescriptions[1].offset = offsetof(Vertex, texCoord);
+
+    attributeDescriptions[2].binding = 0;
+    attributeDescriptions[2].location = 2;
+    attributeDescriptions[2].format = VK_FORMAT_R32_SINT;
+    attributeDescriptions[2].offset = offsetof(Vertex, textureIndex);
 
     return attributeDescriptions;
   }
@@ -93,11 +99,11 @@ namespace ve {
     }
   }
 
-  void TextureRenderSystem::draw(VkCommandBuffer commandBuffer) const {
+  void TextureRenderSystem::draw(FrameInfo& frameInfo) const {
     if (hasIndexBuffer_) {
-      vkCmdDrawIndexed(commandBuffer, indexCount_, 1, 0, 0, 0);
+      vkCmdDrawIndexed(frameInfo.commandBuffer, indexCount_, 1, 0, 0, 0);
     } else {
-      vkCmdDraw(commandBuffer, vertexCount_, 1, 0, 0);
+      vkCmdDraw(frameInfo.commandBuffer, vertexCount_, 1, 0, 0);
     }
   }
 
@@ -162,14 +168,16 @@ namespace ve {
     push.index = this->textureIndex_;
     push.offset = glm::vec4(offset_.x, offset_.y, 0.0, 0.0);
     push.color = this->color_;
+
     vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout_,
                        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
                        sizeof(TexturePushConstantData), &push);
+
     vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             pipelineLayout_, 0, 1, &frameInfo.descriptorSet, 0, nullptr);
 
     TextureRenderSystem::bind(frameInfo.commandBuffer);
-    TextureRenderSystem::draw(frameInfo.commandBuffer);
+    TextureRenderSystem::draw(frameInfo);
   }
 
 }  // namespace ve

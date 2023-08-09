@@ -158,7 +158,6 @@ namespace ve {
       }
       isAlreadyDone_ = true;
     }
-    // gameLoop_->updateDisplay();
     gameLoop_->playerDead();
     computeShader_->render(frameInfo_, menuInterface_, playerInterface_, gameInterface_,
                            displayInterface_);
@@ -182,7 +181,6 @@ namespace ve {
     frameInfo_.commandBuffer = 0;
     frameInfo_.descriptorSet = gameLoop_->getDescriptorSets(currentFrame);
   }
-  void task1() { std::cout << "task1 says: " << std::endl; }
 
   void Application::stateMenu(GameObject &start) {
     if (auto *commandBuffer = renderer_.beginFrame(false)) {

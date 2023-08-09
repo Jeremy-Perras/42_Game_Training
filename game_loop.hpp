@@ -82,5 +82,7 @@ namespace ve {
     std::string lvlPath_ = "lvl/lvl1.ber";
     int countStar_;
     bool function_ = false;
+
+    std::vector<std::unique_ptr<Buffer>> uboBuffers;
   };
 }  // namespace ve

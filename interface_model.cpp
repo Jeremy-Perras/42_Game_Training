@@ -46,16 +46,22 @@ namespace ve {
   void InterfaceModel::loadTexture() {
     auto arrowRight = std::make_unique<Texture>(device_, "texture/RightArrow.png");
     auto f0 = std::make_unique<Texture>(device_, "texture/F0.png");
-    auto red = std::make_unique<Texture>(device_, "texture/Red.png");
+    auto redBrush = std::make_unique<Texture>(device_, "texture/RedBrush.png");
     auto arrowUp = std::make_unique<Texture>(device_, "texture/UpArrow.png");
     auto f1 = std::make_unique<Texture>(device_, "texture/F1.png");
-    auto green = std::make_unique<Texture>(device_, "texture/Green.png");
+    auto greenBrush = std::make_unique<Texture>(device_, "texture/GreenBrush.png");
     auto arrowLeft = std::make_unique<Texture>(device_, "texture/LeftArrow.png");
     auto f2 = std::make_unique<Texture>(device_, "texture/F2.png");
-    auto blue = std::make_unique<Texture>(device_, "texture/Blue.png");
+    auto blueBrush = std::make_unique<Texture>(device_, "texture/BlueBrush.png");
     auto rocket = std::make_unique<Texture>(device_, "texture/Rocket.png");
     auto background = std::make_unique<Texture>(device_, "texture/Dream.jpg");
     auto start = std::make_unique<Texture>(device_, "texture/Star.png");
+    auto blue = std::make_unique<Texture>(device_, "texture/Blue.png");
+    auto red = std::make_unique<Texture>(device_, "texture/Red.png");
+    auto green = std::make_unique<Texture>(device_, "texture/Green.png");
+    auto white = std::make_unique<Texture>(device_, "texture/White.png");
+    auto play = std::make_unique<Texture>(device_, "texture/Play.png");
+    auto stop = std::make_unique<Texture>(device_, "texture/Stop.png");
 
     texture_.push_back(std::move(arrowLeft));
     texture_.push_back(std::move(arrowUp));
@@ -63,12 +69,18 @@ namespace ve {
     texture_.push_back(std::move(f0));
     texture_.push_back(std::move(f1));
     texture_.push_back(std::move(f2));
-    texture_.push_back(std::move(red));
-    texture_.push_back(std::move(green));
-    texture_.push_back(std::move(blue));
+    texture_.push_back(std::move(redBrush));
+    texture_.push_back(std::move(greenBrush));
+    texture_.push_back(std::move(blueBrush));
     texture_.push_back(std::move(rocket));
     texture_.push_back(std::move(background));
     texture_.push_back(std::move(start));
+    texture_.push_back(std::move(red));
+    texture_.push_back(std::move(green));
+    texture_.push_back(std::move(blue));
+    texture_.push_back(std::move(white));
+    texture_.push_back(std::move(play));
+    texture_.push_back(std::move(stop));
   }
 
   void InterfaceModel::createMenuInterface() {
@@ -160,9 +172,9 @@ namespace ve {
   }
 
   void InterfaceModel::createDisplayInterface() {  // create display
-    float xStart = -0.25;
-    int displayNumbers = 10;
-    float yStart = 0.80F;
+    float xStart = -0.75;
+    int displayNumbers = 30;
+    float yStart = 0.72F;
     TextureRenderSystem::Builder builder;
     for (int i = 0; i < displayNumbers; i++) {
       builder = {{{{xStart + static_cast<float>(i) * WIDTHVERTEX, yStart - 0.06},
@@ -246,14 +258,6 @@ namespace ve {
     }
     menuInterface_.push_back(std::move(SquareF2));
     playerInterface_[2].erase(playerInterface_[2].begin());
-
-    RenderSystem::Builder renderBuilder;
-    renderBuilder.vertices = InterfaceModel::createSquareModel();
-    auto whiteSquare = GameObject::createGameObject();
-    whiteSquare.renderSystem
-        = std::make_unique<RenderSystem>(device_, renderer_, descriptorLayout_, renderBuilder);
-
-    menuInterface_.push_back(std::move(whiteSquare));
   }
 
   void InterfaceModel::createGameMap() {

@@ -154,6 +154,19 @@ namespace ve {
     createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
+    // index descriptor
+    physicalDeviceDescriptorIndexingFeatures_.sType
+        = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
+    physicalDeviceDescriptorIndexingFeatures_.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
+    physicalDeviceDescriptorIndexingFeatures_.runtimeDescriptorArray = VK_TRUE;
+    physicalDeviceDescriptorIndexingFeatures_.descriptorBindingVariableDescriptorCount = VK_TRUE;
+    physicalDeviceDescriptorIndexingFeatures_.descriptorBindingPartiallyBound = VK_TRUE;
+
+    // VkPhysicalDeviceFeatures2 physicalDeviceFeatures2{};
+    // physicalDeviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+    // physicalDeviceFeatures2.features = deviceFeatures;
+    createInfo.pNext = &physicalDeviceDescriptorIndexingFeatures_;
+
     // might not really be necessary anymore because device specific validation layers
     // have been deprecated
     if (enableValidationLayers) {

@@ -10,4 +10,7 @@ namespace ve {
     VkDescriptorSet descriptorSet;
     double Time;
   };
+  struct GlobalUbo {
+    int numLights = 1;
+  };
 }  // namespace ve

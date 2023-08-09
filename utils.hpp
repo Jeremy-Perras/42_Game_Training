@@ -33,9 +33,8 @@ namespace ve {
     BACKGROUND,
     TEXTURESIZE,
     DISCARD,
-    LOST,
   };
 
-  constexpr int textureSize = 12;
-
+  constexpr int textureSize = 16;
+  // constexpr int textureSize2 = 2;
 }  // namespace ve

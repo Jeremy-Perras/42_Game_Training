@@ -6,6 +6,9 @@
 #include <cassert>
 #include <stdexcept>
 
+#include "utils.hpp"
+#include "vulkan/vulkan_core.h"
+
 namespace ve {
 
   // *************** Descriptor Set Layout Builder *********************
@@ -19,6 +22,7 @@ namespace ve {
     layoutBinding.descriptorType = descriptorType;
     layoutBinding.descriptorCount = count;
     layoutBinding.stageFlags = stageFlags;
+
     bindings_[binding] = layoutBinding;
     return *this;
   }
@@ -42,6 +46,18 @@ namespace ve {
     descriptorSetLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
     descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
+    descriptorSetLayoutInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+    // TODO Bindind index
+
+    VkDescriptorSetLayoutBindingFlagsCreateInfoEXT setLayoutBindingFlags{};
+    setLayoutBindingFlags.sType
+        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
+    setLayoutBindingFlags.bindingCount = 2;
+    std::vector<VkDescriptorBindingFlagsEXT> descriptorBindingFlags
+        = {0, VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT};
+    setLayoutBindingFlags.pBindingFlags = descriptorBindingFlags.data();
+
+    descriptorSetLayoutInfo.pNext = &setLayoutBindingFlags;
 
     if (vkCreateDescriptorSetLayout(device_.getDevice(), &descriptorSetLayoutInfo, nullptr,
                                     &descriptorSetLayout_)
@@ -106,6 +122,16 @@ namespace ve {
     allocInfo.descriptorPool = descriptorPool_;
     allocInfo.pSetLayouts = &descriptorSetLayout;
     allocInfo.descriptorSetCount = 1;
+
+    // indexBinding
+    VkDescriptorSetVariableDescriptorCountAllocateInfoEXT variableDescriptorCountAllocInfo = {};
+
+    uint32_t variableDescCounts[] = {static_cast<uint32_t>(16)};
+    variableDescriptorCountAllocInfo.sType
+        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT;
+    variableDescriptorCountAllocInfo.descriptorSetCount = 1;
+    variableDescriptorCountAllocInfo.pDescriptorCounts = variableDescCounts;
+    allocInfo.pNext = &variableDescriptorCountAllocInfo;
 
     // Might want to create a "DescriptorPoolManager" class that handles this case, and builds
     // a new pool whenever an old pool fills up. But this is beyond our current scope
