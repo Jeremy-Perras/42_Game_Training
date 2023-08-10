@@ -54,8 +54,7 @@ namespace ve {
     KeyboardMovementController cameraController{};
 
     start.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-        device_, renderer_, gameLoop_->getDescriptorSetsLayout(), builder,
-        TextureIndex::BACKGROUND);
+        device_, renderer_, gameLoop_->texture_, builder, TextureIndex::BACKGROUND);
     frameInfo_.Time = 0.0F;
 
     while (static_cast<int>(window_.shouldClose()) == 0

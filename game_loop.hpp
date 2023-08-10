@@ -35,6 +35,8 @@ namespace ve {
     }
 
     std::vector<std::pair<TextureIndex, glm::vec4>> *getPlayerInput() { return &playerInput_; }
+    std::vector<std::shared_ptr<Texture>> texture_;
+
     // Setter
     void setTexturePath(int lvl) {
       std::string s = "lvl/lvl";
@@ -64,7 +66,6 @@ namespace ve {
     std::vector<GameObject> &menuInterface_;
     std::vector<std::vector<GameObject>> &playerInterface_;
     std::vector<GameObject> &displayInterface_;
-    std::vector<std::shared_ptr<Texture>> texture_;
 
     Device &device_;
     Renderer &renderer_;

@@ -18,7 +18,7 @@ namespace ve {
           gameState_ = GameState::GAMELOOP;
           index_ = TextureIndex::WHITE;
         }
-        if (index_ == TextureIndex::STOP || index_ == TextureIndex::PAUSE) {
+        if (index_ == TextureIndex::STOP) {
           gameState_ = GameState::PLAYING;
         }
         if (gameState_ == GameState::PLAYING) {
@@ -49,7 +49,7 @@ namespace ve {
                 ((ypos_ / window_.getExtent().height) - 0.5F) * 2)) {
           if (index_ != TextureIndex::RED && index_ != TextureIndex::BLUE
               && index_ != TextureIndex::GREEN && index_ != TextureIndex::PLAY
-              && index_ != TextureIndex::PAUSE && index_ != TextureIndex::STOP) {
+              && index_ != TextureIndex::STOP) {
             playerInterface.textureRenderSystem->setIndexTexture(index_);
           }
           if (color_ != glm::vec4(0.0, 0.0, 0.0, 0.0)) {

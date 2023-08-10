@@ -55,13 +55,14 @@ namespace ve {
     auto blueBrush = std::make_unique<Texture>(device_, "texture/BlueBrush.png");
     auto rocket = std::make_unique<Texture>(device_, "texture/Rocket.png");
     auto background = std::make_unique<Texture>(device_, "texture/Dream.jpg");
-    auto start = std::make_unique<Texture>(device_, "texture/Star.png");
+    auto star = std::make_unique<Texture>(device_, "texture/Star.png");
     auto blue = std::make_unique<Texture>(device_, "texture/Blue.png");
     auto red = std::make_unique<Texture>(device_, "texture/Red.png");
     auto green = std::make_unique<Texture>(device_, "texture/Green.png");
     auto white = std::make_unique<Texture>(device_, "texture/White.png");
     auto play = std::make_unique<Texture>(device_, "texture/Play.png");
     auto stop = std::make_unique<Texture>(device_, "texture/Stop.png");
+    auto stepByStep = std::make_unique<Texture>(device_, "texture/StepByStep.png");
 
     texture_.push_back(std::move(arrowLeft));
     texture_.push_back(std::move(arrowUp));
@@ -72,15 +73,16 @@ namespace ve {
     texture_.push_back(std::move(redBrush));
     texture_.push_back(std::move(greenBrush));
     texture_.push_back(std::move(blueBrush));
-    texture_.push_back(std::move(rocket));
-    texture_.push_back(std::move(background));
-    texture_.push_back(std::move(start));
     texture_.push_back(std::move(red));
     texture_.push_back(std::move(green));
     texture_.push_back(std::move(blue));
+    texture_.push_back(std::move(rocket));
+    texture_.push_back(std::move(star));
     texture_.push_back(std::move(white));
     texture_.push_back(std::move(play));
+    texture_.push_back(std::move(stepByStep));
     texture_.push_back(std::move(stop));
+    texture_.push_back(std::move(background));
   }
 
   void InterfaceModel::createMenuInterface() {
@@ -113,7 +115,7 @@ namespace ve {
                    {0, 1, 2, 2, 3, 0}};
         auto object = GameObject::createGameObject();
         object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-            device_, renderer_, descriptorLayout_, builder,
+            device_, renderer_, texture_, builder,
             static_cast<TextureIndex>(i + j * squareNumbers));
         setAlphaColor(object, i + j * (mapLineSize + 1));
         menuInterface_.push_back(std::move(object));
@@ -140,7 +142,7 @@ namespace ve {
              {0, 1, 2, 2, 3, 0}};
       auto object = GameObject::createGameObject();
       object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-          device_, renderer_, descriptorLayout_, builder,
+          device_, renderer_, texture_, builder,
           static_cast<TextureIndex>(j + squareNumbers * squareNumbers));
       setAlphaColor(object, mapLineSize + (mapLineSize + 1) * j);
       menuInterface_.push_back(std::move(object));
@@ -149,24 +151,23 @@ namespace ve {
     for (int i = 0; i < squareNumbers; i++) {
       builder = {{{{xStart + static_cast<float>(i) * WIDTHVERTEX, yStart - 0.06},
 
-                   {1.0F, 0.0F}},
+                   {0.0F, 0.0F}},
                   {
                       {xStart + static_cast<float>(i) * WIDTHVERTEX + WIDTHVERTEX, yStart - 0.06},
 
-                      {0.0F, 0.0F},
+                      {1.0F, 0.0F},
                   },
                   {{xStart + static_cast<float>(i) * WIDTHVERTEX + WIDTHVERTEX, yStart - 0.01},
 
-                   {0.0F, 1.0F}},
+                   {1.0F, 1.0F}},
                   {{xStart + static_cast<float>(i) * WIDTHVERTEX, yStart - 0.01},
 
-                   {1.0F, 1.0F}}},
+                   {0.0F, 1.0F}}},
                  {0, 1, 2, 2, 3, 0}};
 
       auto object = GameObject::createGameObject();
       object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-          device_, renderer_, descriptorLayout_, builder,
-          static_cast<TextureIndex>(i + TextureIndex::PLAY));
+          device_, renderer_, texture_, builder, static_cast<TextureIndex>(i + TextureIndex::PLAY));
       menuInterface_.push_back(std::move(object));
     }
   }
@@ -193,9 +194,8 @@ namespace ve {
                    {0.0F, 1.0F}}},
                  {0, 1, 2, 2, 3, 0}};
       auto object = GameObject::createGameObject();
-      object.textureRenderSystem
-          = std::make_unique<TextureRenderSystem>(device_, renderer_, descriptorLayout_, builder,
-                                                  static_cast<TextureIndex>(TextureIndex::WHITE));
+      object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+          device_, renderer_, texture_, builder, static_cast<TextureIndex>(TextureIndex::WHITE));
       displayInterface_.push_back(std::move(object));
     }
   }
@@ -229,20 +229,20 @@ namespace ve {
              {0, 1, 2, 2, 3, 0}});
         auto object = GameObject::createGameObject();
         object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-            device_, renderer_, descriptorLayout_, builder[inc++], TextureIndex::WHITE);
+            device_, renderer_, texture_, builder[inc++], TextureIndex::WHITE);
         playerInterface_[j].push_back(std::move(object));
       }
     }
 
     auto SquareF0 = GameObject::createGameObject();
     SquareF0.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-        device_, renderer_, descriptorLayout_, builder[0], TextureIndex::F0);
+        device_, renderer_, texture_, builder[0], TextureIndex::F0);
     menuInterface_.push_back(std::move(SquareF0));
     playerInterface_[0].erase(playerInterface_[0].begin());
 
     auto SquareF1 = GameObject::createGameObject();
     SquareF1.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-        device_, renderer_, descriptorLayout_, builder[sizeF[0]], TextureIndex::F1);
+        device_, renderer_, texture_, builder[sizeF[0]], TextureIndex::F1);
 
     if (sizeF[1] == 1) {
       SquareF1.textureRenderSystem->setColor(glm::vec4(1.0, 1.0, 1.0, 0.4));
@@ -252,7 +252,7 @@ namespace ve {
 
     auto SquareF2 = GameObject::createGameObject();
     SquareF2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-        device_, renderer_, descriptorLayout_, builder[sizeF[0] + sizeF[1]], TextureIndex::F2);
+        device_, renderer_, texture_, builder[sizeF[0] + sizeF[1]], TextureIndex::F2);
     if (sizeF[2] == 1) {
       SquareF2.textureRenderSystem->setColor(glm::vec4(1.0, 1.0, 1.0, 0.4));
     }
@@ -294,7 +294,7 @@ namespace ve {
             case 'V': {
               auto object2 = GameObject::createGameObject();
               object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-                  device_, renderer_, descriptorLayout_, builder, TextureIndex::STAR);
+                  device_, renderer_, texture_, builder, TextureIndex::STAR);
               gameInterface_.push_back(std::move(object2));
               countStarStart_++;
               break;
@@ -323,7 +323,7 @@ namespace ve {
             case 'R': {
               auto object = GameObject::createGameObject();
               object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-                  device_, renderer_, descriptorLayout_, builder, TextureIndex::RED);
+                  device_, renderer_, texture_, builder, TextureIndex::RED);
               object.textureRenderSystem->setColor(glm::vec4(1.0, 0.0, 0.0, 1.0));
               gameInterface_.push_back(std::move(object));
               break;
@@ -331,7 +331,7 @@ namespace ve {
             case 'G': {
               auto object = GameObject::createGameObject();
               object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-                  device_, renderer_, descriptorLayout_, builder, TextureIndex::GREEN);
+                  device_, renderer_, texture_, builder, TextureIndex::GREEN);
               object.textureRenderSystem->setColor(glm::vec4(0.0, 1.0, 0.0, 1.0));
               gameInterface_.push_back(std::move(object));
               break;
@@ -339,7 +339,7 @@ namespace ve {
             case 'B': {
               auto object = GameObject::createGameObject();
               object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-                  device_, renderer_, descriptorLayout_, builder, TextureIndex::BLUE);
+                  device_, renderer_, texture_, builder, TextureIndex::BLUE);
               object.textureRenderSystem->setColor(glm::vec4(0.0, 0.0, 1.0, 1.0));
               gameInterface_.push_back(std::move(object));
               break;
@@ -375,29 +375,45 @@ namespace ve {
     switch (c) {
       case 'N': {
         playerStart_.Angle = 90.0F;
+        builder.vertices[0].texCoord = {0.0F, 0.0F};
+        builder.vertices[1].texCoord = {1.0F, 0.0F};
+        builder.vertices[2].texCoord = {1.0F, 1.0F};
+        builder.vertices[3].texCoord = {0.0F, 1.0F};
         object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-            device_, renderer_, descriptorLayout_, builder, TextureIndex::PLAYER);
+            device_, renderer_, texture_, builder, TextureIndex::PLAYER);
         gameInterface_.emplace(gameInterface_.begin(), std::move(object2));
         break;
       }
       case 'E': {
+        builder.vertices[0].texCoord = {0.0F, 1.0F};
+        builder.vertices[1].texCoord = {0.0F, 0.0F};
+        builder.vertices[2].texCoord = {1.0F, 0.0F};
+        builder.vertices[3].texCoord = {1.0F, 1.0F};
         playerStart_.Angle = 0.0F;
         object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-            device_, renderer_, descriptorLayout_, builder, TextureIndex::PLAYER);
+            device_, renderer_, texture_, builder, TextureIndex::PLAYER);
         gameInterface_.emplace(gameInterface_.begin(), std::move(object2));
         break;
       }
       case 'W': {
+        builder.vertices[0].texCoord = {1.0F, 0.0F};
+        builder.vertices[1].texCoord = {1.0F, 1.0F};
+        builder.vertices[2].texCoord = {0.0F, 1.0F};
+        builder.vertices[3].texCoord = {0.0F, 0.0F};
         playerStart_.Angle = 180.0F;
         object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-            device_, renderer_, descriptorLayout_, builder, TextureIndex::PLAYER);
+            device_, renderer_, texture_, builder, TextureIndex::PLAYER);
         gameInterface_.emplace(gameInterface_.begin(), std::move(object2));
         break;
       }
       case 'S': {
+        builder.vertices[0].texCoord = {1.0F, 1.0F};
+        builder.vertices[1].texCoord = {0.0F, 1.0F};
+        builder.vertices[2].texCoord = {0.0F, 0.0F};
+        builder.vertices[3].texCoord = {1.0F, 0.0F};
         playerStart_.Angle = 270.0F;
         object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-            device_, renderer_, descriptorLayout_, builder, TextureIndex::PLAYER);
+            device_, renderer_, texture_, builder, TextureIndex::PLAYER);
         gameInterface_.emplace(gameInterface_.begin(), std::move(object2));
         break;
       }

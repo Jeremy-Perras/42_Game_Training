@@ -1,12 +1,20 @@
 #include "texture_render_system.hpp"
 
+#include <utility>
+
+#include "texture.hpp"
+
 namespace ve {
 
   TextureRenderSystem::TextureRenderSystem(Device& device, Renderer& renderer,
-                                           VkDescriptorSetLayout globalSetLayout,
+                                           std::vector<std::shared_ptr<Texture>>& texture,
                                            TextureRenderSystem::Builder& builder,
                                            TextureIndex textureIndex)
-      : device_(device), renderer_(renderer), builder_(builder), textureIndex_(textureIndex) {
+      : device_(device),
+        renderer_(renderer),
+        builder_(builder),
+        textureIndex_(textureIndex),
+        texture_(texture) {
     if (textureIndex_ == TextureIndex::RED) {
       color_ = glm::vec4(1.0, 0.0, 0.0, 1.0);
     } else if (textureIndex_ == TextureIndex::GREEN) {
@@ -16,23 +24,38 @@ namespace ve {
     } else {
       color_ = glm::vec4(1.0, 1.0, 1.0, 1.0);
     }
-    createPipelineLayout(&globalSetLayout);
+
+    textureDescriptorPool_ = DescriptorPool::Builder(device_)
+                                 .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+                                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                              SwapChain::MAX_FRAMES_IN_FLIGHT)
+                                 .build();
+
+    textureDescriptorSetLayout_ = DescriptorSetLayoutPush::Builder(device_)
+                                      .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                                  VK_SHADER_STAGE_FRAGMENT_BIT)
+                                      .build();
+    createPipelineLayout();
     createPipeline();
     createVertexBuffer(builder.vertices);
     createIndexBuffers(builder.indices);
+
+    vkCmdPushDescriptorSetKHR_ = device_.getPushCommand();
+    createWriteDescriptorSet();
   }
 
   TextureRenderSystem::~TextureRenderSystem() {
     vkDestroyPipelineLayout(device_.getDevice(), pipelineLayout_, nullptr);
   }
 
-  void TextureRenderSystem::createPipelineLayout(VkDescriptorSetLayout* globalSetLayout) {
+  void TextureRenderSystem::createPipelineLayout() {
     VkPushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstantRange.offset = 0;
     pushConstantRange.size = sizeof(TexturePushConstantData);
 
-    std::vector<VkDescriptorSetLayout> descriptorSetLayouts{*globalSetLayout};
+    std::vector<VkDescriptorSetLayout> descriptorSetLayouts{
+        textureDescriptorSetLayout_->getDescriptorSetLayout()};
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
@@ -71,7 +94,7 @@ namespace ve {
 
   std::vector<VkVertexInputAttributeDescription>
   TextureRenderSystem::Vertex::getAttributeDescriptions() {
-    std::vector<VkVertexInputAttributeDescription> attributeDescriptions(3);
+    std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
     attributeDescriptions[0].binding = 0;
     attributeDescriptions[0].location = 0;
     attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
@@ -81,11 +104,6 @@ namespace ve {
     attributeDescriptions[1].location = 1;
     attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
     attributeDescriptions[1].offset = offsetof(Vertex, texCoord);
-
-    attributeDescriptions[2].binding = 0;
-    attributeDescriptions[2].location = 2;
-    attributeDescriptions[2].format = VK_FORMAT_R32_SINT;
-    attributeDescriptions[2].offset = offsetof(Vertex, textureIndex);
 
     return attributeDescriptions;
   }
@@ -162,19 +180,44 @@ namespace ve {
     device_.copyBuffer(stagingBuffer.getBuffer(), indexBuffer_->getBuffer(), bufferSize);
   }
 
+  void TextureRenderSystem::createWriteDescriptorSet() {
+    if (textureIndex_ < texture_.size()) {
+      imageInfo = texture_[textureIndex_]->getImageInfo();
+    } else {
+      imageInfo = texture_[0]->getImageInfo();
+    }
+
+    writeDescriptorSets_[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSets_[0].dstSet = 0;
+    writeDescriptorSets_[0].dstBinding = 0;
+    writeDescriptorSets_[0].descriptorCount = 1;
+    writeDescriptorSets_[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    writeDescriptorSets_[0].pImageInfo = &imageInfo;
+  }
+
+  void TextureRenderSystem::updateImageInfo() {
+    if (textureIndex_ < texture_.size()) {
+      imageInfo = texture_[textureIndex_]->getImageInfo();
+    } else {
+      imageInfo = texture_[0]->getImageInfo();
+    }
+
+    writeDescriptorSets_[0].pImageInfo = &imageInfo;
+  }
+
   void TextureRenderSystem::render(FrameInfo& frameInfo) {
     pipeline_->bind(frameInfo.commandBuffer);
     TexturePushConstantData push{};
     push.index = this->textureIndex_;
     push.offset = glm::vec4(offset_.x, offset_.y, 0.0, 0.0);
     push.color = this->color_;
+    updateImageInfo();
+    vkCmdPushDescriptorSetKHR_(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                               pipelineLayout_, 0, 1, writeDescriptorSets_.data());
 
     vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout_,
                        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
                        sizeof(TexturePushConstantData), &push);
-
-    vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                            pipelineLayout_, 0, 1, &frameInfo.descriptorSet, 0, nullptr);
 
     TextureRenderSystem::bind(frameInfo.commandBuffer);
     TextureRenderSystem::draw(frameInfo);

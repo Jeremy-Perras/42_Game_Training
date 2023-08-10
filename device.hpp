@@ -70,6 +70,7 @@ namespace ve {
     VkQueue getPresentQueue() { return presentQueue_; }
     VkQueue getComputeQueue() { return computeQueue_; }
     VkPhysicalDevice getPysicalDevice() { return physicalDevice_; }
+    PFN_vkCmdPushDescriptorSetKHR getPushCommand() { return vkCmdPushDescriptorSetKHR; }
 
   private:
     void createInstance();
@@ -103,8 +104,9 @@ namespace ve {
     const std::vector<const char *> validationLayers = {"VK_LAYER_KHRONOS_validation"};
     const std::vector<const char *> deviceExtensions
         = {VK_KHR_SWAPCHAIN_EXTENSION_NAME, "VK_KHR_portability_subset",
-           VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME, VK_KHR_MAINTENANCE3_EXTENSION_NAME};
+           VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME};
 
-    VkPhysicalDeviceDescriptorIndexingFeaturesEXT physicalDeviceDescriptorIndexingFeatures_{};
+    VkPhysicalDevicePushDescriptorPropertiesKHR pushDescriptorProps_{};
+    PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR;
   };
 }  // namespace ve

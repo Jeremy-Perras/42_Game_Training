@@ -2,10 +2,8 @@
 
 layout(location = 0) in vec2 inPosition;
 layout(location = 1) in vec2 inTexCoord;
-layout(location = 2) in int inde;
 
 layout(location = 0) out vec2 fragTexCoord;
-layout(location = 1) out int  indexOut;
 layout(push_constant) uniform Push {
   vec4 color;
   vec4 offset;
@@ -15,6 +13,5 @@ layout(push_constant) uniform Push {
 void main() {
   vec2 position = vec2(inPosition.x + push.offset.x, inPosition.y + push.offset.y);
   gl_Position = vec4(position, 0.0, 1.0);
-  indexOut= inde;
   fragTexCoord = inTexCoord;
 }

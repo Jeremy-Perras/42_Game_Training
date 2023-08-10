@@ -45,6 +45,27 @@ namespace ve {
     pickPhysicalDevice();
     createLogicalDevice();
     createCommandPool();
+
+    vkCmdPushDescriptorSetKHR
+        = (PFN_vkCmdPushDescriptorSetKHR)vkGetDeviceProcAddr(device_, "vkCmdPushDescriptorSetKHR");
+
+    if (vkCmdPushDescriptorSetKHR == nullptr) {
+      throw std::runtime_error("validation layers requested, but not available!");
+    }
+
+    // Get device push descriptor properties (to display them)
+    PFN_vkGetPhysicalDeviceProperties2KHR vkGetPhysicalDeviceProperties2KHR
+        = reinterpret_cast<PFN_vkGetPhysicalDeviceProperties2KHR>(
+            vkGetInstanceProcAddr(instance_, "vkGetPhysicalDeviceProperties2KHR"));
+    if (vkGetPhysicalDeviceProperties2KHR == nullptr) {
+      throw std::runtime_error("validation layers requested, but not available!");
+    }
+
+    VkPhysicalDeviceProperties2KHR deviceProps2{};
+    pushDescriptorProps_.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES_KHR;
+    deviceProps2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2_KHR;
+    deviceProps2.pNext = &pushDescriptorProps_;
+    vkGetPhysicalDeviceProperties2KHR(physicalDevice_, &deviceProps2);
   }
 
   Device::~Device() {
@@ -153,19 +174,6 @@ namespace ve {
     createInfo.pEnabledFeatures = &deviceFeatures;
     createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
-
-    // index descriptor
-    physicalDeviceDescriptorIndexingFeatures_.sType
-        = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
-    physicalDeviceDescriptorIndexingFeatures_.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
-    physicalDeviceDescriptorIndexingFeatures_.runtimeDescriptorArray = VK_TRUE;
-    physicalDeviceDescriptorIndexingFeatures_.descriptorBindingVariableDescriptorCount = VK_TRUE;
-    physicalDeviceDescriptorIndexingFeatures_.descriptorBindingPartiallyBound = VK_TRUE;
-
-    // VkPhysicalDeviceFeatures2 physicalDeviceFeatures2{};
-    // physicalDeviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    // physicalDeviceFeatures2.features = deviceFeatures;
-    createInfo.pNext = &physicalDeviceDescriptorIndexingFeatures_;
 
     // might not really be necessary anymore because device specific validation layers
     // have been deprecated
@@ -277,8 +285,10 @@ namespace ve {
     for (uint32_t i = 0; i < glfwExtensionCount; i++) {
       requiredExtensions.emplace_back(glfwExtensions[i]);
     }
+
     requiredExtensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
     requiredExtensions.emplace_back("VK_KHR_get_physical_device_properties2");
+    requiredExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 
     if (enableValidationLayers) {
       requiredExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);

@@ -28,7 +28,7 @@ namespace ve {
     STAR,
     WHITE,
     PLAY,
-    PAUSE,
+    STEPBYSTEP,
     STOP,
     BACKGROUND,
     TEXTURESIZE,

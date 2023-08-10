@@ -40,6 +40,37 @@ namespace ve {
     friend class DescriptorWriter;
   };
 
+  class DescriptorSetLayoutPush {
+  public:
+    class Builder {
+    public:
+      Builder(Device &device) : device_{device} {}
+
+      Builder &addBinding(uint32_t binding, VkDescriptorType descriptorType,
+                          VkShaderStageFlags stageFlags, uint32_t count = 1);
+      std::unique_ptr<DescriptorSetLayoutPush> build() const;
+
+    private:
+      Device &device_;
+      std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings_{};
+    };
+
+    DescriptorSetLayoutPush(Device &device,
+                            std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
+    ~DescriptorSetLayoutPush();
+    DescriptorSetLayoutPush(const DescriptorSetLayoutPush &) = delete;
+    DescriptorSetLayoutPush &operator=(const DescriptorSetLayoutPush &) = delete;
+
+    VkDescriptorSetLayout getDescriptorSetLayout() const { return descriptorSetLayoutPush_; }
+
+  private:
+    Device &device_;
+    VkDescriptorSetLayout descriptorSetLayoutPush_;
+    std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings_;
+
+    friend class DescriptorWriter;
+  };
+
   class DescriptorPool {
   public:
     class Builder {

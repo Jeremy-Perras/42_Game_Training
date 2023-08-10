@@ -3,9 +3,11 @@
 #include <glm/glm.hpp>
 
 #include "buffer.hpp"
+#include "descriptors.hpp"
 #include "frame_info.hpp"
 #include "pipeline.hpp"
 #include "renderer.hpp"
+#include "texture.hpp"
 #include "utils.hpp"
 namespace ve {
 
@@ -20,7 +22,6 @@ namespace ve {
     struct Vertex {
       glm::vec2 pos;
       glm::vec2 texCoord;
-      int32_t textureIndex = 1;
       // getters
       static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
       static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
@@ -35,7 +36,8 @@ namespace ve {
     void draw(FrameInfo &frameInfo) const;
     void createVertexBuffer(const std::vector<Vertex> &vertices);
     void createIndexBuffers(const std::vector<uint32_t> &indices);
-    TextureRenderSystem(Device &device, Renderer &renderer, VkDescriptorSetLayout globalSetLayout,
+    TextureRenderSystem(Device &device, Renderer &renderer,
+                        std::vector<std::shared_ptr<Texture>> &texture,
                         TextureRenderSystem::Builder &builder, TextureIndex textureIndex);
     TextureRenderSystem(const TextureRenderSystem &src) = delete;
     TextureRenderSystem &operator=(const TextureRenderSystem &rhs) = delete;
@@ -65,6 +67,7 @@ namespace ve {
         playerCountOffsetY_--;
       }
     }
+
     void setPushTranslationCoordinate(float translation, bool x, bool y) {
       if (x) {
         offset_.x += translation;
@@ -91,9 +94,11 @@ namespace ve {
     }
 
   private:
-    void createPipelineLayout(VkDescriptorSetLayout *globalSetLayout);
+    void createPipelineLayout();
     void createPipeline();
-
+    void createUniformBuffers();
+    void createWriteDescriptorSet();
+    void updateImageInfo();
     std::unique_ptr<Buffer> vertexBuffer_;
     uint32_t vertexCount_;
 
@@ -113,5 +118,14 @@ namespace ve {
     TextureIndex textureIndex_;
     float playerCountOffsetX_ = 0;
     float playerCountOffsetY_ = 0;
+
+    std::vector<std::shared_ptr<Texture>> &texture_;
+
+    std::unique_ptr<DescriptorPool> textureDescriptorPool_;
+    std::unique_ptr<DescriptorSetLayoutPush> textureDescriptorSetLayout_;
+
+    std::array<VkWriteDescriptorSet, 1> writeDescriptorSets_{};
+    PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR_;
+    VkDescriptorImageInfo imageInfo{};
   };
 }  // namespace ve

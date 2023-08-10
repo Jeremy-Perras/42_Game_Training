@@ -24,6 +24,7 @@ namespace ve {
     model_ = std::make_unique<InterfaceModel>(
         device_, renderer_, textureDescriptorSetLayout_->getDescriptorSetLayout(), lvlPath_,
         texture_, menuInterface_, playerInterface_, gameInterface_, displayInterface_);
+    textureInit();
     model_->createMenuInterface();
     model_->createPlayerInterface();
     model_->createGameMap();
@@ -31,33 +32,19 @@ namespace ve {
     playerPointer_ = model_->getPlayerPointer();
     playerCoordinate_ = model_->getStartCoordinate();
     countStar_ = model_->getCountStarStart();
-    textureInit();
   }
 
   void GameLoop::createDescriptor() {
-    textureDescriptorPool_
-        = DescriptorPool::Builder(device_)
-              .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
-              .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
-              .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                           textureSize * SwapChain::MAX_FRAMES_IN_FLIGHT)
-              .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT)
-              .build();
+    textureDescriptorPool_ = DescriptorPool::Builder(device_)
+                                 .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+                                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                              textureSize * SwapChain::MAX_FRAMES_IN_FLIGHT)
+                                 .build();
 
-    uboBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
-    for (int i = 0; i < static_cast<int>(uboBuffers.size()); i++) {
-      uboBuffers[i] = std::make_unique<Buffer>(device_, sizeof(GlobalUbo), 1,
-                                               VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-      uboBuffers[i]->map();
-    }
-
-    textureDescriptorSetLayout_
-        = DescriptorSetLayout::Builder(device_)
-              .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
-              .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                          VK_SHADER_STAGE_FRAGMENT_BIT, textureSize)
-              .build();
+    textureDescriptorSetLayout_ = DescriptorSetLayout::Builder(device_)
+                                      .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                                  VK_SHADER_STAGE_FRAGMENT_BIT, textureSize)
+                                      .build();
 
     textureDescriptorSets_.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
   }
@@ -73,10 +60,8 @@ namespace ve {
     }
 
     for (int i = 0; i < static_cast<int>(textureDescriptorSets_.size()); i++) {
-      auto bufferInfo = uboBuffers[i]->descriptorInfo();
       DescriptorWriter(*textureDescriptorSetLayout_, *textureDescriptorPool_)
-          .writeBuffer(0, &bufferInfo)
-          .writeImage(1, textureDescriptors.data(), textureSize)
+          .writeImage(3, textureDescriptors.data(), textureSize)
           .build(textureDescriptorSets_[i]);
     }
   }

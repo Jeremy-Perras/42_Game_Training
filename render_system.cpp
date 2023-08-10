@@ -1,21 +1,50 @@
 #include "render_system.hpp"
 
+#include "compute_shader.hpp"
+
 namespace ve {
 
-  struct SimplePushConstantData {
-    int index;
-    glm::vec4 color;
-  };
+  struct UboScene {
+    float i = 0.5;
+  } uboScene;
 
   RenderSystem::RenderSystem(Device &device, Renderer &renderer,
                              VkDescriptorSetLayout globalSetLayout,
                              const RenderSystem::Builder &builder)
       : device_(device), renderer_(renderer) {
-    {
-      createPipelineLayout(globalSetLayout);
-      createPipeline();
-      createVertexBuffer(builder.vertices);
-      createIndexBuffers(builder.indices);
+    textureDescriptorPool_
+        = DescriptorPool::Builder(device_)
+              .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+              .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
+              .build();
+
+    textureDescriptorSetLayout_
+        = DescriptorSetLayoutPush::Builder(device_)
+              .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+              .build();
+
+    createUniformBuffers();
+    createPipelineLayout(globalSetLayout);
+    createPipeline();
+    createVertexBuffer(builder.vertices);
+    createIndexBuffers(builder.indices);
+  }
+
+  void RenderSystem::createUniformBuffers() {
+    VkDeviceSize bufferSize = sizeof(UboScene);
+
+    uniformBuffers_.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    uniformBuffersMemory_.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    uniformBuffersMapped_.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+
+    for (size_t i = 0; i < SwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
+      device_.createBuffer(
+          bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+          uniformBuffers_[i], uniformBuffersMemory_[i]);
+
+      vkMapMemory(device_.getDevice(), uniformBuffersMemory_[i], 0, bufferSize, 0,
+                  &uniformBuffersMapped_[i]);
     }
   }
 
@@ -113,16 +142,18 @@ namespace ve {
 
   void RenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout) {
     (void)globalSetLayout;
+
     VkPushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstantRange.offset = 0;
     pushConstantRange.size = sizeof(SimplePushConstantData);
+    std::vector<VkDescriptorSetLayout> descriptorSetLayouts{
+        textureDescriptorSetLayout_->getDescriptorSetLayout()};
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-
-    pipelineLayoutInfo.setLayoutCount = 0;
-    pipelineLayoutInfo.pSetLayouts = nullptr;
+    pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
 
     pipelineLayoutInfo.pushConstantRangeCount = 1;
     pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
@@ -147,17 +178,33 @@ namespace ve {
                                            "shaders/shader.frag.spv", pipelineConfig);
   }
 
+  void RenderSystem::updateUniformBuffer(uint32_t currentImage) {
+    UboScene ubo{};
+    ubo.i = 1.0;
+
+    memcpy(uniformBuffersMapped_[currentImage], &ubo, sizeof(ubo));
+  }
+
   void RenderSystem::renderGameObjects(FrameInfo &frameInfo) {
     pipeline_->bind(frameInfo.commandBuffer);
 
-    // SimplePushConstantData push{};
-    // push.color = obj.color;
+    VkDescriptorBufferInfo uniformBufferInfo{};
+    uniformBufferInfo.buffer = uniformBuffers_[frameInfo.frameIndex];
+    uniformBufferInfo.offset = 0;
+    uniformBufferInfo.range = sizeof(UboScene);
 
-    // vkCmdPushConstants(commandBuffer, pipelineLayout_,
-    //                    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
-    //                    sizeof(SimplePushConstantData), &push);
-    // vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-    //                         pipelineLayout_, 0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
+    std::array<VkWriteDescriptorSet, 1> writeDescriptorSets{};
+    writeDescriptorSets[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSets[0].dstSet = 0;
+    writeDescriptorSets[0].dstBinding = 0;
+    writeDescriptorSets[0].descriptorCount = 1;
+    writeDescriptorSets[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    writeDescriptorSets[0].pBufferInfo = &uniformBufferInfo;
+    PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR = device_.getPushCommand();
+    updateUniformBuffer(frameInfo.frameIndex);
+    vkCmdPushDescriptorSetKHR(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                              pipelineLayout_, 0, 1, writeDescriptorSets.data());
+
     RenderSystem::bind(frameInfo.commandBuffer);
     RenderSystem::draw(frameInfo.commandBuffer);
   }

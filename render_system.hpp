@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 
 #include "buffer.hpp"
+#include "descriptors.hpp"
 #include "frame_info.hpp"
 #include "pipeline.hpp"
 #include "renderer.hpp"
@@ -41,6 +42,8 @@ namespace ve {
     void createIndexBuffers(const std::vector<uint32_t> &indices);
     void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
     void createPipeline();
+    void createUniformBuffers();
+    void updateUniformBuffer(uint32_t currentImage);
 
     Device &device_;
     Renderer &renderer_;
@@ -57,5 +60,12 @@ namespace ve {
 
     VkBuffer stagingBuffer_;
     VkDeviceMemory stagingBufferMemory_;
+
+    std::unique_ptr<DescriptorPool> textureDescriptorPool_;
+    std::unique_ptr<DescriptorSetLayoutPush> textureDescriptorSetLayout_;
+
+    std::vector<void *> uniformBuffersMapped_;
+    std::vector<VkBuffer> uniformBuffers_;
+    std::vector<VkDeviceMemory> uniformBuffersMemory_;
   };
 }  // namespace ve
