@@ -53,7 +53,7 @@ namespace ve {
     auto arrowLeft = std::make_unique<Texture>(device_, "texture/LeftArrow.png");
     auto f2 = std::make_unique<Texture>(device_, "texture/F2.png");
     auto blueBrush = std::make_unique<Texture>(device_, "texture/BlueBrush.png");
-    auto rocket = std::make_unique<Texture>(device_, "texture/Rocket.png");
+    auto playerUp = std::make_unique<Texture>(device_, "texture/PlayerUp.png");
     auto background = std::make_unique<Texture>(device_, "texture/Dream.jpg");
     auto star = std::make_unique<Texture>(device_, "texture/Star.png");
     auto blue = std::make_unique<Texture>(device_, "texture/Blue.png");
@@ -63,6 +63,9 @@ namespace ve {
     auto play = std::make_unique<Texture>(device_, "texture/Play.png");
     auto stop = std::make_unique<Texture>(device_, "texture/Stop.png");
     auto stepByStep = std::make_unique<Texture>(device_, "texture/StepByStep.png");
+    auto PlayerDown = std::make_unique<Texture>(device_, "texture/PlayerDown.png");
+    auto playerRight = std::make_unique<Texture>(device_, "texture/PlayerRight.png");
+    auto playerLeft = std::make_unique<Texture>(device_, "texture/PlayerLeft.png");
 
     texture_.push_back(std::move(arrowLeft));
     texture_.push_back(std::move(arrowUp));
@@ -76,13 +79,16 @@ namespace ve {
     texture_.push_back(std::move(red));
     texture_.push_back(std::move(green));
     texture_.push_back(std::move(blue));
-    texture_.push_back(std::move(rocket));
+    texture_.push_back(std::move(playerUp));
     texture_.push_back(std::move(star));
     texture_.push_back(std::move(white));
     texture_.push_back(std::move(play));
     texture_.push_back(std::move(stepByStep));
     texture_.push_back(std::move(stop));
     texture_.push_back(std::move(background));
+    texture_.push_back(std::move(PlayerDown));
+    texture_.push_back(std::move(playerRight));
+    texture_.push_back(std::move(playerLeft));
   }
 
   void InterfaceModel::createMenuInterface() {
@@ -375,45 +381,30 @@ namespace ve {
     switch (c) {
       case 'N': {
         playerStart_.Angle = 90.0F;
-        builder.vertices[0].texCoord = {0.0F, 0.0F};
-        builder.vertices[1].texCoord = {1.0F, 0.0F};
-        builder.vertices[2].texCoord = {1.0F, 1.0F};
-        builder.vertices[3].texCoord = {0.0F, 1.0F};
+
         object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-            device_, renderer_, texture_, builder, TextureIndex::PLAYER);
+            device_, renderer_, texture_, builder, TextureIndex::PLAYERUP);
         gameInterface_.emplace(gameInterface_.begin(), std::move(object2));
         break;
       }
       case 'E': {
-        builder.vertices[0].texCoord = {0.0F, 1.0F};
-        builder.vertices[1].texCoord = {0.0F, 0.0F};
-        builder.vertices[2].texCoord = {1.0F, 0.0F};
-        builder.vertices[3].texCoord = {1.0F, 1.0F};
         playerStart_.Angle = 0.0F;
         object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-            device_, renderer_, texture_, builder, TextureIndex::PLAYER);
+            device_, renderer_, texture_, builder, TextureIndex::PLAYERRIGHT);
         gameInterface_.emplace(gameInterface_.begin(), std::move(object2));
         break;
       }
       case 'W': {
-        builder.vertices[0].texCoord = {1.0F, 0.0F};
-        builder.vertices[1].texCoord = {1.0F, 1.0F};
-        builder.vertices[2].texCoord = {0.0F, 1.0F};
-        builder.vertices[3].texCoord = {0.0F, 0.0F};
         playerStart_.Angle = 180.0F;
         object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-            device_, renderer_, texture_, builder, TextureIndex::PLAYER);
+            device_, renderer_, texture_, builder, TextureIndex::PLAYERLEFT);
         gameInterface_.emplace(gameInterface_.begin(), std::move(object2));
         break;
       }
       case 'S': {
-        builder.vertices[0].texCoord = {1.0F, 1.0F};
-        builder.vertices[1].texCoord = {0.0F, 1.0F};
-        builder.vertices[2].texCoord = {0.0F, 0.0F};
-        builder.vertices[3].texCoord = {1.0F, 0.0F};
         playerStart_.Angle = 270.0F;
         object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-            device_, renderer_, texture_, builder, TextureIndex::PLAYER);
+            device_, renderer_, texture_, builder, TextureIndex::PLAYERDOWN);
         gameInterface_.emplace(gameInterface_.begin(), std::move(object2));
         break;
       }

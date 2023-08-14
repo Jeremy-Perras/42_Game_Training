@@ -3,6 +3,8 @@
 #include <algorithm>
 
 #include "game_object.hpp"
+#include "texture_render_system.hpp"
+#include "utils.hpp"
 namespace ve {
   GameLoop::GameLoop(Device &device, Renderer &renderer, GameState &gameState,
                      std::vector<GameObject> &menuInterface,
@@ -141,6 +143,7 @@ namespace ve {
           }
         }
       }
+      playerPointer_->textureRenderSystem->setPlayerTextureOrientation(playerCoordinate_);
       resetPlayerAngle();
     }
   }
@@ -152,14 +155,17 @@ namespace ve {
         if (checkIsNotPlayerAndNotStarAndIsInside(obj)) {
           if (checkColor(playerInput, obj)) {
             if (playerInput.first == TextureIndex::BRUSHRED) {
+              obj.textureRenderSystem->setIndexTexture(TextureIndex::RED);
               obj.textureRenderSystem->setColor(glm::vec4(1.0, 0.0, 0.0, 1.0));
               break;
             }
             if (playerInput.first == TextureIndex::BRUSHGREEN) {
+              obj.textureRenderSystem->setIndexTexture(TextureIndex::GREEN);
               obj.textureRenderSystem->setColor(glm::vec4(0.0, 1.0, 0.0, 1.0));
               break;
             }
             if (playerInput.first == TextureIndex::BRUSHBLUE) {
+              obj.textureRenderSystem->setIndexTexture(TextureIndex::BLUE);
               obj.textureRenderSystem->setColor(glm::vec4(0.0, 0.0, 1.0, 1.0));
               break;
             }

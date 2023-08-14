@@ -26,8 +26,8 @@ namespace ve {
     firstScreenTime_ = std::chrono::high_resolution_clock::now();
     startGameLoop_ = std::chrono::high_resolution_clock::now();
     fpsTime_ = std::chrono::high_resolution_clock::now();
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    auto newTime = std::chrono::high_resolution_clock::now();
+    std::chrono::steady_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
+    std::chrono::steady_clock::time_point newTime = std::chrono::high_resolution_clock::now();
     TextureRenderSystem::Builder builder;
     builder = {{{
                     {-1, -1},
@@ -91,6 +91,7 @@ namespace ve {
 
         case GameState::GAMELOOP: {
           stateGameLoop(currentTime);
+
           break;
         }
 

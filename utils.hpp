@@ -1,10 +1,11 @@
+#pragma once
 namespace ve {
   static constexpr int WIDTH = 800;
   static constexpr int HEIGHT = 600;
   static constexpr float HEIGHTVERTEX = 0.05F;
   static constexpr float WIDTHVERTEX = 0.05F;
 
-  enum GameState { START, PLAYING, MENU, GAMELOOP };
+  enum GameState { START, PLAYING, MENU, GAMELOOP, SBS };
   struct playerCoordinate {
     float x;
     float y;
@@ -24,13 +25,16 @@ namespace ve {
     RED,
     GREEN,
     BLUE,
-    PLAYER,
+    PLAYERUP,
     STAR,
     WHITE,
     PLAY,
     STEPBYSTEP,
     STOP,
     BACKGROUND,
+    PLAYERDOWN,
+    PLAYERRIGHT,
+    PLAYERLEFT,
     TEXTURESIZE,
     DISCARD,
   };

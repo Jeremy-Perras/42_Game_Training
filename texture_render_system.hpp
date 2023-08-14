@@ -44,7 +44,14 @@ namespace ve {
     ~TextureRenderSystem();
 
     void render(FrameInfo &info);
-    void setIndexTexture(TextureIndex index) { textureIndex_ = index; }
+    void setIndexTexture(TextureIndex index) {
+      if (index == TextureIndex::DISCARD) {
+        textureIndex_ = index;
+        color_.w = 0.0;
+      } else {
+        textureIndex_ = index;
+      }
+    }
 
     void setBuilderCoordinate(playerCoordinate *playerCoordinate) {
       float x = glm::cos(glm::radians(playerCoordinate->Angle));
@@ -65,6 +72,21 @@ namespace ve {
         offset_.y = offset_.y - 0.05F;
         playerCoordinate->y = playerCoordinate->y - 0.05F;
         playerCountOffsetY_--;
+      }
+    }
+
+    void setPlayerTextureOrientation(playerCoordinate playerCoordinate) {
+      float angle = playerCoordinate.Angle;
+      if (angle == 0.0) {
+        textureIndex_ = TextureIndex::PLAYERRIGHT;
+
+      } else if (angle == 90.0 || angle == -270.0) {
+        textureIndex_ = TextureIndex::PLAYERUP;
+      } else if (angle == 180.0 || angle == -180.0) {
+        textureIndex_ = TextureIndex::PLAYERLEFT;
+
+      } else if (angle == 270.0 || angle == -90) {
+        textureIndex_ = TextureIndex::PLAYERDOWN;
       }
     }
 

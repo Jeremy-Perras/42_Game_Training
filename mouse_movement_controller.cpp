@@ -21,6 +21,7 @@ namespace ve {
         if (index_ == TextureIndex::STOP) {
           gameState_ = GameState::PLAYING;
         }
+
         if (gameState_ == GameState::PLAYING) {
           changeUserInterface(playerInterface_);
         }
@@ -52,7 +53,8 @@ namespace ve {
               && index_ != TextureIndex::STOP) {
             playerInterface.textureRenderSystem->setIndexTexture(index_);
           }
-          if (color_ != glm::vec4(0.0, 0.0, 0.0, 0.0)) {
+          if (color_ != glm::vec4(0.0, 0.0, 0.0, 0.0) && index_ != TextureIndex::PLAY
+              && index_ != TextureIndex::STOP) {
             playerInterface.textureRenderSystem->setColor(color_);
           }
         }

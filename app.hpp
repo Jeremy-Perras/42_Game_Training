@@ -40,6 +40,7 @@ namespace ve {
     static void resetTime(std::chrono::steady_clock::time_point *time);
     void updateFrameInfo();
     void updateGameLvl();
+
     GameState gameState_ = {GameState::START};
 
     Window window_{WIDTH, HEIGHT, "GameEngine"};

@@ -8,7 +8,8 @@ layout(push_constant) uniform Push {
   vec4 color;
   vec4 offset;
   int index;
-}push;
+}
+push;
 
 void main() {
   vec2 position = vec2(inPosition.x + push.offset.x, inPosition.y + push.offset.y);
