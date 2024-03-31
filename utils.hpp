@@ -5,7 +5,7 @@ namespace ve {
   static constexpr float HEIGHTVERTEX = 0.05F;
   static constexpr float WIDTHVERTEX = 0.05F;
 
-  enum GameState { START, PLAYING, MENU, GAMELOOP, SBS };
+  enum GameState { START, PLAYING, MENU, GAMELOOP, SBYS, WAIT };
   struct playerCoordinate {
     float x;
     float y;

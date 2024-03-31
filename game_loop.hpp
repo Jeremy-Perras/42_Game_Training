@@ -10,7 +10,7 @@ namespace ve {
     GameLoop(Device &device, Renderer &renderer, GameState &gameState,
              std::vector<GameObject> &menuInterface,
              std::vector<std::vector<GameObject>> &playerInterface,
-             std::vector<GameObject> &gameInterface, std::vector<GameObject> &displayInterface_);
+             std::vector<GameObject> &gameInterface, std::vector<GameObject> &displayInterface_,std::vector<GameObject> &timeInterface);
     GameLoop(const GameLoop &src) = delete;
     GameLoop &operator=(const GameLoop &rhs) = delete;
     ~GameLoop(){};
@@ -66,6 +66,7 @@ namespace ve {
     std::vector<GameObject> &menuInterface_;
     std::vector<std::vector<GameObject>> &playerInterface_;
     std::vector<GameObject> &displayInterface_;
+    std::vector<GameObject> &timeInterface_;
 
     Device &device_;
     Renderer &renderer_;

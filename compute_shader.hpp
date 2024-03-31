@@ -39,7 +39,7 @@ namespace ve {
     void createShaderStorageBuffers();
     void render(FrameInfo &frameInfo, std::vector<GameObject> &menuInterface,
                 std::vector<std::vector<GameObject>> &playerInterface,
-                std::vector<GameObject> &gameInterface, std::vector<GameObject> &displayInterface);
+                std::vector<GameObject> &gameInterface, std::vector<GameObject> &displayInterface,std::vector<GameObject> &timeInterface);
     void createDescriptorPool();
     void draw(uint32_t currentFrame);
     void recordComputeCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame);

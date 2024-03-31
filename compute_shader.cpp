@@ -190,7 +190,7 @@ namespace ve {
   void ComputeShader::render(FrameInfo& frameInfo, std::vector<GameObject>& menuInterface,
                              std::vector<std::vector<GameObject>>& playerInterface,
                              std::vector<GameObject>& gameInterface,
-                             std::vector<GameObject>& displayInterface) {
+                             std::vector<GameObject>& displayInterface,std::vector<GameObject>& timeInterface) {
     size_t currentFrame = frameInfo.frameIndex;
     renderer_.computeWait();
     updateUniformBuffer(currentFrame);
@@ -225,6 +225,13 @@ namespace ve {
     }
 
     for (auto& obj : menuInterface) {
+      if (obj.textureRenderSystem) {
+        obj.textureRenderSystem->render(frameInfo);
+      } else {
+        obj.renderSystem->renderGameObjects(frameInfo);
+      }
+    }
+    for(auto &obj : timeInterface){
       if (obj.textureRenderSystem) {
         obj.textureRenderSystem->render(frameInfo);
       } else {

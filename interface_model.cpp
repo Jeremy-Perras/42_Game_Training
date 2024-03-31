@@ -15,13 +15,14 @@ namespace ve {
                                  std::vector<GameObject> &menuInterface,
                                  std::vector<std::vector<GameObject>> &playerInterface,
                                  std::vector<GameObject> &gameInterface,
-                                 std::vector<GameObject> &displayInterface)
+                                 std::vector<GameObject> &displayInterface,std::vector<GameObject> &timeInterface)
       : device_(device),
         renderer_(renderer),
         gameInterface_(gameInterface),
         menuInterface_(menuInterface),
         playerInterface_(playerInterface),
         displayInterface_(displayInterface),
+        timeInterface_(timeInterface),
         texture_(texture),
         descriptorLayout_(descriptorLayout) {
     Parsing parsing(lvlPath);
@@ -54,7 +55,7 @@ namespace ve {
     auto f2 = std::make_unique<Texture>(device_, "texture/F2.png");
     auto blueBrush = std::make_unique<Texture>(device_, "texture/BlueBrush.png");
     auto playerUp = std::make_unique<Texture>(device_, "texture/PlayerUp.png");
-    auto background = std::make_unique<Texture>(device_, "texture/Dream.jpg");
+    auto background = std::make_unique<Texture>(device_, "texture/hello-friend.jpg");
     auto star = std::make_unique<Texture>(device_, "texture/Star.png");
     auto blue = std::make_unique<Texture>(device_, "texture/Blue.png");
     auto red = std::make_unique<Texture>(device_, "texture/Red.png");
@@ -175,6 +176,34 @@ namespace ve {
       object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
           device_, renderer_, texture_, builder, static_cast<TextureIndex>(i + TextureIndex::PLAY));
       menuInterface_.push_back(std::move(object));
+    }
+  }
+void InterfaceModel::createTimeInterface() {
+    TextureRenderSystem::Builder builder;
+    float xStart = -1;
+    float yStart = -0.8F;
+    int displayNumbers = 100;
+
+    for (int i = 0; i < displayNumbers; i++) {
+      builder = {{{{xStart + static_cast<float>(i) * 0.02, yStart - 0.03},
+
+                   {0.0F, 0.0F}},
+                  {
+                      {xStart + static_cast<float>(i) * 0.02+ 0.02, yStart - 0.03},
+
+                      {1.0F, 0.0F},
+                  },
+                  {{xStart + static_cast<float>(i) * 0.02+ 0.02, yStart - 0.01},
+
+                   {1.0F, 1.0F}},
+                  {{xStart + static_cast<float>(i) * 0.02, yStart - 0.01},
+
+                   {0.0F, 1.0F}}},
+                 {0, 1, 2, 2, 3, 0}};
+      auto object = GameObject::createGameObject();
+      object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+          device_, renderer_, texture_, builder, static_cast<TextureIndex>(TextureIndex::WHITE));
+      timeInterface_.push_back(std::move(object));
     }
   }
 

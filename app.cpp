@@ -1,6 +1,7 @@
 #include "app.hpp"
 
 #include <memory>
+#include <string>
 #include <thread>
 
 #include "compute_shader.hpp"
@@ -11,6 +12,7 @@
 #include "parsing.hpp"
 #include "texture.hpp"
 #include "texture_render_system.hpp"
+#include "utils.hpp"
 namespace ve {
 
   Application::Application() : fpscount_(0) {}
@@ -19,7 +21,7 @@ namespace ve {
 
   void Application::mainLoop() {
     gameLoop_ = std::make_unique<GameLoop>(device_, renderer_, gameState_, menuInterface_,
-                                           playerInterface_, gameInterface_, displayInterface_);
+                                           playerInterface_, gameInterface_, displayInterface_,timeInterface_);
     computeShader_
         = std::make_unique<ComputeShader>(device_, renderer_.getSwapChainRenderPass(), renderer_);
 
@@ -65,6 +67,7 @@ namespace ve {
       for (int i = 0; i < static_cast<int>((menuInterface_).size()); i++) {
         mouse_.getInput((menuInterface_)[i], (playerInterface_));
       }
+
       resetTime(&currentTime);
       float frameTime
           = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - newTime)
@@ -91,7 +94,17 @@ namespace ve {
 
         case GameState::GAMELOOP: {
           stateGameLoop(currentTime);
+          break;
+        }
 
+        case GameState::SBYS: {
+          StepByStep();
+          break;
+        }
+
+        case GameState::WAIT: {
+          computeShader_->render(frameInfo_, menuInterface_, playerInterface_, gameInterface_,
+                                 displayInterface_,timeInterface_);
           break;
         }
 
@@ -143,7 +156,7 @@ namespace ve {
       isAlreadyDone_ = false;
     }
     computeShader_->render(frameInfo_, menuInterface_, playerInterface_, gameInterface_,
-                           displayInterface_);
+                           displayInterface_,timeInterface_);
   }
 
   void Application::stateGameLoop(std::chrono::steady_clock::time_point currentTime) {
@@ -160,7 +173,7 @@ namespace ve {
     }
     gameLoop_->playerDead();
     computeShader_->render(frameInfo_, menuInterface_, playerInterface_, gameInterface_,
-                           displayInterface_);
+                           displayInterface_,timeInterface_);
     if ((std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startGameLoop_)
              .count())
         >= timeUpdateGame_) {
@@ -206,6 +219,25 @@ namespace ve {
     gameInterface_.clear();
     menuInterface_.clear();
     gameLoop_->updateGameLvl();
+  }
+
+  void Application::StepByStep() {
+    if (gameLoop_->getPlayerInput()->empty() && !isAlreadyDone_) {
+      for (int i = 0; i < static_cast<int>(playerInterface_[0].size()); i++) {
+        if (!GameLoop::isTextureWhite(
+                playerInterface_[0][i].textureRenderSystem->getIndexTexture())) {
+          gameLoop_->getPlayerInput()->push_back(
+              std::make_pair(playerInterface_[0][i].textureRenderSystem->getIndexTexture(),
+                             playerInterface_[0][i].textureRenderSystem->getColor()));
+        }
+      }
+      isAlreadyDone_ = true;
+    }
+    gameLoop_->playerDead();
+    if (!gameLoop_->getPlayerInput()->empty()) {
+      gameLoop_->gameLoop();
+    }
+    gameState_ = GameState::WAIT;
   }
 
 }  // namespace ve

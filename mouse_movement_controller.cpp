@@ -1,6 +1,9 @@
 #include "mouse_movement_controller.hpp"
 
+#include <iostream>
+
 #include "app.hpp"
+#include "utils.hpp"
 
 namespace ve {
   MouseMovementController::MouseMovementController(Window &window, GameState &gameState)
@@ -11,18 +14,20 @@ namespace ve {
   void MouseMovementController::getInput(GameObject &menuInterface,
                                          std::vector<std::vector<GameObject>> &playerInterface_) {
     if (glfwGetMouseButton(window_.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+      mouseSet_ = true;
       glfwGetCursorPos(window_.getGLFWwindow(), &xpos_, &ypos_);
       getUserClick(menuInterface);
       if (color_.w > 0.4F) {
         if (index_ == TextureIndex::PLAY) {
           gameState_ = GameState::GAMELOOP;
           index_ = TextureIndex::WHITE;
-        }
-        if (index_ == TextureIndex::STOP) {
+        } else if (index_ == TextureIndex::STOP) {
           gameState_ = GameState::PLAYING;
-        }
-
-        if (gameState_ == GameState::PLAYING) {
+        } else if (index_ == TextureIndex::STEPBYSTEP) {
+          std::cout << "step by step" << std::endl;
+          gameState_ = GameState::SBYS;
+          index_ = TextureIndex::WHITE;
+        } else if (gameState_ == GameState::PLAYING) {
           changeUserInterface(playerInterface_);
         }
       }
@@ -36,6 +41,7 @@ namespace ve {
             ((ypos_ / window_.getExtent().height) - 0.5F) * 2)
         && ((xpos_ / window_.getExtent().width) - 0.5F) * 2 < -0.6) {
       index_ = menuInterface.textureRenderSystem->getIndexTexture();
+
       color_ = menuInterface.textureRenderSystem->getColor();
     }
   }

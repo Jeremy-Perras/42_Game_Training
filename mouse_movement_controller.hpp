@@ -22,6 +22,7 @@ namespace ve {
     double xpos_;
     double ypos_;
     TextureIndex index_ = TextureIndex::WHITE;
+    bool mouseSet_ = false;
 
     glm::vec4 color_{};
   };

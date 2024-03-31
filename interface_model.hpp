@@ -16,7 +16,7 @@ namespace ve {
                    std::vector<GameObject> &menuInterface,
                    std::vector<std::vector<GameObject>> &playerInterface,
                    std::vector<GameObject> &gameInterface,
-                   std::vector<GameObject> &displayInterface);
+                   std::vector<GameObject> &displayInterface,std::vector<GameObject> &timeInterface);
 
     InterfaceModel(const InterfaceModel &src) = delete;
     InterfaceModel &operator=(const InterfaceModel &rhs) = delete;
@@ -26,6 +26,7 @@ namespace ve {
     void loadTexture();
     void createMenuInterface();
     void createPlayerInterface();
+    void createTimeInterface();
     void createGameInterface(std::vector<std::string> map);
     void saveInitialState();
     void resetToInitialState();
@@ -52,6 +53,7 @@ namespace ve {
     std::vector<GameObject> &menuInterface_;
     std::vector<std::vector<GameObject>> &playerInterface_;
     std::vector<GameObject> &displayInterface_;
+    std::vector<GameObject> &timeInterface_;
     std::vector<std::shared_ptr<Texture>> &texture_;
 
     VkDescriptorSetLayout descriptorLayout_;

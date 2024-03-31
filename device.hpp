@@ -9,7 +9,7 @@
 #include <string>
 #include <unordered_set>
 #include <vector>
-
+#include <cassert>
 namespace ve {
 
   struct SwapChainSupportDetails {

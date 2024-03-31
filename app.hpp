@@ -8,6 +8,7 @@
 #include "descriptors.hpp"
 #include "device.hpp"
 #include "game_loop.hpp"
+#include "game_object.hpp"
 #include "interface_model.hpp"
 #include "mouse_movement_controller.hpp"
 #include "renderer.hpp"
@@ -40,6 +41,7 @@ namespace ve {
     static void resetTime(std::chrono::steady_clock::time_point *time);
     void updateFrameInfo();
     void updateGameLvl();
+    void StepByStep();
 
     GameState gameState_ = {GameState::START};
 
@@ -63,6 +65,7 @@ namespace ve {
     std::vector<GameObject> displayInterface_;
     std::vector<std::vector<GameObject>> playerInterface_;
     std::vector<GameObject> gameInterface_;
+    std::vector<GameObject> timeInterface_;
 
     float timeUpdateGame_ = 0.2;
     int indexLvl = 1;
