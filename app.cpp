@@ -1,5 +1,7 @@
 #include "app.hpp"
 
+#include <chrono>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <thread>
@@ -9,6 +11,7 @@
 #include "game_loop.hpp"
 #include "interface_model.hpp"
 #include "keyboard_movement_controller.hpp"
+#include "menu_player.hpp"
 #include "parsing.hpp"
 #include "texture.hpp"
 #include "texture_render_system.hpp"
@@ -21,15 +24,21 @@ namespace ve {
 
   void Application::mainLoop() {
     gameLoop_ = std::make_unique<GameLoop>(device_, renderer_, gameState_, menuInterface_,
-                                           playerInterface_, gameInterface_, displayInterface_,timeInterface_);
+                                           playerInterface_, gameInterface_, displayInterface_,
+                                           timeInterface_);
     computeShader_
         = std::make_unique<ComputeShader>(device_, renderer_.getSwapChainRenderPass(), renderer_);
+
+    menuPlayer_ = std::make_unique<MenuPlayer>(device_, renderer_);
 
     firstScreenTime_ = std::chrono::high_resolution_clock::now();
     startGameLoop_ = std::chrono::high_resolution_clock::now();
     fpsTime_ = std::chrono::high_resolution_clock::now();
+    passTime_ = std::chrono::high_resolution_clock::now();
+
     std::chrono::steady_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
     std::chrono::steady_clock::time_point newTime = std::chrono::high_resolution_clock::now();
+
     TextureRenderSystem::Builder builder;
     builder = {{{
                     {-1, -1},
@@ -83,7 +92,8 @@ namespace ve {
         }
 
         case GameState::MENU: {
-          stateMenu(start);
+          // stateMenu(start);
+          menuStart(*menuPlayer_);
           break;
         }
 
@@ -104,7 +114,7 @@ namespace ve {
 
         case GameState::WAIT: {
           computeShader_->render(frameInfo_, menuInterface_, playerInterface_, gameInterface_,
-                                 displayInterface_,timeInterface_);
+                                 displayInterface_, timeInterface_);
           break;
         }
 
@@ -112,7 +122,11 @@ namespace ve {
           break;
         }
       }
-
+      if ((std::chrono::duration<float, std::chrono::seconds::period>(newTime - passTime_).count())
+          >= 1.0) {
+        updateTimeScreen();
+        resetTime(&passTime_);
+      }
       fpscount_++;
       updateFPS(currentTime);
     }
@@ -126,6 +140,16 @@ namespace ve {
       window_.updateFrame(fpscount_);
       fpscount_ = 0;
       resetTime(&fpsTime_);
+    }
+  }
+
+  void Application::menuStart(MenuPlayer &menuPlayer) {
+    if (auto *commandBuffer = renderer_.beginFrame(false)) {
+      renderer_.beginSwapChainRenderPass(commandBuffer);
+      frameInfo_.commandBuffer = commandBuffer;
+      menuPlayer.render(frameInfo_);
+      renderer_.endSwapChainRenderPass(commandBuffer);
+      renderer_.endFrame(false);
     }
   }
 
@@ -156,7 +180,7 @@ namespace ve {
       isAlreadyDone_ = false;
     }
     computeShader_->render(frameInfo_, menuInterface_, playerInterface_, gameInterface_,
-                           displayInterface_,timeInterface_);
+                           displayInterface_, timeInterface_);
   }
 
   void Application::stateGameLoop(std::chrono::steady_clock::time_point currentTime) {
@@ -173,7 +197,7 @@ namespace ve {
     }
     gameLoop_->playerDead();
     computeShader_->render(frameInfo_, menuInterface_, playerInterface_, gameInterface_,
-                           displayInterface_,timeInterface_);
+                           displayInterface_, timeInterface_);
     if ((std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startGameLoop_)
              .count())
         >= timeUpdateGame_) {
@@ -238,6 +262,13 @@ namespace ve {
       gameLoop_->gameLoop();
     }
     gameState_ = GameState::WAIT;
+  }
+
+  void Application::updateTimeScreen() {
+    if (counterTime < static_cast<int>(timeInterface_.size())) {
+      timeInterface_[counterTime++].textureRenderSystem->setIndexTexture(
+          static_cast<TextureIndex>(TextureIndex::RED));
+    }
   }
 
 }  // namespace ve

@@ -2,7 +2,8 @@ NAME = library
 
 SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp interface_model.cpp renderer.cpp render_system.cpp\
 keyboard_movement_controller.cpp buffer.cpp descriptors.cpp texture_render_system.cpp texture.cpp \
-compute_shader.cpp mouse_movement_controller.cpp parsing.cpp game_loop.cpp  window_display.cpp
+compute_shader.cpp mouse_movement_controller.cpp parsing.cpp game_loop.cpp  window_display.cpp\
+menu_player.cpp 
 
 INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi 
 
@@ -54,6 +55,9 @@ gl:
 	glslc shaders/shader.vert -o shaders/shader.vert.spv
 	glslc shaders/texture.frag -o shaders/texture.frag.spv
 	glslc shaders/texture.vert -o shaders/texture.vert.spv
+	glslc shaders/menu.frag -o shaders/menu.frag.spv
+	glslc shaders/menu.vert -o shaders/menu.vert.spv
+	
 clean :
 	rm -rf $(OBJS)
 	rm -rf shaders/*.spv

@@ -10,6 +10,7 @@
 #include "game_loop.hpp"
 #include "game_object.hpp"
 #include "interface_model.hpp"
+#include "menu_player.hpp"
 #include "mouse_movement_controller.hpp"
 #include "renderer.hpp"
 #include "vulkan/vulkan_core.h"
@@ -42,8 +43,10 @@ namespace ve {
     void updateFrameInfo();
     void updateGameLvl();
     void StepByStep();
+    void updateTimeScreen();
+    void menuStart(MenuPlayer &menuPlayer);
 
-    GameState gameState_ = {GameState::START};
+    GameState gameState_ = {GameState::MENU};
 
     Window window_{WIDTH, HEIGHT, "GameEngine"};
     Device device_{window_};
@@ -54,11 +57,13 @@ namespace ve {
     std::chrono::steady_clock::time_point fpsTime_;
     std::chrono::steady_clock::time_point startGameLoop_;
     std::chrono::steady_clock::time_point firstScreenTime_;
+    std::chrono::steady_clock::time_point passTime_;
 
     bool isAlreadyDone_ = false;
 
     std::unique_ptr<GameLoop> gameLoop_;
     std::unique_ptr<ComputeShader> computeShader_;
+    std::unique_ptr<MenuPlayer> menuPlayer_;
     FrameInfo frameInfo_{};
 
     std::vector<GameObject> menuInterface_;
@@ -69,5 +74,6 @@ namespace ve {
 
     float timeUpdateGame_ = 0.2;
     int indexLvl = 1;
+    int counterTime = 0;
   };
 }  // namespace ve

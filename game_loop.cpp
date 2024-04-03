@@ -10,7 +10,8 @@ namespace ve {
                      std::vector<GameObject> &menuInterface,
                      std::vector<std::vector<GameObject>> &playerInterface,
                      std::vector<GameObject> &gameInterface,
-                     std::vector<GameObject> &displayInterface,std::vector<GameObject> &timeInterface)
+                     std::vector<GameObject> &displayInterface,
+                     std::vector<GameObject> &timeInterface)
       : gameState_(gameState),
         gameInterface_(gameInterface),
         menuInterface_(menuInterface),
@@ -18,15 +19,16 @@ namespace ve {
         displayInterface_(displayInterface),
         timeInterface_(timeInterface),
         device_(device),
-        renderer_(renderer){
+        renderer_(renderer) {
     createDescriptor();
     gameInit();
   }
 
   void GameLoop::gameInit() {
-    model_ = std::make_unique<InterfaceModel>(
-        device_, renderer_, textureDescriptorSetLayout_->getDescriptorSetLayout(), lvlPath_,
-        texture_, menuInterface_, playerInterface_, gameInterface_, displayInterface_,timeInterface_);
+    model_ = std::make_unique<InterfaceModel>(device_, renderer_,
+                                              textureDescriptorSetLayout_->getDescriptorSetLayout(),
+                                              lvlPath_, texture_, menuInterface_, playerInterface_,
+                                              gameInterface_, displayInterface_, timeInterface_);
     textureInit();
     model_->createMenuInterface();
     model_->createPlayerInterface();
