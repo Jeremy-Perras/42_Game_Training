@@ -61,7 +61,6 @@ namespace ve {
     VkBuffer stagingBuffer_;
     VkDeviceMemory stagingBufferMemory_;
 
-    std::unique_ptr<DescriptorPool> textureDescriptorPool_;
     std::unique_ptr<DescriptorSetLayoutPush> textureDescriptorSetLayout_;
 
     std::vector<void *> uniformBuffersMapped_;

@@ -16,7 +16,9 @@ namespace ve {
                    std::vector<GameObject> &menuInterface,
                    std::vector<std::vector<GameObject>> &playerInterface,
                    std::vector<GameObject> &gameInterface,
-                   std::vector<GameObject> &displayInterface,std::vector<GameObject> &timeInterface);
+                   std::vector<GameObject> &displayInterface,
+                   std::vector<GameObject> &timeInterface,
+                   std::vector<GameObject> &menuStartInterface);
 
     InterfaceModel(const InterfaceModel &src) = delete;
     InterfaceModel &operator=(const InterfaceModel &rhs) = delete;
@@ -33,6 +35,7 @@ namespace ve {
     void uptateGameLvl(std::string &lvlPath);
     void createGameMap();
     void createDisplayInterface();
+    void createStartInterface();
     static bool isInside(float x, float y, float i, float j) {
       return (i * 0.05 - 1.0F > x && x < (i + 1) * 0.05 - 1.0F) && j * 0.05 - 1.0F > y
              && y < (j + 1) * 0.05 - 1.0F;
@@ -54,6 +57,7 @@ namespace ve {
     std::vector<std::vector<GameObject>> &playerInterface_;
     std::vector<GameObject> &displayInterface_;
     std::vector<GameObject> &timeInterface_;
+    std::vector<GameObject> &menuStartInterface_;
     std::vector<std::shared_ptr<Texture>> &texture_;
 
     VkDescriptorSetLayout descriptorLayout_;

@@ -1,8 +1,10 @@
 #include "mouse_movement_controller.hpp"
 
 #include <iostream>
+#include <vector>
 
 #include "app.hpp"
+#include "game_object.hpp"
 #include "utils.hpp"
 
 namespace ve {
@@ -11,11 +13,15 @@ namespace ve {
 
   MouseMovementController::~MouseMovementController() {}
 
+  void MouseMovementController::setInput() {
+    glfwGetCursorPos(window_.getGLFWwindow(), &xpos_, &ypos_);
+  }
+
   void MouseMovementController::getInput(GameObject &menuInterface,
                                          std::vector<std::vector<GameObject>> &playerInterface_) {
     if (glfwGetMouseButton(window_.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
       mouseSet_ = true;
-      glfwGetCursorPos(window_.getGLFWwindow(), &xpos_, &ypos_);
+      coordinatesMouse();
       getUserClick(menuInterface);
       if (color_.w > 0.4F) {
         if (index_ == TextureIndex::PLAY) {
@@ -67,4 +73,24 @@ namespace ve {
       }
     }
   }
+
+  void MouseMovementController::getUserClickMenu(GameObject &menuStartInterface) {
+    coordinatesMouse();
+    if (menuStartInterface.textureRenderSystem
+        && menuStartInterface.textureRenderSystem->isInside(xposWindow_, yposWindow_)) {
+      menuStartInterface.textureRenderSystem->setColor(glm::vec4(0.7, 0.04, 0.0, 1));
+      glfwGetMouseButton(window_.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS
+          ? gameState_ = GameState::START
+          : gameState_ = GameState::MENU;
+    } else {
+      menuStartInterface.textureRenderSystem->setColor(glm::vec4(0.7, 0.04, 0.0, 0.5));
+    }
+  }
+
+  void MouseMovementController::coordinatesMouse() {
+    glfwGetCursorPos(window_.getGLFWwindow(), &xpos_, &ypos_);
+    xposWindow_ = ((xpos_ / window_.getExtent().width) - 0.5F) * 2;   // -1.0F to 1.0F;
+    yposWindow_ = ((ypos_ / window_.getExtent().height) - 0.5F) * 2;  // -1.0F to 1.0F;
+  }
+
 }  // namespace ve

@@ -11,13 +11,15 @@ namespace ve {
                      std::vector<std::vector<GameObject>> &playerInterface,
                      std::vector<GameObject> &gameInterface,
                      std::vector<GameObject> &displayInterface,
-                     std::vector<GameObject> &timeInterface)
+                     std::vector<GameObject> &timeInterface,
+                     std::vector<GameObject> &menuStartInterface)
       : gameState_(gameState),
         gameInterface_(gameInterface),
         menuInterface_(menuInterface),
         playerInterface_(playerInterface),
         displayInterface_(displayInterface),
         timeInterface_(timeInterface),
+        menuStartInterface_(menuStartInterface),
         device_(device),
         renderer_(renderer) {
     createDescriptor();
@@ -25,16 +27,17 @@ namespace ve {
   }
 
   void GameLoop::gameInit() {
-    model_ = std::make_unique<InterfaceModel>(device_, renderer_,
-                                              textureDescriptorSetLayout_->getDescriptorSetLayout(),
-                                              lvlPath_, texture_, menuInterface_, playerInterface_,
-                                              gameInterface_, displayInterface_, timeInterface_);
+    model_ = std::make_unique<InterfaceModel>(
+        device_, renderer_, textureDescriptorSetLayout_->getDescriptorSetLayout(), lvlPath_,
+        texture_, menuInterface_, playerInterface_, gameInterface_, displayInterface_,
+        timeInterface_, menuStartInterface_);
     textureInit();
     model_->createMenuInterface();
     model_->createPlayerInterface();
     model_->createGameMap();
     model_->createDisplayInterface();
     model_->createTimeInterface();
+    model_->createStartInterface();
     playerPointer_ = model_->getPlayerPointer();
     playerCoordinate_ = model_->getStartCoordinate();
     countStar_ = model_->getCountStarStart();

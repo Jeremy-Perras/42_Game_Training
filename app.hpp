@@ -44,7 +44,7 @@ namespace ve {
     void updateGameLvl();
     void StepByStep();
     void updateTimeScreen();
-    void menuStart(MenuPlayer &menuPlayer);
+    void menuStart();
 
     GameState gameState_ = {GameState::MENU};
 
@@ -71,9 +71,11 @@ namespace ve {
     std::vector<std::vector<GameObject>> playerInterface_;
     std::vector<GameObject> gameInterface_;
     std::vector<GameObject> timeInterface_;
+    std::vector<GameObject> menuStartInterface_;
 
     float timeUpdateGame_ = 0.2;
     int indexLvl = 1;
     int counterTime = 0;
+    int play = 0;
   };
 }  // namespace ve

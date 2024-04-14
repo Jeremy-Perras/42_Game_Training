@@ -1,7 +1,9 @@
 #pragma once
 #include <string>
+#include <vector>
 
 #include "descriptors.hpp"
+#include "game_object.hpp"
 #include "interface_model.hpp"
 #include "renderer.hpp"
 namespace ve {
@@ -10,7 +12,8 @@ namespace ve {
     GameLoop(Device &device, Renderer &renderer, GameState &gameState,
              std::vector<GameObject> &menuInterface,
              std::vector<std::vector<GameObject>> &playerInterface,
-             std::vector<GameObject> &gameInterface, std::vector<GameObject> &displayInterface_,std::vector<GameObject> &timeInterface);
+             std::vector<GameObject> &gameInterface, std::vector<GameObject> &displayInterface_,
+             std::vector<GameObject> &timeInterface, std::vector<GameObject> &menuStartInterface);
     GameLoop(const GameLoop &src) = delete;
     GameLoop &operator=(const GameLoop &rhs) = delete;
     ~GameLoop(){};
@@ -67,6 +70,7 @@ namespace ve {
     std::vector<std::vector<GameObject>> &playerInterface_;
     std::vector<GameObject> &displayInterface_;
     std::vector<GameObject> &timeInterface_;
+    std::vector<GameObject> &menuStartInterface_;
 
     Device &device_;
     Renderer &renderer_;

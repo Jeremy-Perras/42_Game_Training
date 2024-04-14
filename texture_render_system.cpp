@@ -25,12 +25,6 @@ namespace ve {
       color_ = glm::vec4(1.0, 1.0, 1.0, 1.0);
     }
 
-    textureDescriptorPool_ = DescriptorPool::Builder(device_)
-                                 .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
-                                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                              SwapChain::MAX_FRAMES_IN_FLIGHT)
-                                 .build();
-
     textureDescriptorSetLayout_ = DescriptorSetLayoutPush::Builder(device_)
                                       .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
                                                   VK_SHADER_STAGE_FRAGMENT_BIT)

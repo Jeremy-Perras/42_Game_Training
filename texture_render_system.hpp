@@ -143,7 +143,6 @@ namespace ve {
 
     std::vector<std::shared_ptr<Texture>> &texture_;
 
-    std::unique_ptr<DescriptorPool> textureDescriptorPool_;
     std::unique_ptr<DescriptorSetLayoutPush> textureDescriptorSetLayout_;
 
     std::array<VkWriteDescriptorSet, 1> writeDescriptorSets_{};

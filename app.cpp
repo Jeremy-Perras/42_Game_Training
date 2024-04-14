@@ -25,7 +25,7 @@ namespace ve {
   void Application::mainLoop() {
     gameLoop_ = std::make_unique<GameLoop>(device_, renderer_, gameState_, menuInterface_,
                                            playerInterface_, gameInterface_, displayInterface_,
-                                           timeInterface_);
+                                           timeInterface_, menuStartInterface_);
     computeShader_
         = std::make_unique<ComputeShader>(device_, renderer_.getSwapChainRenderPass(), renderer_);
 
@@ -91,9 +91,17 @@ namespace ve {
           break;
         }
 
+        case GameState::TEST: {
+          //   menuStart();
+          //   mouse_.getUserClickMenu((menuStartInterface_)[play]);
+          break;
+        }
+
         case GameState::MENU: {
           // stateMenu(start);
-          menuStart(*menuPlayer_);
+          // break;
+          menuStart();
+          mouse_.getUserClickMenu((menuStartInterface_)[play]);
           break;
         }
 
@@ -143,11 +151,13 @@ namespace ve {
     }
   }
 
-  void Application::menuStart(MenuPlayer &menuPlayer) {
+  void Application::menuStart() {
     if (auto *commandBuffer = renderer_.beginFrame(false)) {
       renderer_.beginSwapChainRenderPass(commandBuffer);
       frameInfo_.commandBuffer = commandBuffer;
-      menuPlayer.render(frameInfo_);
+      for (auto &obj : menuStartInterface_) {
+        obj.textureRenderSystem->render(frameInfo_);
+      }
       renderer_.endSwapChainRenderPass(commandBuffer);
       renderer_.endFrame(false);
     }

@@ -12,12 +12,6 @@ namespace ve {
                              VkDescriptorSetLayout globalSetLayout,
                              const RenderSystem::Builder &builder)
       : device_(device), renderer_(renderer) {
-    textureDescriptorPool_
-        = DescriptorPool::Builder(device_)
-              .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
-              .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
-              .build();
-
     textureDescriptorSetLayout_
         = DescriptorSetLayoutPush::Builder(device_)
               .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)

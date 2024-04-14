@@ -10,6 +10,7 @@ namespace ve {
     MouseMovementController &operator=(const MouseMovementController &rhs) = delete;
     ~MouseMovementController();
     void getUserClick(GameObject &menuInterface);
+    void getUserClickMenu(GameObject &menuStartInterface);
     void changeUserInterface(std::vector<std::vector<GameObject>> &playerInterface_);
 
     // getter
@@ -17,10 +18,14 @@ namespace ve {
                   std::vector<std::vector<GameObject>> &playerInterface_);
 
   private:
+    void coordinatesMouse();
+    void setInput();
     Window &window_;
     GameState &gameState_;
     double xpos_;
     double ypos_;
+    double xposWindow_;
+    double yposWindow_;
     TextureIndex index_ = TextureIndex::WHITE;
     bool mouseSet_ = false;
 

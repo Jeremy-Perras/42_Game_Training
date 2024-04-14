@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <utility>
+#include <vector>
 
 #include "game_object.hpp"
 #include "parsing.hpp"
@@ -9,13 +10,12 @@
 
 namespace ve {
 
-  InterfaceModel::InterfaceModel(Device &device, Renderer &renderer,
-                                 VkDescriptorSetLayout descriptorLayout, std::string &lvlPath,
-                                 std::vector<std::shared_ptr<Texture>> &texture,
-                                 std::vector<GameObject> &menuInterface,
-                                 std::vector<std::vector<GameObject>> &playerInterface,
-                                 std::vector<GameObject> &gameInterface,
-                                 std::vector<GameObject> &displayInterface,std::vector<GameObject> &timeInterface)
+  InterfaceModel::InterfaceModel(
+      Device &device, Renderer &renderer, VkDescriptorSetLayout descriptorLayout,
+      std::string &lvlPath, std::vector<std::shared_ptr<Texture>> &texture,
+      std::vector<GameObject> &menuInterface, std::vector<std::vector<GameObject>> &playerInterface,
+      std::vector<GameObject> &gameInterface, std::vector<GameObject> &displayInterface,
+      std::vector<GameObject> &timeInterface, std::vector<GameObject> &menuStartInterface)
       : device_(device),
         renderer_(renderer),
         gameInterface_(gameInterface),
@@ -23,6 +23,7 @@ namespace ve {
         playerInterface_(playerInterface),
         displayInterface_(displayInterface),
         timeInterface_(timeInterface),
+        menuStartInterface_(menuStartInterface),
         texture_(texture),
         descriptorLayout_(descriptorLayout) {
     Parsing parsing(lvlPath);
@@ -67,6 +68,8 @@ namespace ve {
     auto PlayerDown = std::make_unique<Texture>(device_, "texture/PlayerDown.png");
     auto playerRight = std::make_unique<Texture>(device_, "texture/PlayerRight.png");
     auto playerLeft = std::make_unique<Texture>(device_, "texture/PlayerLeft.png");
+    auto backGroundStart = std::make_unique<Texture>(device_, "texture/Dream.jpg");
+    auto start = std::make_unique<Texture>(device_, "texture/Start2.png");
 
     texture_.push_back(std::move(arrowLeft));
     texture_.push_back(std::move(arrowUp));
@@ -90,6 +93,57 @@ namespace ve {
     texture_.push_back(std::move(PlayerDown));
     texture_.push_back(std::move(playerRight));
     texture_.push_back(std::move(playerLeft));
+    texture_.push_back(std::move(backGroundStart));
+    texture_.push_back(std::move(start));
+  }
+
+  void InterfaceModel::createStartInterface() {
+    // Create the game start
+    TextureRenderSystem::Builder builder;
+
+    builder = {{{
+                    {-0.95, -0.6},
+                    {0.0F, 0.0F},
+                },
+                {
+                    {-0.6, -0.6},
+                    {1.0F, 0.0F},
+                },
+                {
+                    {-0.6, -0.4},
+                    {1.0F, 1.0F},
+                },
+                {
+                    {-0.95, -0.4},
+                    {0.0F, 1.0F},
+                }},
+               {0, 1, 2, 2, 3, 0}};
+    auto object = GameObject::createGameObject();
+    object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+        device_, renderer_, texture_, builder, TextureIndex::STARTBUTTON);
+    object.textureRenderSystem->setColor(glm::vec4(0.7, 0.04, 0.0, 0.5));
+    menuStartInterface_.push_back(std::move(object));
+    builder = {{{
+                    {-1, -1},
+                    {0.0F, 0.0F},
+                },
+                {
+                    {1, -1},
+                    {1.0F, 0.0F},
+                },
+                {
+                    {1, 1},
+                    {1.0F, 1.0F},
+                },
+                {
+                    {-1, 1},
+                    {0.0F, 1.0F},
+                }},
+               {0, 1, 2, 2, 3, 0}};
+    object = GameObject::createGameObject();
+    object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+        device_, renderer_, texture_, builder, TextureIndex::BACKGROUNDSTART);
+    menuStartInterface_.push_back(std::move(object));
   }
 
   void InterfaceModel::createMenuInterface() {
@@ -178,7 +232,7 @@ namespace ve {
       menuInterface_.push_back(std::move(object));
     }
   }
-void InterfaceModel::createTimeInterface() {
+  void InterfaceModel::createTimeInterface() {
     TextureRenderSystem::Builder builder;
     float xStart = -1;
     float yStart = -0.8F;
@@ -189,11 +243,11 @@ void InterfaceModel::createTimeInterface() {
 
                    {0.0F, 0.0F}},
                   {
-                      {xStart + static_cast<float>(i) * 0.02+ 0.02, yStart - 0.03},
+                      {xStart + static_cast<float>(i) * 0.02 + 0.02, yStart - 0.03},
 
                       {1.0F, 0.0F},
                   },
-                  {{xStart + static_cast<float>(i) * 0.02+ 0.02, yStart - 0.01},
+                  {{xStart + static_cast<float>(i) * 0.02 + 0.02, yStart - 0.01},
 
                    {1.0F, 1.0F}},
                   {{xStart + static_cast<float>(i) * 0.02, yStart - 0.01},
