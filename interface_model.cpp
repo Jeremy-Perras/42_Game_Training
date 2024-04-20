@@ -102,19 +102,19 @@ namespace ve {
     TextureRenderSystem::Builder builder;
 
     builder = {{{
-                    {-0.95, -0.6},
+                    {-0.90, -0.6},
                     {0.0F, 0.0F},
                 },
                 {
-                    {-0.6, -0.6},
+                    {-0.55, -0.6},
                     {1.0F, 0.0F},
                 },
                 {
-                    {-0.6, -0.4},
+                    {-0.55, -0.4},
                     {1.0F, 1.0F},
                 },
                 {
-                    {-0.95, -0.4},
+                    {-0.90, -0.4},
                     {0.0F, 1.0F},
                 }},
                {0, 1, 2, 2, 3, 0}};
@@ -123,6 +123,51 @@ namespace ve {
         device_, renderer_, texture_, builder, TextureIndex::STARTBUTTON);
     object.textureRenderSystem->setColor(glm::vec4(0.7, 0.04, 0.0, 0.5));
     menuStartInterface_.push_back(std::move(object));
+
+    builder = {{{
+                    {-0.95, -0.7},
+                    {0.0F, 0.0F},
+                },
+                {
+                    {-0.90, -0.7},
+                    {1.0F, 0.0F},
+                },
+                {
+                    {-0.90, -0.65},
+                    {1.0F, 1.0F},
+                },
+                {
+                    {-0.95, -0.65},
+                    {0.0F, 1.0F},
+                }},
+               {0, 1, 2, 2, 3, 0}};
+    object = GameObject::createGameObject();
+    object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+        device_, renderer_, texture_, builder, TextureIndex::PLAYERRIGHT);
+    menuStartInterface_.push_back(std::move(object));
+
+    builder = {{{
+                    {-0.95, -0.60},
+                    {0.0F, 0.0F},
+                },
+                {
+                    {-0.90, -0.60},
+                    {1.0F, 0.0F},
+                },
+                {
+                    {-0.90, -0.55},
+                    {1.0F, 1.0F},
+                },
+                {
+                    {-0.95, -0.55},
+                    {0.0F, 1.0F},
+                }},
+               {0, 1, 2, 2, 3, 0}};
+    object = GameObject::createGameObject();
+    object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+        device_, renderer_, texture_, builder, TextureIndex::DONOTSHOW);
+    menuStartInterface_.push_back(std::move(object));
+
     builder = {{{
                     {-1, -1},
                     {0.0F, 0.0F},

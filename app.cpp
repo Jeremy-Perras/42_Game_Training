@@ -92,16 +92,15 @@ namespace ve {
         }
 
         case GameState::TEST: {
-          //   menuStart();
-          //   mouse_.getUserClickMenu((menuStartInterface_)[play]);
+          menuStart();
+          mouse_.getUserClickMenu((menuStartInterface_)[play]);
           break;
         }
 
         case GameState::MENU: {
-          // stateMenu(start);
-          // break;
           menuStart();
           mouse_.getUserClickMenu((menuStartInterface_)[play]);
+          cameraController.moveInGameInterface(window_.getGLFWwindow(), menuStartInterface_);
           break;
         }
 
@@ -130,6 +129,7 @@ namespace ve {
           break;
         }
       }
+
       if ((std::chrono::duration<float, std::chrono::seconds::period>(newTime - passTime_).count())
           >= 1.0) {
         updateTimeScreen();

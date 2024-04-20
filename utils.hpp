@@ -5,16 +5,12 @@ namespace ve {
   static constexpr float HEIGHTVERTEX = 0.05F;
   static constexpr float WIDTHVERTEX = 0.05F;
 
-  
-
   enum GameState { START, PLAYING, MENU, GAMELOOP, SBYS, WAIT, TEST };
   struct playerCoordinate {
     float x;
     float y;
     float Angle;
   };
-
-
 
   enum TextureIndex {
     ARROWLEFT,
@@ -43,6 +39,7 @@ namespace ve {
     STARTBUTTON,
     TEXTURESIZE,
     DISCARD,
+    DONOTSHOW,
   };
 
   constexpr int textureSize = 16;
