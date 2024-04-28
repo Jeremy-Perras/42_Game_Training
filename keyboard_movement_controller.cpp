@@ -35,11 +35,11 @@ namespace ve {
 
   void KeyboardMovementController::moveInGameInterface(
       GLFWwindow* window, std::vector<GameObject>& menuInterface) const {
-    if (glfwGetKey(window, keys_.moveUp) == GLFW_PRESS) {
+    if (glfwGetKey(window, keys_.moveDown) == GLFW_PRESS) {
       menuInterface[1].textureRenderSystem->setIndexTexture(TextureIndex::DONOTSHOW);
       menuInterface[2].textureRenderSystem->setIndexTexture(TextureIndex::PLAYERRIGHT);
     }
-    if (glfwGetKey(window, keys_.moveDown) == GLFW_PRESS) {
+    if (glfwGetKey(window, keys_.moveUp) == GLFW_PRESS) {
       menuInterface[1].textureRenderSystem->setIndexTexture(TextureIndex::PLAYERRIGHT);
       menuInterface[2].textureRenderSystem->setIndexTexture(TextureIndex::DONOTSHOW);
     }
