@@ -4,6 +4,9 @@ namespace ve {
   static constexpr int HEIGHT = 600;
   static constexpr float HEIGHTVERTEX = 0.05F;
   static constexpr float WIDTHVERTEX = 0.05F;
+  static constexpr float DRAW_NUM_PARTICLES = 80128;
+  static constexpr float DRAW_NUM_STARS = 75000;
+  static constexpr float DRAW_PARTICLE_WORK_GROUP_SIZE = 256;
 
   enum GameState { START, PLAYING, MENU, GAMELOOP, SBYS, WAIT, TEST };
   struct playerCoordinate {

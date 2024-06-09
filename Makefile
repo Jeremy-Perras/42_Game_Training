@@ -58,6 +58,10 @@ gl:
 	glslc shaders/menu.frag -o shaders/menu.frag.spv
 	glslc shaders/menu.vert -o shaders/menu.vert.spv
 	
+	glslc shaders/particle.frag -o shaders/particle.frag.spv
+	glslc shaders/particle.vert -o shaders/particle.vert.spv
+	glslc shaders/compute_shader.comp -o shaders/compute_shader.comp.spv
+	
 clean :
 	rm -rf $(OBJS)
 	rm -rf shaders/*.spv

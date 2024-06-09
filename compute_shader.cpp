@@ -36,9 +36,9 @@ namespace ve {
 
   void ComputeShader::createPipelineLayout() {
     VkPushConstantRange pushConstantRange{};
-    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+    pushConstantRange.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
     pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(SimplePushConstantData);
+    pushConstantRange.size = sizeof(ParticleGenParamsGPU);
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -63,8 +63,8 @@ namespace ve {
 
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = pipelineLayout_;
-    pipeline_ = std::make_unique<Pipeline>(device_, "shaders/compute_shader.vert.spv",
-                                           "shaders/compute_shader.frag.spv", pipelineConfig);
+    pipeline_ = std::make_unique<Pipeline>(device_, "shaders/particle.vert.spv",
+                                           "shaders/particle.frag.spv", pipelineConfig);
   }
 
   std::vector<VkVertexInputBindingDescription> ComputeShader::Particle::getBindingDescriptions() {
@@ -93,7 +93,7 @@ namespace ve {
   }
 
   void ComputeShader::createComputePipeline() {
-    auto computeShaderCode = Pipeline::readFile("shaders/comp.spv");
+    auto computeShaderCode = Pipeline::readFile("shaders/compute_shader.comp.spv");
     VkShaderModule computeShaderModule;
 
     createShaderModule(computeShaderCode, &computeShaderModule);
@@ -190,7 +190,8 @@ namespace ve {
   void ComputeShader::render(FrameInfo& frameInfo, std::vector<GameObject>& menuInterface,
                              std::vector<std::vector<GameObject>>& playerInterface,
                              std::vector<GameObject>& gameInterface,
-                             std::vector<GameObject>& displayInterface,std::vector<GameObject>& timeInterface) {
+                             std::vector<GameObject>& displayInterface,
+                             std::vector<GameObject>& timeInterface) {
     size_t currentFrame = frameInfo.frameIndex;
     renderer_.computeWait();
     updateUniformBuffer(currentFrame);
@@ -231,7 +232,7 @@ namespace ve {
         obj.renderSystem->renderGameObjects(frameInfo);
       }
     }
-    for(auto &obj : timeInterface){
+    for (auto& obj : timeInterface) {
       if (obj.textureRenderSystem) {
         obj.textureRenderSystem->render(frameInfo);
       } else {
@@ -412,10 +413,30 @@ namespace ve {
       throw std::runtime_error("failed to begin recording compute command buffer!");
     }
 
+    ParticleGenParamsGPU params;
+    params.numStars = DRAW_NUM_STARS;
+    params.maxRad = 3500.0F;
+    params.bulgeRad = 1250.0F;
+    params.angleOffset = 6.28F;
+    params.eccentricity = 0.85F;
+    params.baseHeight = 300.0F;
+    params.height = 250.0F;
+    params.minTemp = 3000.0F;
+    params.maxTemp = 9000.0F;
+    params.dustBaseTemp = 4000.0F;
+    params.minStarOpacity = 0.1F;
+    params.maxStarOpacity = 0.5F;
+    params.minDustOpacity = 0.01F;
+    params.maxDustOpacity = 0.05F;
+    params.speed = 10.0F;
+
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipeline_);
 
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipelineLayout_,
                             0, 1, &computeDescriptorSets_[currentFrame], 0, nullptr);
+
+    vkCmdPushConstants(commandBuffer, computePipelineLayout_, VK_SHADER_STAGE_COMPUTE_BIT, 0,
+                       sizeof(ParticleGenParamsGPU), &params);
 
     vkCmdDispatch(commandBuffer, PARTICLE_COUNT / 256, 1, 1);
 

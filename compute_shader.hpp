@@ -24,6 +24,31 @@ namespace ve {
       static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
     };
 
+    struct ParticleGenParamsGPU {
+      glm::uint32 numStars;
+
+      glm::f32 maxRad;
+      glm::f32 bulgeRad;
+
+      glm::f32 angleOffset;
+      glm::f32 eccentricity;
+
+      glm::f32 baseHeight;
+      glm::f32 height;
+
+      glm::f32 minTemp;
+      glm::f32 maxTemp;
+      glm::f32 dustBaseTemp;
+
+      glm::f32 minStarOpacity;
+      glm::f32 maxStarOpacity;
+
+      glm::f32 minDustOpacity;
+      glm::f32 maxDustOpacity;
+
+      glm::f32 speed;
+    };
+
     const uint32_t PARTICLE_COUNT = 8192;
     void createComputePipeline();
     ComputeShader(Device &device, VkRenderPass renderPass, Renderer &renderer);
@@ -39,7 +64,8 @@ namespace ve {
     void createShaderStorageBuffers();
     void render(FrameInfo &frameInfo, std::vector<GameObject> &menuInterface,
                 std::vector<std::vector<GameObject>> &playerInterface,
-                std::vector<GameObject> &gameInterface, std::vector<GameObject> &displayInterface,std::vector<GameObject> &timeInterface);
+                std::vector<GameObject> &gameInterface, std::vector<GameObject> &displayInterface,
+                std::vector<GameObject> &timeInterface);
     void createDescriptorPool();
     void draw(uint32_t currentFrame);
     void recordComputeCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame);
