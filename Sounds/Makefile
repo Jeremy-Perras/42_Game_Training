@@ -1,6 +1,6 @@
 NAME = soundLibrary
 
-SRCS = main.cpp SoundBuffer.cpp SoundDevice.cpp SoundSource.cpp
+SRCS = openal.cpp
 
 INCLUDES = 
 

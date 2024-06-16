@@ -61,21 +61,24 @@ int ch;
 // ===================================================================
 int main(int argc, char** argv)  // finaly the main function
 {
+  (void)argc;
+  (void)argv;
   // initialise glut
-  glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-  glutInitWindowSize(400, 400);
+  // glutInit(&argc, argv);
+  // glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+  // glutInitWindowSize(400, 400);
 
   // initialise openAL
-  alutInit(&argc, argv);
+  // alutInit(&argc, argv);
 
   GLwin = glutCreateWindow("PIGE - OpenAL Example");
   init();
-  glutDisplayFunc(display);
-  glutKeyboardFunc(keyboard);
-  glutSpecialFunc(specialKeys);
-  glutReshapeFunc(reshape);
+  // glutKeyboardFunc(keyboard);
+  alSourcePlay(source[0]);
+  // glutSpecialFunc(specialKeys);
+  // glutReshapeFunc(reshape);
 
+  glutDisplayFunc(display);
   glutMainLoop();
 
   return 0;

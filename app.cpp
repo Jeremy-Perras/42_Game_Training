@@ -13,6 +13,7 @@
 #include "keyboard_movement_controller.hpp"
 #include "menu_player.hpp"
 #include "parsing.hpp"
+#include "test.hpp"
 #include "texture.hpp"
 #include "texture_render_system.hpp"
 #include "utils.hpp"
@@ -68,6 +69,7 @@ namespace ve {
         device_, renderer_, gameLoop_->texture_, builder, TextureIndex::BACKGROUND);
     frameInfo_.Time = 0.0F;
 
+    test test;
     while (static_cast<int>(window_.shouldClose()) == 0
            && static_cast<int>(glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
                   == 0) {
@@ -87,7 +89,7 @@ namespace ve {
 
       switch (gameState_) {
         case GameState::START: {
-          stateStart(currentTime, start);
+          stateMenu(start);
           break;
         }
 

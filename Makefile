@@ -3,15 +3,15 @@ NAME = library
 SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp interface_model.cpp renderer.cpp render_system.cpp\
 keyboard_movement_controller.cpp buffer.cpp descriptors.cpp texture_render_system.cpp texture.cpp \
 compute_shader.cpp mouse_movement_controller.cpp parsing.cpp game_loop.cpp  window_display.cpp\
-menu_player.cpp 
+menu_player.cpp test.cpp 
 
-INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi 
+INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi -I/opt/homebrew/include -framework OpenGL -framework GLUT -framework OpenAL -framework Foundation
 
 CXXFLAGS = -O3
 
 CC = g++
 
-FLAGS = -Wall -Werror -Wextra -std=c++17 -pthread -ferror-limit=0 -g 
+FLAGS = -Wall -Wextra -std=c++17 -pthread -ferror-limit=0 -g 
 
 MKDIR = mkdir -p
 OUT_DIR := out

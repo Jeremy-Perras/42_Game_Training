@@ -74,7 +74,7 @@ namespace ve {
     std::vector<GameObject> menuStartInterface_;
 
     float timeUpdateGame_ = 0.2;
-    int indexLvl = 1;
+    int indexLvl = 0;
     int counterTime = 0;
     int play = 0;
   };
