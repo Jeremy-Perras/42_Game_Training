@@ -60,7 +60,7 @@ gl:
 	
 	glslc shaders/particle.frag -o shaders/particle.frag.spv
 	glslc shaders/particle.vert -o shaders/particle.vert.spv
-	glslc shaders/compute_shader.comp -o shaders/compute_shader.comp.spv
+	glslc shaders/particle_generate.comp -o shaders/particle_generate.comp.spv
 	
 clean :
 	rm -rf $(OBJS)

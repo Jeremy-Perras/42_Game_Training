@@ -49,6 +49,20 @@ namespace ve {
       glm::f32 speed;
     };
 
+    struct ParticleParamsVertGPU {
+      glm::f32 time;
+      glm::uint32 numStars;
+      glm::f32 starSize;
+      glm::f32 dustSize;
+      glm::f32 h2Size;
+      glm::f32 h2Dist;
+    };
+
+    struct Vertex {
+      glm::vec3 pos;
+      glm::vec2 texCoord;
+    };
+
     const uint32_t PARTICLE_COUNT = 8192;
     void createComputePipeline();
     ComputeShader(Device &device, VkRenderPass renderPass, Renderer &renderer);

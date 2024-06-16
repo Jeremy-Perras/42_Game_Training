@@ -9,6 +9,15 @@ layout(location = 2) in flat uint a_type;
 layout(location = 0) out vec4 o_color;
 
 //----------------------------------------------------------------------------//
+layout(push_constant) uniform Params
+{
+	float u_time;
+	uint u_numStars;
+	float u_starSize;
+	float u_dustSize;
+	float u_h2Size;
+	float u_h2DistCheck;
+};
 
 void main() 
 {

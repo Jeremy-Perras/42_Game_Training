@@ -31,23 +31,20 @@ struct Particle
 
 //----------------------------------------------------------------------------//
 
-layout(binding = 0) uniform Camera
-{
-	mat4 u_view;
-	mat4 u_proj;
-	mat4 u_viewProj;
-};
+// layout(binding = 0) uniform Camera
+// {
+// 	mat4 u_view;
+// 	mat4 u_proj;
+// 	mat4 u_viewProj;
+// };
 
 layout(push_constant) uniform Params
 {
 	float u_time;
-
 	uint u_numStars;
-
 	float u_starSize;
 	float u_dustSize;
 	float u_h2Size;
-
 	float u_h2DistCheck;
 };
 
@@ -326,15 +323,15 @@ void main()
 		scale = u_h2Size * (1.0 - dist);
 	}
 
-	vec3 camRight = vec3(u_view[0][0], u_view[1][0], u_view[2][0]);
-	vec3 camUp    = vec3(u_view[0][1], u_view[1][1], u_view[2][1]);
+	// vec3 camRight = vec3(u_view[0][0], u_view[1][0], u_view[2][0]);
+	// vec3 camUp    = vec3(u_view[0][1], u_view[1][1], u_view[2][1]);
 	vec2 pos = calc_pos(particle);
-	vec3 worldspacePos = vec3(pos.x, particle.height, pos.y) + ((camRight * a_pos.x) + (camUp * a_pos.z)) * scale;
+	vec3 worldspacePos = vec3(pos.x, particle.height, pos.y);
 
 	vec3 color = color_from_temp(particle.temp);
 
 	o_texPos = a_texPos;
 	o_color = vec4(color, particle.opacity);
 	o_type = type;
-	gl_Position = u_viewProj * vec4(worldspacePos, 1.0);
+	gl_Position = vec4(worldspacePos, 1.0);
 }

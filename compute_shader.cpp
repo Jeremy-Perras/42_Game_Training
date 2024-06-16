@@ -36,7 +36,7 @@ namespace ve {
 
   void ComputeShader::createPipelineLayout() {
     VkPushConstantRange pushConstantRange{};
-    pushConstantRange.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstantRange.offset = 0;
     pushConstantRange.size = sizeof(ParticleGenParamsGPU);
 
@@ -46,6 +46,7 @@ namespace ve {
     pipelineLayoutInfo.pSetLayouts = nullptr;
     pipelineLayoutInfo.pushConstantRangeCount = 1;
     pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
+
     if (vkCreatePipelineLayout(device_.getDevice(), &pipelineLayoutInfo, nullptr, &pipelineLayout_)
         != VK_SUCCESS) {
       throw std::runtime_error("failed to create pipeline layout");
@@ -81,13 +82,13 @@ namespace ve {
 
     attributeDescriptions[0].binding = 0;
     attributeDescriptions[0].location = 0;
-    attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-    attributeDescriptions[0].offset = offsetof(Particle, position);
+    attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescriptions[0].offset = offsetof(Vertex, pos);
 
     attributeDescriptions[1].binding = 0;
     attributeDescriptions[1].location = 1;
     attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-    attributeDescriptions[1].offset = offsetof(Particle, color);
+    attributeDescriptions[1].offset = offsetof(Vertex, texCoord);
 
     return attributeDescriptions;
   }
@@ -184,6 +185,18 @@ namespace ve {
   }
 
   void ComputeShader::draw(VkCommandBuffer commandBuffer) const {
+    ParticleParamsVertGPU vertParams;
+    vertParams.time = (float)glfwGetTime();
+    vertParams.numStars = DRAW_NUM_STARS;
+    vertParams.starSize = 10.0F;
+    vertParams.dustSize = 500.0F;
+    vertParams.h2Size = 150.0F;
+    vertParams.h2Dist = 300.0F;
+
+    vkCmdPushConstants(commandBuffer, computePipelineLayout_,
+                       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+                       sizeof(ParticleParamsVertGPU), &vertParams);
+
     vkCmdDraw(commandBuffer, PARTICLE_COUNT, 1, 0, 0);
   }
 
