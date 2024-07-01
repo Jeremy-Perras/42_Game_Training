@@ -277,6 +277,7 @@ namespace ve {
       menuInterface_.push_back(std::move(object));
     }
   }
+
   void InterfaceModel::createTimeInterface() {
     TextureRenderSystem::Builder builder;
     float xStart = -1;
@@ -302,6 +303,7 @@ namespace ve {
       auto object = GameObject::createGameObject();
       object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
           device_, renderer_, texture_, builder, static_cast<TextureIndex>(TextureIndex::WHITE));
+
       timeInterface_.push_back(std::move(object));
     }
   }

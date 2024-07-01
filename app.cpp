@@ -13,7 +13,7 @@
 #include "keyboard_movement_controller.hpp"
 #include "menu_player.hpp"
 #include "parsing.hpp"
-#include "test.hpp"
+#include "song.hpp"
 #include "texture.hpp"
 #include "texture_render_system.hpp"
 #include "utils.hpp"
@@ -69,7 +69,7 @@ namespace ve {
         device_, renderer_, gameLoop_->texture_, builder, TextureIndex::BACKGROUND);
     frameInfo_.Time = 0.0F;
 
-    test test;
+    Song test;
     while (static_cast<int>(window_.shouldClose()) == 0
            && static_cast<int>(glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
                   == 0) {
@@ -133,7 +133,7 @@ namespace ve {
       }
 
       if ((std::chrono::duration<float, std::chrono::seconds::period>(newTime - passTime_).count())
-          >= 1.0) {
+          >= 2) {
         updateTimeScreen();
         resetTime(&passTime_);
       }
@@ -280,6 +280,12 @@ namespace ve {
     if (counterTime < static_cast<int>(timeInterface_.size())) {
       timeInterface_[counterTime++].textureRenderSystem->setIndexTexture(
           static_cast<TextureIndex>(TextureIndex::RED));
+    }
+
+    if (counterTime == static_cast<int>(timeInterface_.size())) {
+      gameState_ = GameState::MENU;
+      indexLvl = 0;
+      counterTime = 0;
     }
   }
 

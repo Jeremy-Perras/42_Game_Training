@@ -3,7 +3,7 @@ NAME = library
 SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp interface_model.cpp renderer.cpp render_system.cpp\
 keyboard_movement_controller.cpp buffer.cpp descriptors.cpp texture_render_system.cpp texture.cpp \
 compute_shader.cpp mouse_movement_controller.cpp parsing.cpp game_loop.cpp  window_display.cpp\
-menu_player.cpp test.cpp 
+menu_player.cpp song.cpp 
 
 INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi -I/opt/homebrew/include -framework OpenGL -framework GLUT -framework OpenAL -framework Foundation
 
