@@ -13,6 +13,7 @@
 #include "menu_player.hpp"
 #include "mouse_movement_controller.hpp"
 #include "renderer.hpp"
+#include "shader_render_system.hpp"
 #include "vulkan/vulkan_core.h"
 #include "window.hpp"
 
@@ -64,6 +65,8 @@ namespace ve {
     std::unique_ptr<GameLoop> gameLoop_;
     std::unique_ptr<ComputeShader> computeShader_;
     std::unique_ptr<MenuPlayer> menuPlayer_;
+    std::unique_ptr<ShaderRenderSystem> render_system_;
+
     FrameInfo frameInfo_{};
 
     std::vector<GameObject> menuInterface_;

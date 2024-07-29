@@ -3,6 +3,8 @@
 #include <glm/gtc/constants.hpp>
 #include <random>
 
+#include "shader_render_system.hpp"
+
 namespace ve {
 
   ComputeShader::ComputeShader(Device& device, VkRenderPass renderPass, Renderer& renderer)
@@ -190,7 +192,9 @@ namespace ve {
   void ComputeShader::render(FrameInfo& frameInfo, std::vector<GameObject>& menuInterface,
                              std::vector<std::vector<GameObject>>& playerInterface,
                              std::vector<GameObject>& gameInterface,
-                             std::vector<GameObject>& displayInterface,std::vector<GameObject>& timeInterface) {
+                             std::vector<GameObject>& displayInterface,
+                             std::vector<GameObject>& timeInterface,
+                             ShaderRenderSystem& shaderRenderSystem) {
     size_t currentFrame = frameInfo.frameIndex;
     renderer_.computeWait();
     updateUniformBuffer(currentFrame);
@@ -231,13 +235,14 @@ namespace ve {
         obj.renderSystem->renderGameObjects(frameInfo);
       }
     }
-    for(auto &obj : timeInterface){
+    for (auto& obj : timeInterface) {
       if (obj.textureRenderSystem) {
         obj.textureRenderSystem->render(frameInfo);
       } else {
         obj.renderSystem->renderGameObjects(frameInfo);
       }
     }
+    shaderRenderSystem.renderGameObjects(frameInfo);
 
     pipeline_->bind(commandBuffer);
 

@@ -4,6 +4,7 @@
 
 #include "game_object.hpp"
 #include "renderer.hpp"
+#include "shader_render_system.hpp"
 #include "swap_chain.hpp"
 namespace ve {
   struct UniformBufferObject {
@@ -39,7 +40,8 @@ namespace ve {
     void createShaderStorageBuffers();
     void render(FrameInfo &frameInfo, std::vector<GameObject> &menuInterface,
                 std::vector<std::vector<GameObject>> &playerInterface,
-                std::vector<GameObject> &gameInterface, std::vector<GameObject> &displayInterface,std::vector<GameObject> &timeInterface);
+                std::vector<GameObject> &gameInterface, std::vector<GameObject> &displayInterface,
+                std::vector<GameObject> &timeInterface, ShaderRenderSystem &shaderRenderSystem);
     void createDescriptorPool();
     void draw(uint32_t currentFrame);
     void recordComputeCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame);
