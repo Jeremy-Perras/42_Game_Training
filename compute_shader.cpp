@@ -195,12 +195,12 @@ namespace ve {
                              std::vector<GameObject>& displayInterface,
                              std::vector<GameObject>& timeInterface,
                              ShaderRenderSystem& shaderRenderSystem) {
-    size_t currentFrame = frameInfo.frameIndex;
-    renderer_.computeWait();
-    updateUniformBuffer(currentFrame);
-    renderer_.computeResetFences();
-    recordComputeCommandBuffer(computeCommandBuffers_[currentFrame], currentFrame);
-    renderer_.computeQueueSubmit(&(computeCommandBuffers_[currentFrame]));
+    // size_t currentFrame = frameInfo.frameIndex;
+    // renderer_.computeWait();
+    // updateUniformBuffer(currentFrame);
+    // renderer_.computeResetFences();
+    // recordComputeCommandBuffer(computeCommandBuffers_[currentFrame], currentFrame);
+    // renderer_.computeQueueSubmit(&(computeCommandBuffers_[currentFrame]));
 
     auto* commandBuffer = renderer_.beginFrame(true);
     frameInfo.commandBuffer = commandBuffer;
@@ -244,13 +244,13 @@ namespace ve {
     }
     shaderRenderSystem.renderGameObjects(frameInfo);
 
-    pipeline_->bind(commandBuffer);
+    // pipeline_->bind(commandBuffer);
 
-    ComputeShader::bind(commandBuffer, static_cast<int>(currentFrame));
-    ComputeShader::draw(commandBuffer);
+    // ComputeShader::bind(commandBuffer, static_cast<int>(currentFrame));
+    // ComputeShader::draw(commandBuffer);
 
     renderer_.endSwapChainRenderPass(commandBuffer);
-    renderer_.endFrame(true);
+    renderer_.endFrame(false);
 
     double currentTime = glfwGetTime() - frameInfo.Time;
     lastFrameTime_ = (currentTime - lastTime_) * 1000.0;

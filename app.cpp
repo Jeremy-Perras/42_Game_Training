@@ -77,7 +77,7 @@ namespace ve {
         device_, renderer_, gameLoop_->texture_, builder, TextureIndex::BACKGROUND);
     frameInfo_.Time = 0.0F;
 
-    Song test;
+    // Song test;
     while (static_cast<int>(window_.shouldClose()) == 0
            && static_cast<int>(glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
                   == 0) {

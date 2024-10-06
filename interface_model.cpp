@@ -69,7 +69,7 @@ namespace ve {
     auto playerRight = std::make_unique<Texture>(device_, "texture/PlayerRight.png");
     auto playerLeft = std::make_unique<Texture>(device_, "texture/PlayerLeft.png");
     auto backGroundStart = std::make_unique<Texture>(device_, "texture/Dream.jpg");
-    auto start = std::make_unique<Texture>(device_, "texture/Start2.png");
+    auto start = std::make_unique<Texture>(device_, "texture/Start3.png");
 
     texture_.push_back(std::move(arrowLeft));
     texture_.push_back(std::move(arrowUp));

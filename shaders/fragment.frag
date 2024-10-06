@@ -1,8 +1,8 @@
 #version 450
-#define iterations 17
-#define formuparam 0.53
+#define iterations 15
+#define formuparam 0.56
 
-#define volsteps 20
+#define volsteps 16
 #define stepsize 0.1
 
 #define zoom   0.800
@@ -48,13 +48,17 @@ void main(){
 		float dm=max(0.,darkmatter-a*a*.001); //dark matter
 		a*=a*a; // add contrast
 		if (r>6) fade*=1.-dm; // dark matter, don't render near
-		//v+=vec3(dm,dm*.5,0.);
+		v+=vec3(dm,dm*.5,0.);
 		v+=fade;
 		v+=vec3(s,s*s,s*s*s*s)*a*brightness*fade; // coloring based on distance
 		fade*=distfading; // distance fading
 		s+=stepsize;
 	}
 	v=mix(vec3(length(v)),v,saturation); //color adjust
-	outColor = vec4(v*.01,1.);	
+	outColor = vec4(v*.01,0.1);
+
    
 }
+
+
+
