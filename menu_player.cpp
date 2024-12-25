@@ -3,7 +3,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-#include "compute_shader.hpp"
 #include "render_system.hpp"
 
 namespace ve {
@@ -133,7 +132,7 @@ namespace ve {
     VkPushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(SimplePushConstantData);
+    pushConstantRange.size = sizeof(RenderSystem::SimplePushConstantData);
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -170,7 +169,7 @@ namespace ve {
 
     vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout_,
                        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
-                       sizeof(SimplePushConstantData), &push);
+                       sizeof(RenderSystem::SimplePushConstantData), &push);
 
     MenuPlayer::bind(frameInfo.commandBuffer);
     MenuPlayer::draw(frameInfo.commandBuffer);

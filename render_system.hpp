@@ -12,6 +12,9 @@
 namespace ve {
   class RenderSystem {
   public:
+    struct SimplePushConstantData {
+      unsigned int index;
+    };
     struct Vertex {
       glm::vec2 position;
       glm::vec3 colors;

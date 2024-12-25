@@ -1,7 +1,5 @@
 #include "render_system.hpp"
 
-#include "compute_shader.hpp"
-
 namespace ve {
 
   struct UboScene {

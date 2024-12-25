@@ -3,8 +3,8 @@
 #include <chrono>
 #include <memory>
 #include <thread>
+#include <vector>
 
-#include "compute_shader.hpp"
 #include "descriptors.hpp"
 #include "device.hpp"
 #include "game_loop.hpp"
@@ -16,6 +16,7 @@
 #include "shader_render_system.hpp"
 #include "vulkan/vulkan_core.h"
 #include "window.hpp"
+#include "window_display.hpp"
 
 namespace ve {
 
@@ -62,8 +63,8 @@ namespace ve {
 
     bool isAlreadyDone_ = false;
 
+    std::unique_ptr<WindowDisplay> windowDisplay_;
     std::unique_ptr<GameLoop> gameLoop_;
-    std::unique_ptr<ComputeShader> computeShader_;
     std::unique_ptr<MenuPlayer> menuPlayer_;
     std::unique_ptr<ShaderRenderSystem> render_system_;
 

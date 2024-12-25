@@ -1,7 +1,7 @@
 #include "texture.hpp"
-
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "libs/stb_image.h"
+
 namespace ve {
   Texture ::Texture(Device& device, const std::string& textureFilepath) : device_(device) {
     createTextureImage(textureFilepath);

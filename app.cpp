@@ -5,10 +5,11 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include <vector>
 
-#include "compute_shader.hpp"
 #include "device.hpp"
 #include "game_loop.hpp"
+#include "game_object.hpp"
 #include "interface_model.hpp"
 #include "keyboard_movement_controller.hpp"
 #include "menu_player.hpp"
@@ -21,16 +22,14 @@
 #include "utils.hpp"
 namespace ve {
 
-  Application::Application() : fpscount_(0) {}
-
-  Application::~Application() {}
-
-  void Application::mainLoop() {
+  Application::Application() : fpscount_(0) {
     gameLoop_ = std::make_unique<GameLoop>(device_, renderer_, gameState_, menuInterface_,
                                            playerInterface_, gameInterface_, displayInterface_,
                                            timeInterface_, menuStartInterface_);
-    computeShader_
-        = std::make_unique<ComputeShader>(device_, renderer_.getSwapChainRenderPass(), renderer_);
+
+    // computeShader_
+    //     = std::make_unique<ComputeShader>(device_, renderer_.getSwapChainRenderPass(),
+    //     renderer_);
 
     menuPlayer_ = std::make_unique<MenuPlayer>(device_, renderer_);
 
@@ -39,12 +38,19 @@ namespace ve {
         ShaderRenderSystem::Builder{
             {{{-1.0F, -1.0F}}, {{1.0F, -1.0F}}, {{1.0F, 1.0F}}, {{-1.0F, 1.0F}}},
             {0, 1, 2, 0, 2, 3}});
+    windowDisplay_ = std::make_unique<WindowDisplay>(
+        device_, renderer_, menuInterface_, playerInterface_, gameInterface_, displayInterface_,
+        timeInterface_, *render_system_);
 
     firstScreenTime_ = std::chrono::high_resolution_clock::now();
     startGameLoop_ = std::chrono::high_resolution_clock::now();
     fpsTime_ = std::chrono::high_resolution_clock::now();
     passTime_ = std::chrono::high_resolution_clock::now();
+  }
 
+  Application::~Application() {}
+
+  void Application::mainLoop() {
     std::chrono::steady_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
     std::chrono::steady_clock::time_point newTime = std::chrono::high_resolution_clock::now();
 
@@ -135,8 +141,7 @@ namespace ve {
         }
 
         case GameState::WAIT: {
-          computeShader_->render(frameInfo_, menuInterface_, playerInterface_, gameInterface_,
-                                 displayInterface_, timeInterface_, *render_system_);
+          windowDisplay_->render(frameInfo_);
           break;
         }
 
@@ -204,8 +209,8 @@ namespace ve {
       gameLoop_->getPlayerInput()->clear();
       isAlreadyDone_ = false;
     }
-    computeShader_->render(frameInfo_, menuInterface_, playerInterface_, gameInterface_,
-                           displayInterface_, timeInterface_, *render_system_);
+
+    windowDisplay_->render(frameInfo_);
   }
 
   void Application::stateGameLoop(std::chrono::steady_clock::time_point currentTime) {
@@ -221,8 +226,7 @@ namespace ve {
       isAlreadyDone_ = true;
     }
     gameLoop_->playerDead();
-    computeShader_->render(frameInfo_, menuInterface_, playerInterface_, gameInterface_,
-                           displayInterface_, timeInterface_, *render_system_);
+    windowDisplay_->render(frameInfo_);
     if ((std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startGameLoop_)
              .count())
         >= timeUpdateGame_) {
