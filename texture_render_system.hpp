@@ -147,6 +147,6 @@ namespace ve {
 
     std::array<VkWriteDescriptorSet, 1> writeDescriptorSets_{};
     PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR_;
-    VkDescriptorImageInfo imageInfo{};
+    VkDescriptorImageInfo imageInfo_{};
   };
 }  // namespace ve

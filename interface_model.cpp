@@ -46,55 +46,30 @@ namespace ve {
   }
 
   void InterfaceModel::loadTexture() {
-    auto arrowRight = std::make_unique<Texture>(device_, "texture/RightArrow.png");
-    auto f0 = std::make_unique<Texture>(device_, "texture/F0.png");
-    auto redBrush = std::make_unique<Texture>(device_, "texture/RedBrush.png");
-    auto arrowUp = std::make_unique<Texture>(device_, "texture/UpArrow.png");
-    auto f1 = std::make_unique<Texture>(device_, "texture/F1.png");
-    auto greenBrush = std::make_unique<Texture>(device_, "texture/GreenBrush.png");
-    auto arrowLeft = std::make_unique<Texture>(device_, "texture/LeftArrow.png");
-    auto f2 = std::make_unique<Texture>(device_, "texture/F2.png");
-    auto blueBrush = std::make_unique<Texture>(device_, "texture/BlueBrush.png");
-    auto playerUp = std::make_unique<Texture>(device_, "texture/PlayerUp.png");
-    auto background = std::make_unique<Texture>(device_, "texture/hello-friend.jpg");
-    auto star = std::make_unique<Texture>(device_, "texture/Star.png");
-    auto blue = std::make_unique<Texture>(device_, "texture/Blue.png");
-    auto red = std::make_unique<Texture>(device_, "texture/Red.png");
-    auto green = std::make_unique<Texture>(device_, "texture/Green.png");
-    auto white = std::make_unique<Texture>(device_, "texture/White.png");
-    auto play = std::make_unique<Texture>(device_, "texture/Play.png");
-    auto stop = std::make_unique<Texture>(device_, "texture/Stop.png");
-    auto stepByStep = std::make_unique<Texture>(device_, "texture/StepByStep.png");
-    auto PlayerDown = std::make_unique<Texture>(device_, "texture/PlayerDown.png");
-    auto playerRight = std::make_unique<Texture>(device_, "texture/PlayerRight.png");
-    auto playerLeft = std::make_unique<Texture>(device_, "texture/PlayerLeft.png");
-    auto backGroundStart = std::make_unique<Texture>(device_, "texture/Dream.jpg");
-    auto start = std::make_unique<Texture>(device_, "texture/Start3.png");
-
-    texture_.push_back(std::move(arrowLeft));
-    texture_.push_back(std::move(arrowUp));
-    texture_.push_back(std::move(arrowRight));
-    texture_.push_back(std::move(f0));
-    texture_.push_back(std::move(f1));
-    texture_.push_back(std::move(f2));
-    texture_.push_back(std::move(redBrush));
-    texture_.push_back(std::move(greenBrush));
-    texture_.push_back(std::move(blueBrush));
-    texture_.push_back(std::move(red));
-    texture_.push_back(std::move(green));
-    texture_.push_back(std::move(blue));
-    texture_.push_back(std::move(playerUp));
-    texture_.push_back(std::move(star));
-    texture_.push_back(std::move(white));
-    texture_.push_back(std::move(play));
-    texture_.push_back(std::move(stepByStep));
-    texture_.push_back(std::move(stop));
-    texture_.push_back(std::move(background));
-    texture_.push_back(std::move(PlayerDown));
-    texture_.push_back(std::move(playerRight));
-    texture_.push_back(std::move(playerLeft));
-    texture_.push_back(std::move(backGroundStart));
-    texture_.push_back(std::move(start));
+    texture_ = {std::make_unique<Texture>(device_, "texture/LeftArrow.png"),
+                std::make_unique<Texture>(device_, "texture/UpArrow.png"),
+                std::make_unique<Texture>(device_, "texture/RightArrow.png"),
+                std::make_unique<Texture>(device_, "texture/F0.png"),
+                std::make_unique<Texture>(device_, "texture/F1.png"),
+                std::make_unique<Texture>(device_, "texture/F2.png"),
+                std::make_unique<Texture>(device_, "texture/RedBrush.png"),
+                std::make_unique<Texture>(device_, "texture/GreenBrush.png"),
+                std::make_unique<Texture>(device_, "texture/BlueBrush.png"),
+                std::make_unique<Texture>(device_, "texture/Red.png"),
+                std::make_unique<Texture>(device_, "texture/Green.png"),
+                std::make_unique<Texture>(device_, "texture/Blue.png"),
+                std::make_unique<Texture>(device_, "texture/PlayerUp.png"),
+                std::make_unique<Texture>(device_, "texture/Star.png"),
+                std::make_unique<Texture>(device_, "texture/White.png"),
+                std::make_unique<Texture>(device_, "texture/Play.png"),
+                std::make_unique<Texture>(device_, "texture/StepByStep.png"),
+                std::make_unique<Texture>(device_, "texture/Stop.png"),
+                std::make_unique<Texture>(device_, "texture/hello-friend.jpg"),
+                std::make_unique<Texture>(device_, "texture/PlayerDown.png"),
+                std::make_unique<Texture>(device_, "texture/PlayerRight.png"),
+                std::make_unique<Texture>(device_, "texture/PlayerLeft.png"),
+                std::make_unique<Texture>(device_, "texture/Sovietspaceposters.png"),
+                std::make_unique<Texture>(device_, "texture/Start4.png")};
   }
 
   void InterfaceModel::createStartInterface() {

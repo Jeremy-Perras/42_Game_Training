@@ -25,6 +25,5 @@ namespace ve {
     std::vector<std::vector<GameObject>> &playerInterface_;
     std::vector<GameObject> &gameInterface_;
     std::vector<GameObject> &timeInterface_;
-    // std::vector<GameObject> &menuStartInterface_;
   };
 }  // namespace ve

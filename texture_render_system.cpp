@@ -176,9 +176,9 @@ namespace ve {
 
   void TextureRenderSystem::createWriteDescriptorSet() {
     if (textureIndex_ < texture_.size()) {
-      imageInfo = texture_[textureIndex_]->getImageInfo();
+      imageInfo_ = texture_[textureIndex_]->getImageInfo();
     } else {
-      imageInfo = texture_[0]->getImageInfo();
+      imageInfo_ = texture_[0]->getImageInfo();
     }
 
     writeDescriptorSets_[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -186,17 +186,17 @@ namespace ve {
     writeDescriptorSets_[0].dstBinding = 0;
     writeDescriptorSets_[0].descriptorCount = 1;
     writeDescriptorSets_[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    writeDescriptorSets_[0].pImageInfo = &imageInfo;
+    writeDescriptorSets_[0].pImageInfo = &imageInfo_;
   }
 
   void TextureRenderSystem::updateImageInfo() {
     if (textureIndex_ < texture_.size()) {
-      imageInfo = texture_[textureIndex_]->getImageInfo();
+      imageInfo_ = texture_[textureIndex_]->getImageInfo();
     } else {
-      imageInfo = texture_[0]->getImageInfo();
+      imageInfo_ = texture_[0]->getImageInfo();
     }
 
-    writeDescriptorSets_[0].pImageInfo = &imageInfo;
+    writeDescriptorSets_[0].pImageInfo = &imageInfo_;
   }
 
   void TextureRenderSystem::render(FrameInfo& frameInfo) {

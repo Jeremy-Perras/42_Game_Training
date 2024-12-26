@@ -27,10 +27,6 @@ namespace ve {
                                            playerInterface_, gameInterface_, displayInterface_,
                                            timeInterface_, menuStartInterface_);
 
-    // computeShader_
-    //     = std::make_unique<ComputeShader>(device_, renderer_.getSwapChainRenderPass(),
-    //     renderer_);
-
     menuPlayer_ = std::make_unique<MenuPlayer>(device_, renderer_);
 
     render_system_ = std::make_unique<ShaderRenderSystem>(
@@ -38,6 +34,7 @@ namespace ve {
         ShaderRenderSystem::Builder{
             {{{-1.0F, -1.0F}}, {{1.0F, -1.0F}}, {{1.0F, 1.0F}}, {{-1.0F, 1.0F}}},
             {0, 1, 2, 0, 2, 3}});
+
     windowDisplay_ = std::make_unique<WindowDisplay>(
         device_, renderer_, menuInterface_, playerInterface_, gameInterface_, displayInterface_,
         timeInterface_, *render_system_);
