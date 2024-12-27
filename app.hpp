@@ -10,7 +10,6 @@
 #include "game_loop.hpp"
 #include "game_object.hpp"
 #include "interface_model.hpp"
-#include "menu_player.hpp"
 #include "mouse_movement_controller.hpp"
 #include "renderer.hpp"
 #include "shader_render_system.hpp"
@@ -65,7 +64,6 @@ namespace ve {
 
     std::unique_ptr<WindowDisplay> windowDisplay_;
     std::unique_ptr<GameLoop> gameLoop_;
-    std::unique_ptr<MenuPlayer> menuPlayer_;
     std::unique_ptr<ShaderRenderSystem> render_system_;
 
     FrameInfo frameInfo_{};

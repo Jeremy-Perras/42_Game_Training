@@ -24,7 +24,6 @@ namespace ve {
     InterfaceModel &operator=(const InterfaceModel &rhs) = delete;
     ~InterfaceModel();
 
-    static std::vector<RenderSystem::Vertex> createSquareModel();
     void loadTexture();
     void createMenuInterface();
     void createPlayerInterface();

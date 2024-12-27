@@ -36,15 +36,6 @@ namespace ve {
 
   InterfaceModel::~InterfaceModel() {}
 
-  std::vector<RenderSystem::Vertex> InterfaceModel::createSquareModel() {
-    std::vector<RenderSystem::Vertex> vertices = {
-        {{-1.0F, 0.70F}, {1.0F, 1.0F, 1.0F}}, {{1.0F, 0.70F}, {1.0F, 1.0F, 1.0F}},
-        {{1.0F, 1.0F}, {1.0F, 1.0F, 1.0F}},   {{-1.0F, 0.70F}, {1.0F, 1.0F, 1.0F}},
-        {{-1.0F, 1.0F}, {1.0F, 1.0F, 1.0F}},  {{1.0F, 1.0F}, {1.0F, 1.0F, 1.0F}},  //
-    };
-    return vertices;
-  }
-
   void InterfaceModel::loadTexture() {
     texture_ = {std::make_unique<Texture>(device_, "texture/LeftArrow.png"),
                 std::make_unique<Texture>(device_, "texture/UpArrow.png"),
@@ -77,26 +68,25 @@ namespace ve {
     TextureRenderSystem::Builder builder;
 
     builder = {{{
-                    {-0.90, -0.6},
+                    {-0.25, -0.2},
                     {0.0F, 0.0F},
                 },
                 {
-                    {-0.55, -0.6},
+                    {0.25, -0.2},
                     {1.0F, 0.0F},
                 },
                 {
-                    {-0.55, -0.4},
+                    {0.25, 0.0},
                     {1.0F, 1.0F},
                 },
                 {
-                    {-0.90, -0.4},
+                    {-0.25, 0.0},
                     {0.0F, 1.0F},
                 }},
                {0, 1, 2, 2, 3, 0}};
     auto object = GameObject::createGameObject();
     object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
         device_, renderer_, texture_, builder, TextureIndex::STARTBUTTON);
-    object.textureRenderSystem->setColor(glm::vec4(0.7, 0.04, 0.0, 0.5));
     menuStartInterface_.push_back(std::move(object));
 
     builder = {{{

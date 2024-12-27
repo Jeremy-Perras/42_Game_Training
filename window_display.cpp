@@ -39,28 +39,18 @@ namespace ve {
 
     for (const auto& ob : playerInterface_) {
       for (const auto& obj : ob) {
-        if (obj.textureRenderSystem) {
-          obj.textureRenderSystem->render(frameInfo);
-        } else {
-          obj.renderSystem->renderGameObjects(frameInfo);
-        }
+        obj.textureRenderSystem->render(frameInfo);
       }
     }
 
     for (auto& obj : menuInterface_) {
-      if (obj.textureRenderSystem) {
-        obj.textureRenderSystem->render(frameInfo);
-      } else {
-        obj.renderSystem->renderGameObjects(frameInfo);
-      }
+      obj.textureRenderSystem->render(frameInfo);
     }
+
     for (auto& obj : timeInterface_) {
-      if (obj.textureRenderSystem) {
-        obj.textureRenderSystem->render(frameInfo);
-      } else {
-        obj.renderSystem->renderGameObjects(frameInfo);
-      }
+      obj.textureRenderSystem->render(frameInfo);
     }
+
     render_system_.renderGameObjects(frameInfo);
 
     renderer_.endSwapChainRenderPass(commandBuffer);

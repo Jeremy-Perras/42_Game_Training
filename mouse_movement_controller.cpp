@@ -83,7 +83,7 @@ namespace ve {
           ? gameState_ = GameState::START
           : gameState_ = GameState::MENU;
     } else {
-      menuStartInterface.textureRenderSystem->setColor(glm::vec4(1.0, 0.5, 1.0, 1.0));
+      menuStartInterface.textureRenderSystem->setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));
     }
   }
 

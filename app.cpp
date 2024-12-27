@@ -12,9 +12,7 @@
 #include "game_object.hpp"
 #include "interface_model.hpp"
 #include "keyboard_movement_controller.hpp"
-#include "menu_player.hpp"
 #include "parsing.hpp"
-#include "render_system.hpp"
 #include "shader_render_system.hpp"
 #include "song.hpp"
 #include "texture.hpp"
@@ -26,8 +24,6 @@ namespace ve {
     gameLoop_ = std::make_unique<GameLoop>(device_, renderer_, gameState_, menuInterface_,
                                            playerInterface_, gameInterface_, displayInterface_,
                                            timeInterface_, menuStartInterface_);
-
-    menuPlayer_ = std::make_unique<MenuPlayer>(device_, renderer_);
 
     render_system_ = std::make_unique<ShaderRenderSystem>(
         device_, renderer_,

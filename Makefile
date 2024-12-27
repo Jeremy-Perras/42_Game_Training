@@ -1,9 +1,9 @@
 NAME = game
 
-SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp interface_model.cpp renderer.cpp render_system.cpp\
+SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp interface_model.cpp renderer.cpp \
 keyboard_movement_controller.cpp buffer.cpp descriptors.cpp texture_render_system.cpp texture.cpp \
 mouse_movement_controller.cpp parsing.cpp game_loop.cpp  window_display.cpp\
-menu_player.cpp song.cpp shader_render_system.cpp 
+ song.cpp shader_render_system.cpp 
 
 INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi -I/opt/homebrew/include -framework OpenGL -framework GLUT -framework OpenAL  -I./libs
 
@@ -48,10 +48,6 @@ debug_fclean: debug_clean
 debug_re: debug_fclean debug
 
 gl: 
-	
-	glslc  shaders/compute_shader.comp -o shaders/comp.spv
-	glslc shaders/compute_shader.vert -o shaders/compute_shader.vert.spv
-	glslc shaders/compute_shader.frag -o shaders/compute_shader.frag.spv
 	glslc shaders/shader.frag -o shaders/shader.frag.spv
 	glslc shaders/shader.vert -o shaders/shader.vert.spv
 	glslc shaders/texture.frag -o shaders/texture.frag.spv
@@ -60,7 +56,6 @@ gl:
 	glslc shaders/menu.vert -o shaders/menu.vert.spv
 	glslc shaders/fragment.frag -o shaders/fragment.spv
 	glslc shaders/vertex.vert -o shaders/vertex.spv
-			
 clean :
 	rm -rf $(OBJS)
 	rm -rf shaders/*.spv

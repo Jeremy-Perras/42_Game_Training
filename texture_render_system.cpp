@@ -1,5 +1,6 @@
 #include "texture_render_system.hpp"
 
+#include <iostream>
 #include <utility>
 
 #include "texture.hpp"
@@ -205,6 +206,8 @@ namespace ve {
     push.index = this->textureIndex_;
     push.offset = glm::vec4(offset_.x, offset_.y, 0.0, 0.0);
     push.color = this->color_;
+    push.offset = glm::vec4(offset_.x, offset_.y, 0.0, 0.0);
+
     updateImageInfo();
     vkCmdPushDescriptorSetKHR_(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                                pipelineLayout_, 0, 1, writeDescriptorSets_.data());
