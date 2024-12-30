@@ -1,15 +1,13 @@
 #include "window_display.hpp"
 
-#include "shader_render_system.hpp"
 namespace ve {
   WindowDisplay::WindowDisplay(Device& device, Renderer& renderer,
                                std::vector<GameObject>& menuInterface,
                                std::vector<std::vector<GameObject>>& playerInterface,
                                std::vector<GameObject>& gameInterface,
                                std::vector<GameObject>& displayInterface,
-                               std::vector<GameObject>& timeInterface,
-                               ShaderRenderSystem& shaderRenderSystem)
-      : render_system_(shaderRenderSystem),
+                               std::vector<GameObject>& timeInterface, StarNest& StarNest)
+      : render_system_(StarNest),
         device_(device),
         renderer_(renderer),
         menuInterface_(menuInterface),

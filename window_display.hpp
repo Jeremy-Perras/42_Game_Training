@@ -1,20 +1,20 @@
 #pragma once
 #include "game_object.hpp"
-#include "shader_render_system.hpp"
+#include "star_nest.hpp"
 namespace ve {
   class WindowDisplay {
   public:
     WindowDisplay(Device &device, Renderer &renderer, std::vector<GameObject> &menuInterface,
                   std::vector<std::vector<GameObject>> &playerInterface,
                   std::vector<GameObject> &gameInterface, std::vector<GameObject> &displayInterface,
-                  std::vector<GameObject> &timeInterface, ShaderRenderSystem &shaderRenderSystem);
+                  std::vector<GameObject> &timeInterface, StarNest &StarNest);
     WindowDisplay(const WindowDisplay &src) = delete;
     WindowDisplay &operator=(const WindowDisplay &rhs) = delete;
     ~WindowDisplay();
     void render(FrameInfo &frameInfo);
     // Getter
   private:
-    ShaderRenderSystem &render_system_;
+    StarNest &render_system_;
     Device &device_;
     Renderer &renderer_;
 

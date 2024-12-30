@@ -80,7 +80,7 @@ namespace ve {
         && menuStartInterface.textureRenderSystem->isInside(xposWindow_, yposWindow_)) {
       menuStartInterface.textureRenderSystem->setColor(glm::vec4(0.7, 0.04, 0.0, 1));
       glfwGetMouseButton(window_.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS
-          ? gameState_ = GameState::START
+          ? gameState_ = GameState::STARTLOADINGSCREEN
           : gameState_ = GameState::MENU;
     } else {
       menuStartInterface.textureRenderSystem->setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));

@@ -60,27 +60,28 @@ namespace ve {
                 std::make_unique<Texture>(device_, "texture/PlayerRight.png"),
                 std::make_unique<Texture>(device_, "texture/PlayerLeft.png"),
                 std::make_unique<Texture>(device_, "texture/Sovietspaceposters.png"),
-                std::make_unique<Texture>(device_, "texture/Start4.png")};
+                std::make_unique<Texture>(device_, "texture/Start3.png"),
+                std::make_unique<Texture>(device_, "texture/AGameBy.png")};
   }
 
   void InterfaceModel::createStartInterface() {
     // Create the game start
     TextureRenderSystem::Builder builder;
-
+    // STARTBUTTON should be at Index 0
     builder = {{{
-                    {-0.25, -0.2},
+                    {-0.15, -0.2},
                     {0.0F, 0.0F},
                 },
                 {
-                    {0.25, -0.2},
+                    {0.15, -0.2},
                     {1.0F, 0.0F},
                 },
                 {
-                    {0.25, 0.0},
+                    {0.15, -0.1},
                     {1.0F, 1.0F},
                 },
                 {
-                    {-0.25, 0.0},
+                    {-0.15, -0.1},
                     {0.0F, 1.0F},
                 }},
                {0, 1, 2, 2, 3, 0}};
@@ -90,19 +91,41 @@ namespace ve {
     menuStartInterface_.push_back(std::move(object));
 
     builder = {{{
-                    {-0.95, -0.7},
+                    {-0.25, -1},
                     {0.0F, 0.0F},
                 },
                 {
-                    {-0.90, -0.7},
+                    {0.25, -1},
                     {1.0F, 0.0F},
                 },
                 {
-                    {-0.90, -0.65},
+                    {0.25, -0.75},
                     {1.0F, 1.0F},
                 },
                 {
-                    {-0.95, -0.65},
+                    {-0.25, -0.75},
+                    {0.0F, 1.0F},
+                }},
+               {0, 1, 2, 2, 3, 0}};
+    object = GameObject::createGameObject();
+    object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+        device_, renderer_, texture_, builder, TextureIndex::AGAMEBY);
+    menuStartInterface_.push_back(std::move(object));
+
+    builder = {{{
+                    {-0.22, -0.175},
+                    {0.0F, 0.0F},
+                },
+                {
+                    {-0.17, -0.175},
+                    {1.0F, 0.0F},
+                },
+                {
+                    {-0.17, -0.125},
+                    {1.0F, 1.0F},
+                },
+                {
+                    {-0.22, -0.125},
                     {0.0F, 1.0F},
                 }},
                {0, 1, 2, 2, 3, 0}};
@@ -112,19 +135,19 @@ namespace ve {
     menuStartInterface_.push_back(std::move(object));
 
     builder = {{{
-                    {-0.95, -0.60},
+                    {-0.22, -0.125},
                     {0.0F, 0.0F},
                 },
                 {
-                    {-0.90, -0.60},
+                    {-0.17, -0.125},
                     {1.0F, 0.0F},
                 },
                 {
-                    {-0.90, -0.55},
+                    {-0.17, -0.075},
                     {1.0F, 1.0F},
                 },
                 {
-                    {-0.95, -0.55},
+                    {-0.22, -0.075},
                     {0.0F, 1.0F},
                 }},
                {0, 1, 2, 2, 3, 0}};

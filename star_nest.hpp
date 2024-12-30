@@ -10,7 +10,7 @@
 #include "vulkan/vulkan_core.h"
 
 namespace ve {
-  class ShaderRenderSystem {
+  class StarNest {
   public:
     struct Vertex {
       glm::vec2 pos;
@@ -22,7 +22,6 @@ namespace ve {
     struct PushConstants {  // struct for push constants
       glm::vec3 iResolution;
       float iTime;
-      glm::vec2 iMouse;
     };
 
     struct Builder {
@@ -30,19 +29,18 @@ namespace ve {
       std::vector<uint32_t> indices{};
     };
 
-    ShaderRenderSystem(Device &device, Renderer &renderer,
-                       const ShaderRenderSystem::Builder &builder);
-    ShaderRenderSystem(const ShaderRenderSystem &src) = delete;
-    ShaderRenderSystem &operator=(const ShaderRenderSystem &rhs) = delete;
-    ~ShaderRenderSystem();
+    StarNest(Device &device, Renderer &renderer, const StarNest::Builder &builder);
+    StarNest(const StarNest &src) = delete;
+    StarNest &operator=(const StarNest &rhs) = delete;
+    ~StarNest();
 
     void bind(VkCommandBuffer commandBuffer);
     void draw(VkCommandBuffer commandBuffer) const;
     void renderGameObjects(FrameInfo &frameInfo);
 
   private:
-    const std::vector<ShaderRenderSystem::Vertex> vertices_;
-    void createVertexBuffer(const std::vector<ShaderRenderSystem::Vertex> &vertices);
+    const std::vector<StarNest::Vertex> vertices_;
+    void createVertexBuffer(const std::vector<StarNest::Vertex> &vertices);
     VkImageView createImageView(VkImage image, VkFormat format);
     void createIndexBuffers(const std::vector<uint32_t> &indices);
     void createPipelineLayout();

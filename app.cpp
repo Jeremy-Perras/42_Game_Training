@@ -13,29 +13,27 @@
 #include "interface_model.hpp"
 #include "keyboard_movement_controller.hpp"
 #include "parsing.hpp"
-#include "shader_render_system.hpp"
 #include "song.hpp"
+#include "star_nest.hpp"
 #include "texture.hpp"
 #include "texture_render_system.hpp"
 #include "utils.hpp"
 namespace ve {
 
-  Application::Application() : fpscount_(0) {
+  Application::Application() : fpscount_(0), startLoadingScreen_(GameObject::createGameObject()) {
     gameLoop_ = std::make_unique<GameLoop>(device_, renderer_, gameState_, menuInterface_,
                                            playerInterface_, gameInterface_, displayInterface_,
                                            timeInterface_, menuStartInterface_);
 
-    render_system_ = std::make_unique<ShaderRenderSystem>(
+    render_system_ = std::make_unique<StarNest>(
         device_, renderer_,
-        ShaderRenderSystem::Builder{
-            {{{-1.0F, -1.0F}}, {{1.0F, -1.0F}}, {{1.0F, 1.0F}}, {{-1.0F, 1.0F}}},
-            {0, 1, 2, 0, 2, 3}});
+        StarNest::Builder{{{{-1.0F, -1.0F}}, {{1.0F, -1.0F}}, {{1.0F, 1.0F}}, {{-1.0F, 1.0F}}},
+                          {0, 1, 2, 0, 2, 3}});
 
     windowDisplay_ = std::make_unique<WindowDisplay>(
         device_, renderer_, menuInterface_, playerInterface_, gameInterface_, displayInterface_,
         timeInterface_, *render_system_);
 
-    firstScreenTime_ = std::chrono::high_resolution_clock::now();
     startGameLoop_ = std::chrono::high_resolution_clock::now();
     fpsTime_ = std::chrono::high_resolution_clock::now();
     passTime_ = std::chrono::high_resolution_clock::now();
@@ -44,9 +42,6 @@ namespace ve {
   Application::~Application() {}
 
   void Application::mainLoop() {
-    std::chrono::steady_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
-    std::chrono::steady_clock::time_point newTime = std::chrono::high_resolution_clock::now();
-
     TextureRenderSystem::Builder builder;
     builder = {{{
                     {-1, -1},
@@ -69,11 +64,14 @@ namespace ve {
                     {0.0F, 1.0F},
                 }},
                {0, 1, 2, 2, 3, 0}};
-    auto start = GameObject::createGameObject();
+    startLoadingScreen_.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+        device_, renderer_, gameLoop_->texture_, builder, TextureIndex::BACKGROUND);
+
+    std::chrono::steady_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
+    std::chrono::steady_clock::time_point newTime = std::chrono::high_resolution_clock::now();
+
     KeyboardMovementController cameraController{};
 
-    start.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-        device_, renderer_, gameLoop_->texture_, builder, TextureIndex::BACKGROUND);
     frameInfo_.Time = 0.0F;
 
     // Song test;
@@ -95,8 +93,9 @@ namespace ve {
       updateFrameInfo();
 
       switch (gameState_) {
-        case GameState::START: {
-          stateMenu(start);
+        case GameState::LOADINGSCREEN:
+        case GameState::STARTLOADINGSCREEN: {
+          stateLoadingsScreen();
           break;
         }
 
@@ -176,26 +175,6 @@ namespace ve {
     }
   }
 
-  void Application::stateStart(std::chrono::steady_clock::time_point currentTime,
-                               GameObject &start) {
-    if (auto *commandBuffer = renderer_.beginFrame(false)) {
-      renderer_.beginSwapChainRenderPass(commandBuffer);
-      frameInfo_.commandBuffer = commandBuffer;
-      start.textureRenderSystem->render(frameInfo_);
-      renderer_.endSwapChainRenderPass(commandBuffer);
-      renderer_.endFrame(false);
-    }
-
-    if ((std::chrono::duration<float, std::chrono::seconds::period>(currentTime - firstScreenTime_)
-             .count())
-        >= 5) {
-      frameInfo_.Time = std::chrono::duration<float, std::chrono::seconds::period>(
-                            currentTime - firstScreenTime_)
-                            .count();
-      gameState_ = GameState::PLAYING;  // PLAYING;
-    }
-  }
-
   void Application::statePlaying() {
     if (isAlreadyDone_) {
       gameLoop_->resetStatePlaying();
@@ -241,11 +220,11 @@ namespace ve {
     frameInfo_.descriptorSet = gameLoop_->getDescriptorSets(currentFrame);
   }
 
-  void Application::stateMenu(GameObject &start) {
+  void Application::stateLoadingsScreen() {
     if (auto *commandBuffer = renderer_.beginFrame(false)) {
       renderer_.beginSwapChainRenderPass(commandBuffer);
       frameInfo_.commandBuffer = commandBuffer;
-      start.textureRenderSystem->render(frameInfo_);
+      startLoadingScreen_.textureRenderSystem->render(frameInfo_);
       renderer_.endSwapChainRenderPass(commandBuffer);
       renderer_.endFrame(false);
     }

@@ -86,7 +86,7 @@ namespace ve {
             obj.textureRenderSystem->setIndexTexture(TextureIndex::DISCARD);
             countStar_--;
             if (countStar_ == 0) {
-              gameState_ = START;
+              gameState_ = STARTLOADINGSCREEN;
             }
             break;
           }

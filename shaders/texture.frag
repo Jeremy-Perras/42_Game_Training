@@ -1,5 +1,6 @@
 #version 450
 
+
 layout(location = 0) in vec2 fragTexCoord;
 layout(location = 0) out vec4 outColor;
 layout(set = 0, binding = 0) uniform sampler2D tex;
@@ -19,7 +20,7 @@ bool discardAlpha(float w) {
 }
 
 void main() {
-    if (push.index == 26) {
+    if (push.index == 27) {
     discard;
   } 
     if (discardAlpha(texture(tex, fragTexCoord).r) && discardAlpha(texture(tex, fragTexCoord).g)

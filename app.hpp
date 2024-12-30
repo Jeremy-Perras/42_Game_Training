@@ -12,7 +12,7 @@
 #include "interface_model.hpp"
 #include "mouse_movement_controller.hpp"
 #include "renderer.hpp"
-#include "shader_render_system.hpp"
+#include "star_nest.hpp"
 #include "vulkan/vulkan_core.h"
 #include "window.hpp"
 #include "window_display.hpp"
@@ -37,9 +37,8 @@ namespace ve {
     VkImageView createImageView(VkImage image, VkFormat format);
     void updateFPS(std::chrono::steady_clock::time_point currentTime);
     void statePlaying();
-    void stateMenu(GameObject &start);
+    void stateLoadingsScreen();
     void stateGameLoop(std::chrono::steady_clock::time_point currentTime);
-    void stateStart(std::chrono::steady_clock::time_point currentTime, GameObject &start);
     static void resetTime(std::chrono::steady_clock::time_point *time);
     void updateFrameInfo();
     void updateGameLvl();
@@ -57,14 +56,13 @@ namespace ve {
     unsigned int fpscount_;
     std::chrono::steady_clock::time_point fpsTime_;
     std::chrono::steady_clock::time_point startGameLoop_;
-    std::chrono::steady_clock::time_point firstScreenTime_;
     std::chrono::steady_clock::time_point passTime_;
 
     bool isAlreadyDone_ = false;
 
     std::unique_ptr<WindowDisplay> windowDisplay_;
     std::unique_ptr<GameLoop> gameLoop_;
-    std::unique_ptr<ShaderRenderSystem> render_system_;
+    std::unique_ptr<StarNest> render_system_;
 
     FrameInfo frameInfo_{};
 
@@ -74,6 +72,7 @@ namespace ve {
     std::vector<GameObject> gameInterface_;
     std::vector<GameObject> timeInterface_;
     std::vector<GameObject> menuStartInterface_;
+    GameObject startLoadingScreen_;
 
     float timeUpdateGame_ = 0.2;
     int indexLvl = 0;
