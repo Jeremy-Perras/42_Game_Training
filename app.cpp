@@ -112,7 +112,12 @@ namespace ve {
 
         case GameState::MENU: {
           menuStart();
-          mouse_.getUserClickMenu((menuStartInterface_)[play]);
+          for (std::vector<GameObject>::iterator it = menuStartInterface_.begin();
+               it != menuStartInterface_.end(); ++it) {
+            if (it->textureRenderSystem->getIndexTexture() == TextureIndex::STARTBUTTON) {
+              mouse_.getUserClickMenu(*it);
+            }
+          }
           cameraController.moveInGameInterface(window_.getGLFWwindow(), menuStartInterface_);
           break;
         }
@@ -214,10 +219,8 @@ namespace ve {
   }
 
   void Application::updateFrameInfo() {
-    size_t currentFrame = renderer_.getComputeCurrentFrame();
     frameInfo_.frameIndex = renderer_.getComputeCurrentFrame();
     frameInfo_.commandBuffer = 0;
-    frameInfo_.descriptorSet = gameLoop_->getDescriptorSets(currentFrame);
   }
 
   void Application::stateLoadingsScreen() {

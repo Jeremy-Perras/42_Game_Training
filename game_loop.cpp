@@ -22,16 +22,14 @@ namespace ve {
         menuStartInterface_(menuStartInterface),
         device_(device),
         renderer_(renderer) {
-    createDescriptor();
     gameInit();
   }
 
   void GameLoop::gameInit() {
     model_ = std::make_unique<InterfaceModel>(
-        device_, renderer_, textureDescriptorSetLayout_->getDescriptorSetLayout(), lvlPath_,
-        texture_, menuInterface_, playerInterface_, gameInterface_, displayInterface_,
-        timeInterface_, menuStartInterface_);
-    textureInit();
+        device_, renderer_, lvlPath_, texture_, menuInterface_, playerInterface_, gameInterface_,
+        displayInterface_, timeInterface_, menuStartInterface_);
+    model_->loadTexture();
     model_->createMenuInterface();
     model_->createPlayerInterface();
     model_->createGameMap();
@@ -41,38 +39,6 @@ namespace ve {
     playerPointer_ = model_->getPlayerPointer();
     playerCoordinate_ = model_->getStartCoordinate();
     countStar_ = model_->getCountStarStart();
-  }
-
-  void GameLoop::createDescriptor() {
-    textureDescriptorPool_ = DescriptorPool::Builder(device_)
-                                 .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
-                                 .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                              textureSize * SwapChain::MAX_FRAMES_IN_FLIGHT)
-                                 .build();
-
-    textureDescriptorSetLayout_ = DescriptorSetLayout::Builder(device_)
-                                      .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-                                                  VK_SHADER_STAGE_FRAGMENT_BIT, textureSize)
-                                      .build();
-
-    textureDescriptorSets_.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
-  }
-
-  void GameLoop::textureInit() {
-    model_->loadTexture();
-
-    std::vector<VkDescriptorImageInfo> textureDescriptors(textureSize);
-    for (int i = 0; i < textureSize; i++) {
-      if (texture_[i]) {
-        textureDescriptors[i] = texture_[i]->getImageInfo();
-      }
-    }
-
-    for (int i = 0; i < static_cast<int>(textureDescriptorSets_.size()); i++) {
-      DescriptorWriter(*textureDescriptorSetLayout_, *textureDescriptorPool_)
-          .writeImage(3, textureDescriptors.data(), textureSize)
-          .build(textureDescriptorSets_[i]);
-    }
   }
 
   void GameLoop::gameLoop() {

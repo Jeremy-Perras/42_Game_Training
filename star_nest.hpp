@@ -3,7 +3,6 @@
 #include <glm/glm.hpp>
 
 #include "buffer.hpp"
-#include "descriptors.hpp"
 #include "frame_info.hpp"
 #include "pipeline.hpp"
 #include "renderer.hpp"

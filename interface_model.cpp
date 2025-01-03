@@ -10,12 +10,14 @@
 
 namespace ve {
 
-  InterfaceModel::InterfaceModel(
-      Device &device, Renderer &renderer, VkDescriptorSetLayout descriptorLayout,
-      std::string &lvlPath, std::vector<std::shared_ptr<Texture>> &texture,
-      std::vector<GameObject> &menuInterface, std::vector<std::vector<GameObject>> &playerInterface,
-      std::vector<GameObject> &gameInterface, std::vector<GameObject> &displayInterface,
-      std::vector<GameObject> &timeInterface, std::vector<GameObject> &menuStartInterface)
+  InterfaceModel::InterfaceModel(Device &device, Renderer &renderer, std::string &lvlPath,
+                                 std::vector<std::shared_ptr<Texture>> &texture,
+                                 std::vector<GameObject> &menuInterface,
+                                 std::vector<std::vector<GameObject>> &playerInterface,
+                                 std::vector<GameObject> &gameInterface,
+                                 std::vector<GameObject> &displayInterface,
+                                 std::vector<GameObject> &timeInterface,
+                                 std::vector<GameObject> &menuStartInterface)
       : device_(device),
         renderer_(renderer),
         gameInterface_(gameInterface),
@@ -24,8 +26,7 @@ namespace ve {
         displayInterface_(displayInterface),
         timeInterface_(timeInterface),
         menuStartInterface_(menuStartInterface),
-        texture_(texture),
-        descriptorLayout_(descriptorLayout) {
+        texture_(texture) {
     Parsing parsing(lvlPath);
     xStart_ = parsing.getXStart();
     yStart_ = parsing.getYStart();
@@ -37,31 +38,31 @@ namespace ve {
   InterfaceModel::~InterfaceModel() {}
 
   void InterfaceModel::loadTexture() {
-    texture_ = {std::make_unique<Texture>(device_, "texture/LeftArrow.png"),
-                std::make_unique<Texture>(device_, "texture/UpArrow.png"),
-                std::make_unique<Texture>(device_, "texture/RightArrow.png"),
-                std::make_unique<Texture>(device_, "texture/F0.png"),
-                std::make_unique<Texture>(device_, "texture/F1.png"),
-                std::make_unique<Texture>(device_, "texture/F2.png"),
-                std::make_unique<Texture>(device_, "texture/RedBrush.png"),
-                std::make_unique<Texture>(device_, "texture/GreenBrush.png"),
-                std::make_unique<Texture>(device_, "texture/BlueBrush.png"),
-                std::make_unique<Texture>(device_, "texture/Red.png"),
-                std::make_unique<Texture>(device_, "texture/Green.png"),
-                std::make_unique<Texture>(device_, "texture/Blue.png"),
-                std::make_unique<Texture>(device_, "texture/PlayerUp.png"),
-                std::make_unique<Texture>(device_, "texture/Star.png"),
-                std::make_unique<Texture>(device_, "texture/White.png"),
-                std::make_unique<Texture>(device_, "texture/Play.png"),
-                std::make_unique<Texture>(device_, "texture/StepByStep.png"),
-                std::make_unique<Texture>(device_, "texture/Stop.png"),
-                std::make_unique<Texture>(device_, "texture/hello-friend.jpg"),
-                std::make_unique<Texture>(device_, "texture/PlayerDown.png"),
-                std::make_unique<Texture>(device_, "texture/PlayerRight.png"),
-                std::make_unique<Texture>(device_, "texture/PlayerLeft.png"),
-                std::make_unique<Texture>(device_, "texture/Sovietspaceposters.png"),
-                std::make_unique<Texture>(device_, "texture/Start3.png"),
-                std::make_unique<Texture>(device_, "texture/AGameBy.png")};
+    texture_ = {std::make_unique<Texture>(device_, "texture/42Game/LeftArrow.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/UpArrow.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/RightArrow.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/F0.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/F1.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/F2.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/RedBrush.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/GreenBrush.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/BlueBrush.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/Red.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/Green.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/Blue.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/PlayerUp.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/Star.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/White.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/Play.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/StepByStep.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/Stop.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/hello-friend.jpg"),
+                std::make_unique<Texture>(device_, "texture/42Game/PlayerDown.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/PlayerRight.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/PlayerLeft.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/Sovietspaceposters.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/Start3.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/AGameBy.png")};
   }
 
   void InterfaceModel::createStartInterface() {
@@ -91,25 +92,91 @@ namespace ve {
     menuStartInterface_.push_back(std::move(object));
 
     builder = {{{
-                    {-0.25, -1},
+                    {-0.25, 0.85},
                     {0.0F, 0.0F},
                 },
                 {
-                    {0.25, -1},
+                    {0.25, 0.85},
                     {1.0F, 0.0F},
                 },
                 {
-                    {0.25, -0.75},
+                    {0.25, 1.10},
                     {1.0F, 1.0F},
                 },
                 {
-                    {-0.25, -0.75},
+                    {-0.25, 1.10},
                     {0.0F, 1.0F},
                 }},
                {0, 1, 2, 2, 3, 0}};
     object = GameObject::createGameObject();
     object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
         device_, renderer_, texture_, builder, TextureIndex::AGAMEBY);
+    menuStartInterface_.push_back(std::move(object));
+
+    builder = {{{
+                    {-0.15, -0.075},
+                    {0.0F, 0.0F},
+                },
+                {
+                    {0.15, -0.075},
+                    {1.0F, 0.0F},
+                },
+                {
+                    {0.15, 0.025},
+                    {1.0F, 1.0F},
+                },
+                {
+                    {-0.15, 0.025},
+                    {0.0F, 1.0F},
+                }},
+               {0, 1, 2, 2, 3, 0}};
+    object = GameObject::createGameObject();
+    object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+        device_, renderer_, texture_, builder, TextureIndex::STARTBUTTON);
+    menuStartInterface_.push_back(std::move(object));
+
+    builder = {{{
+                    {-0.15, 0.05},
+                    {0.0F, 0.0F},
+                },
+                {
+                    {0.15, 0.05},
+                    {1.0F, 0.0F},
+                },
+                {
+                    {0.15, 0.15},
+                    {1.0F, 1.0F},
+                },
+                {
+                    {-0.15, 0.15},
+                    {0.0F, 1.0F},
+                }},
+               {0, 1, 2, 2, 3, 0}};
+    object = GameObject::createGameObject();
+    object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+        device_, renderer_, texture_, builder, TextureIndex::STARTBUTTON);
+    menuStartInterface_.push_back(std::move(object));
+
+    builder = {{{
+                    {-0.15, 0.175},
+                    {0.0F, 0.0F},
+                },
+                {
+                    {0.15, 0.175},
+                    {1.0F, 0.0F},
+                },
+                {
+                    {0.15, 0.275},
+                    {1.0F, 1.0F},
+                },
+                {
+                    {-0.15, 0.275},
+                    {0.0F, 1.0F},
+                }},
+               {0, 1, 2, 2, 3, 0}};
+    object = GameObject::createGameObject();
+    object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+        device_, renderer_, texture_, builder, TextureIndex::STARTBUTTON);
     menuStartInterface_.push_back(std::move(object));
 
     builder = {{{

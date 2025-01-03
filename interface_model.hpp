@@ -11,8 +11,8 @@ namespace ve {
 
   class InterfaceModel {
   public:
-    InterfaceModel(Device &device, Renderer &renderer_, VkDescriptorSetLayout descriptorLayout,
-                   std::string &lvlPath, std::vector<std::shared_ptr<Texture>> &texture,
+    InterfaceModel(Device &device, Renderer &renderer_, std::string &lvlPath,
+                   std::vector<std::shared_ptr<Texture>> &texture,
                    std::vector<GameObject> &menuInterface,
                    std::vector<std::vector<GameObject>> &playerInterface,
                    std::vector<GameObject> &gameInterface,
@@ -59,7 +59,6 @@ namespace ve {
     std::vector<GameObject> &menuStartInterface_;
     std::vector<std::shared_ptr<Texture>> &texture_;
 
-    VkDescriptorSetLayout descriptorLayout_;
     playerCoordinate playerStart_;
     GameObject *playerPointer_;
     std::vector<std::pair<TextureIndex, glm::vec4>> initialState_;

@@ -5,7 +5,6 @@
 #include <thread>
 #include <vector>
 
-#include "descriptors.hpp"
 #include "device.hpp"
 #include "game_loop.hpp"
 #include "game_object.hpp"

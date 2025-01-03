@@ -2,7 +2,6 @@
 #include <string>
 #include <vector>
 
-#include "descriptors.hpp"
 #include "game_object.hpp"
 #include "interface_model.hpp"
 #include "renderer.hpp"
@@ -18,7 +17,6 @@ namespace ve {
     GameLoop &operator=(const GameLoop &rhs) = delete;
     ~GameLoop(){};
 
-    void textureInit();
     void gameLoop();
     void playerDead();
     void resetStatePlaying();
@@ -28,14 +26,6 @@ namespace ve {
     void updateDisplay();
     void deletePlayerInputFirstElement();
     // Getter
-
-    VkDescriptorSet getDescriptorSets(unsigned long currentFrame) {
-      return textureDescriptorSets_[currentFrame];
-    }
-
-    VkDescriptorSetLayout_T *getDescriptorSetsLayout() {
-      return textureDescriptorSetLayout_->getDescriptorSetLayout();
-    }
 
     std::vector<std::pair<TextureIndex, glm::vec4>> *getPlayerInput() { return &playerInput_; }
     std::vector<std::shared_ptr<Texture>> texture_;
@@ -50,7 +40,6 @@ namespace ve {
 
   private:
     void gameInit();
-    void createDescriptor();
     void checkFunction();
     void checkArrow();
     void checkBrush();
@@ -76,10 +65,6 @@ namespace ve {
     Renderer &renderer_;
 
     std::unique_ptr<InterfaceModel> model_;
-
-    std::unique_ptr<DescriptorPool> textureDescriptorPool_{};
-    std::vector<VkDescriptorSet> textureDescriptorSets_;
-    std::unique_ptr<DescriptorSetLayout> textureDescriptorSetLayout_;
 
     playerCoordinate playerCoordinate_;
     GameObject *playerPointer_;
