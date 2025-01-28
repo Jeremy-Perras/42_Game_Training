@@ -23,7 +23,7 @@ namespace ve {
   Application::Application() : fpscount_(0), startLoadingScreen_(GameObject::createGameObject()) {
     gameLoop_ = std::make_unique<GameLoop>(device_, renderer_, gameState_, menuInterface_,
                                            playerInterface_, gameInterface_, displayInterface_,
-                                           timeInterface_, menuStartInterface_);
+                                           timeInterface_, menuStartInterface_, exitInterface_);
 
     render_system_ = std::make_unique<StarNest>(
         device_, renderer_,
@@ -70,10 +70,12 @@ namespace ve {
     std::chrono::steady_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
     std::chrono::steady_clock::time_point newTime = std::chrono::high_resolution_clock::now();
 
-    KeyboardMovementController cameraController{};
+    KeyboardMovementController &cameraController = KeyboardMovementController::getInstance();
+    cameraController.setExitInterface(&exitInterface_);
 
     frameInfo_.Time = 0.0F;
-
+    glfwSetCharCallback(window_.getGLFWwindow(), KeyboardMovementController::keyCharPressExitGame);
+    glfwSetKeyCallback(window_.getGLFWwindow(), KeyboardMovementController::keyPressExitGame);
     // Song test;
     while (static_cast<int>(window_.shouldClose()) == 0
            && static_cast<int>(glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -99,15 +101,20 @@ namespace ve {
           break;
         }
 
-        case GameState::TEST: {
-          // if (auto *commandBuffer = renderer_.beginFrame(false)) {
-          //   renderer_.beginSwapChainRenderPass(commandBuffer);
-          //   frameInfo_.commandBuffer = commandBuffer;
-          //   render_system_->renderGameObjects(frameInfo_);
-          //   renderer_.endSwapChainRenderPass(commandBuffer);
-          //   renderer_.endFrame(false);
-          //   break;
-          // }
+        case GameState::EXITGAME: {
+          if (static_cast<int>(glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ENTER)) == GLFW_PRESS) {
+            exitInterface_[0].exitRenderSystem->logicExitGame(cameraController.press_);
+          }
+          if (auto *commandBuffer = renderer_.beginFrame(false)) {
+            renderer_.beginSwapChainRenderPass(commandBuffer);
+            frameInfo_.commandBuffer = commandBuffer;
+            for (auto &obj : exitInterface_) {
+              obj.exitRenderSystem->render(frameInfo_);
+            }
+            renderer_.endSwapChainRenderPass(commandBuffer);
+            renderer_.endFrame(false);
+          }
+          break;
         }
 
         case GameState::MENU: {

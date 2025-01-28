@@ -1,5 +1,6 @@
 #pragma once
 
+#include "exit_render_system.hpp"
 #include "texture_render_system.hpp"
 namespace ve {
   class GameObject {
@@ -18,6 +19,7 @@ namespace ve {
     }
 
     std::shared_ptr<TextureRenderSystem> textureRenderSystem{};
+    std::shared_ptr<ExitRenderSystem> exitRenderSystem{};
     // Getter
     id_t getId() const { return id_; }
 

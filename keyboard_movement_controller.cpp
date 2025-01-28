@@ -4,13 +4,56 @@
 
 // std
 #include <algorithm>
+#include <iostream>
 #include <limits>
+#include <utility>
 #include <vector>
 
 #include "game_object.hpp"
 #include "utils.hpp"
-
+#include "window.hpp"
 namespace ve {
+
+  void KeyboardMovementController::keyCharPressExitGame(GLFWwindow* /*window*/,
+                                                        unsigned int codepoint) {
+    getInstance().getKeyPressCharExitGame(codepoint);
+  }
+
+  void KeyboardMovementController::keyPressExitGame(GLFWwindow* /*window*/, int key,
+                                                    int /*scancode*/, int action, int /*mods*/) {
+    getInstance().getKeyPressExitGame(key, action);
+  }
+
+  void KeyboardMovementController::getKeyPressCharExitGame(unsigned int codepoint) {
+    if (((codepoint < 123 && codepoint > 96) || (codepoint < 91 && codepoint > 64)
+         || codepoint == 32)) {
+      press_.push_back(static_cast<char>(codepoint));
+    }
+    std::cout << press_ << std::endl;
+  }
+
+  void KeyboardMovementController::getKeyPressExitGame(int key, int action) {
+    exitInterface_->at(0).exitRenderSystem->homeState(press_);
+    if (action == GLFW_PRESS && key == 259 && !press_.empty()) {
+      press_.pop_back();
+    }
+  }
+
+  void KeyboardMovementController::deleteKeyPress() {
+    if (!press_.empty()) {
+      press_.clear();
+    }
+  }
+
+  void KeyboardMovementController::setExitGameInterface() {
+    (*exitInterface_)[0].exitRenderSystem->logicExitGame(press_);
+  }
+
+  KeyboardMovementController& KeyboardMovementController::getInstance() {
+    static KeyboardMovementController instance;
+    return instance;
+  }
+
   void KeyboardMovementController::moveInPlaneXY(GLFWwindow* window, float dt,
                                                  std::vector<GameObject>& gameInterface) const {
     if (glfwGetKey(window, keys_.moveUp) == GLFW_PRESS) {
@@ -46,4 +89,5 @@ namespace ve {
       menuInterface[3].textureRenderSystem->setIndexTexture(TextureIndex::DONOTSHOW);
     }
   }
+
 }  // namespace ve

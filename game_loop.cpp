@@ -1,6 +1,7 @@
 #include "game_loop.hpp"
 
 #include <algorithm>
+#include <vector>
 
 #include "game_object.hpp"
 #include "texture_render_system.hpp"
@@ -12,7 +13,8 @@ namespace ve {
                      std::vector<GameObject> &gameInterface,
                      std::vector<GameObject> &displayInterface,
                      std::vector<GameObject> &timeInterface,
-                     std::vector<GameObject> &menuStartInterface)
+                     std::vector<GameObject> &menuStartInterface,
+                     std::vector<GameObject> &exitInterface)
       : gameState_(gameState),
         gameInterface_(gameInterface),
         menuInterface_(menuInterface),
@@ -20,6 +22,7 @@ namespace ve {
         displayInterface_(displayInterface),
         timeInterface_(timeInterface),
         menuStartInterface_(menuStartInterface),
+        exitInterface_(exitInterface),
         device_(device),
         renderer_(renderer) {
     gameInit();
@@ -27,8 +30,8 @@ namespace ve {
 
   void GameLoop::gameInit() {
     model_ = std::make_unique<InterfaceModel>(
-        device_, renderer_, lvlPath_, texture_, menuInterface_, playerInterface_, gameInterface_,
-        displayInterface_, timeInterface_, menuStartInterface_);
+        device_, renderer_, lvlPath_, texture_, exit_, menuInterface_, playerInterface_,
+        gameInterface_, displayInterface_, timeInterface_, menuStartInterface_, exitInterface_);
     model_->loadTexture();
     model_->createMenuInterface();
     model_->createPlayerInterface();
@@ -36,6 +39,7 @@ namespace ve {
     model_->createDisplayInterface();
     model_->createTimeInterface();
     model_->createStartInterface();
+    model_->exitGame();
     playerPointer_ = model_->getPlayerPointer();
     playerCoordinate_ = model_->getStartCoordinate();
     countStar_ = model_->getCountStarStart();

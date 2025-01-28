@@ -12,7 +12,8 @@ namespace ve {
              std::vector<GameObject> &menuInterface,
              std::vector<std::vector<GameObject>> &playerInterface,
              std::vector<GameObject> &gameInterface, std::vector<GameObject> &displayInterface_,
-             std::vector<GameObject> &timeInterface, std::vector<GameObject> &menuStartInterface);
+             std::vector<GameObject> &timeInterface, std::vector<GameObject> &menuStartInterface,
+             std::vector<GameObject> &exitInterface);
     GameLoop(const GameLoop &src) = delete;
     GameLoop &operator=(const GameLoop &rhs) = delete;
     ~GameLoop(){};
@@ -29,7 +30,7 @@ namespace ve {
 
     std::vector<std::pair<TextureIndex, glm::vec4>> *getPlayerInput() { return &playerInput_; }
     std::vector<std::shared_ptr<Texture>> texture_;
-
+    std::vector<std::shared_ptr<Texture>> exit_;
     // Setter
     void setTexturePath(int lvl) {
       std::string s = "lvl/lvl";
@@ -60,6 +61,7 @@ namespace ve {
     std::vector<GameObject> &displayInterface_;
     std::vector<GameObject> &timeInterface_;
     std::vector<GameObject> &menuStartInterface_;
+    std::vector<GameObject> &exitInterface_;
 
     Device &device_;
     Renderer &renderer_;
@@ -73,7 +75,5 @@ namespace ve {
     std::string lvlPath_ = "lvl/lvl1.ber";
     int countStar_;
     bool function_ = false;
-
-    std::vector<std::unique_ptr<Buffer>> uboBuffers;
   };
 }  // namespace ve

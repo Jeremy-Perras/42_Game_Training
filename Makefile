@@ -3,7 +3,7 @@ NAME = game
 SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp interface_model.cpp renderer.cpp \
 keyboard_movement_controller.cpp buffer.cpp descriptors.cpp texture_render_system.cpp texture.cpp \
 mouse_movement_controller.cpp parsing.cpp game_loop.cpp  window_display.cpp\
- song.cpp star_nest.cpp 
+ song.cpp star_nest.cpp exit_render_system.cpp
 
 INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi -I/opt/homebrew/include -framework OpenGL -framework GLUT -framework OpenAL  -I./libs
 
@@ -47,7 +47,9 @@ debug_fclean: debug_clean
 
 debug_re: debug_fclean debug
 
-gl: 
+gl:
+	glslc shaders/exit.frag -o shaders/exit.frag.spv
+	glslc shaders/exit.vert -o shaders/exit.vert.spv 
 	glslc shaders/starNest.frag -o shaders/starNest.frag.spv
 	glslc shaders/starNest.vert -o shaders/starNest.vert.spv
 	glslc shaders/texture.frag -o shaders/texture.frag.spv

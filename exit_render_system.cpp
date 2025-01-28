@@ -4,16 +4,17 @@
 #include <utility>
 
 #include "texture.hpp"
+#include "utils.hpp"
 
 namespace ve {
 
   ExitRenderSystem::ExitRenderSystem(Device& device, Renderer& renderer,
                                      std::vector<std::shared_ptr<Texture>>& texture,
-                                     ExitRenderSystem::Builder& builder, TextureIndex textureIndex)
+                                     ExitRenderSystem::Builder& builder, ExitIndex exitIndex)
       : device_(device),
         renderer_(renderer),
         builder_(builder),
-        textureIndex_(textureIndex),
+        exitIndex_(exitIndex),
         texture_(texture) {
     textureDescriptorSetLayout_ = DescriptorSetLayoutPush::Builder(device_)
                                       .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
@@ -163,8 +164,8 @@ namespace ve {
   }
 
   void ExitRenderSystem::createWriteDescriptorSet() {
-    if (textureIndex_ < texture_.size()) {
-      imageInfo_ = texture_[textureIndex_]->getImageInfo();
+    if (exitIndex_ < texture_.size()) {
+      imageInfo_ = texture_[exitIndex_]->getImageInfo();
     } else {
       imageInfo_ = texture_[0]->getImageInfo();
     }
@@ -178,8 +179,8 @@ namespace ve {
   }
 
   void ExitRenderSystem::updateImageInfo() {
-    if (textureIndex_ < texture_.size()) {
-      imageInfo_ = texture_[textureIndex_]->getImageInfo();
+    if (exitIndex_ < texture_.size()) {
+      imageInfo_ = texture_[exitIndex_]->getImageInfo();
     } else {
       imageInfo_ = texture_[0]->getImageInfo();
     }
@@ -190,11 +191,10 @@ namespace ve {
   void ExitRenderSystem::render(FrameInfo& frameInfo) {
     pipeline_->bind(frameInfo.commandBuffer);
     ExitPushConstantData push{};
-    push.index = this->textureIndex_;
+    push.index = this->exitIndex_;
     push.offset = glm::vec4(offset_.x, offset_.y, 0.0, 0.0);
     push.color = this->color_;
     push.offset = glm::vec4(offset_.x, offset_.y, 0.0, 0.0);
-
     updateImageInfo();
     vkCmdPushDescriptorSetKHR_(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                                pipelineLayout_, 0, 1, writeDescriptorSets_.data());
@@ -205,6 +205,83 @@ namespace ve {
 
     ExitRenderSystem::bind(frameInfo.commandBuffer);
     ExitRenderSystem::draw(frameInfo);
+  }
+
+  void ExitRenderSystem::homeState(std::string& press) {
+    if (exitIndex_ == ExitIndex::HOME) {
+      exitIndex_ = ExitIndex::FIRSTLEVEL;
+      press.clear();
+    }
+  }
+
+  void ExitRenderSystem::logicExitGame(std::string& press) {
+    switch (exitIndex_) {
+      case ExitIndex::FIRSTLEVEL:
+        if (press == "Move the barrel") {
+          exitIndex_ = ExitIndex::SECONDLEVELA;
+          press.clear();
+        } else if (press == "Sit down next to my friend") {
+          exitIndex_ = ExitIndex::SECONDLEVELB;
+          press.clear();
+        }
+        break;
+      case ExitIndex::SECONDLEVELA:
+        if (press == "Enter tunnel") {
+          exitIndex_ = ExitIndex::THIRDLEVELA;
+          press.clear();
+        }
+        break;
+      case ExitIndex::THIRDLEVELA:
+        if (press == "Read note") {
+          exitIndex_ = ExitIndex::FOURTHLEVELA;
+          press.clear();
+        }
+        break;
+      case ExitIndex::FOURTHLEVELA:
+        if (press == "Leave") {
+          exitIndex_ = ExitIndex::FIFTHLEVELA;
+          press.clear();
+        }
+        break;
+      case ExitIndex::FIFTHLEVELA:
+        if (press == "Look") {
+          exitIndex_ = ExitIndex::SIXTHLEVELA;
+          press.clear();
+        }
+        break;
+      case ExitIndex::SIXTHLEVELA:
+        if (press == "Get on the boat") {
+          exitIndex_ = ExitIndex::FINALLEVELA;
+          press.clear();
+        }
+        break;
+      case ExitIndex::FINALLEVELA:
+        if (press == "Yes") {
+          exitIndex_ = ExitIndex::HOME;
+          press.clear();
+        }
+        break;
+      case ExitIndex::SECONDLEVELB:
+        if (press == "Light a match") {
+          exitIndex_ = ExitIndex::THIRDLEVELB;
+          press.clear();
+        }
+        break;
+      case ExitIndex::THIRDLEVELB:
+        if (press == "Stay") {
+          exitIndex_ = ExitIndex::HELLOFRIEND;
+          press.clear();
+        }
+        break;
+      case ExitIndex::HELLOFRIEND:
+        std::cout << "Exit to hello friend" << std::endl;
+        break;
+      case HOME:
+        break;
+      case FINALLEVELB:
+        std::cout << "Exit to final level b" << std::endl;
+        break;
+    }
   }
 
 }  // namespace ve

@@ -4,20 +4,21 @@
 #include <utility>
 #include <vector>
 
+#include "exit_render_system.hpp"
 #include "game_object.hpp"
 #include "parsing.hpp"
 #include "renderer.hpp"
+#include "utils.hpp"
 
 namespace ve {
 
-  InterfaceModel::InterfaceModel(Device &device, Renderer &renderer, std::string &lvlPath,
-                                 std::vector<std::shared_ptr<Texture>> &texture,
-                                 std::vector<GameObject> &menuInterface,
-                                 std::vector<std::vector<GameObject>> &playerInterface,
-                                 std::vector<GameObject> &gameInterface,
-                                 std::vector<GameObject> &displayInterface,
-                                 std::vector<GameObject> &timeInterface,
-                                 std::vector<GameObject> &menuStartInterface)
+  InterfaceModel::InterfaceModel(
+      Device &device, Renderer &renderer, std::string &lvlPath,
+      std::vector<std::shared_ptr<Texture>> &texture, std::vector<std::shared_ptr<Texture>> &exit,
+      std::vector<GameObject> &menuInterface, std::vector<std::vector<GameObject>> &playerInterface,
+      std::vector<GameObject> &gameInterface, std::vector<GameObject> &displayInterface,
+      std::vector<GameObject> &timeInterface, std::vector<GameObject> &menuStartInterface,
+      std::vector<GameObject> &exitInterface)
       : device_(device),
         renderer_(renderer),
         gameInterface_(gameInterface),
@@ -26,7 +27,9 @@ namespace ve {
         displayInterface_(displayInterface),
         timeInterface_(timeInterface),
         menuStartInterface_(menuStartInterface),
-        texture_(texture) {
+        exitInterface_(exitInterface),
+        texture_(texture),
+        exit_(exit) {
     Parsing parsing(lvlPath);
     xStart_ = parsing.getXStart();
     yStart_ = parsing.getYStart();
@@ -63,6 +66,21 @@ namespace ve {
                 std::make_unique<Texture>(device_, "texture/42Game/Sovietspaceposters.png"),
                 std::make_unique<Texture>(device_, "texture/42Game/Start3.png"),
                 std::make_unique<Texture>(device_, "texture/42Game/AGameBy.png")};
+
+    exit_ = {std::make_unique<Texture>(device_, "texture/Exit/orig_assets/home.png"),
+             std::make_unique<Texture>(device_, "texture/Exit/orig_assets/firstpage.png"),
+             std::make_unique<Texture>(device_, "texture/Exit/orig_assets/secondlevela.PNG"),
+             std::make_unique<Texture>(device_, "texture/Exit/orig_assets/thirdlevela.PNG"),
+             std::make_unique<Texture>(device_, "texture/Exit/orig_assets/fourthlevela.PNG"),
+             std::make_unique<Texture>(device_, "texture/Exit/orig_assets/fifthlevela.PNG"),
+             std::make_unique<Texture>(device_, "texture/Exit/orig_assets/sixthlevela.PNG"),
+             std::make_unique<Texture>(device_, "texture/Exit/orig_assets/finalevela.PNG"),
+             std::make_unique<Texture>(device_, "texture/Exit/orig_assets/secondlevelb.PNG"),
+             std::make_unique<Texture>(device_, "texture/Exit/orig_assets/thirdlevelb.PNG"),
+             std::make_unique<Texture>(device_, "texture/Exit/orig_assets/finalevelb.jpg"),
+             std::make_unique<Texture>(device_, "texture/Exit/orig_assets/start.jpg")
+
+    };
   }
 
   void InterfaceModel::createStartInterface() {
@@ -613,4 +631,32 @@ namespace ve {
     }
   }
 
+  void InterfaceModel::exitGame() {
+    ExitRenderSystem::Builder builder;
+    builder = {{{
+                    {-1, -1},
+
+                    {0.0F, 0.0F},
+                },
+                {
+                    {1, -1},
+
+                    {1.0F, 0.0F},
+                },
+                {
+                    {1, 1},
+
+                    {1.0F, 1.0F},
+                },
+                {
+                    {-1, 1},
+
+                    {0.0F, 1.0F},
+                }},
+               {0, 1, 2, 2, 3, 0}};
+    auto object = GameObject::createGameObject();
+    object.exitRenderSystem
+        = std::make_unique<ExitRenderSystem>(device_, renderer_, exit_, builder, ExitIndex::HOME);
+    exitInterface_.push_back(std::move(object));
+  }
 }  // namespace ve

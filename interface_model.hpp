@@ -13,12 +13,14 @@ namespace ve {
   public:
     InterfaceModel(Device &device, Renderer &renderer_, std::string &lvlPath,
                    std::vector<std::shared_ptr<Texture>> &texture,
+                   std::vector<std::shared_ptr<Texture>> &exit,
                    std::vector<GameObject> &menuInterface,
                    std::vector<std::vector<GameObject>> &playerInterface,
                    std::vector<GameObject> &gameInterface,
                    std::vector<GameObject> &displayInterface,
                    std::vector<GameObject> &timeInterface,
-                   std::vector<GameObject> &menuStartInterface);
+                   std::vector<GameObject> &menuStartInterface,
+                   std::vector<GameObject> &exitInterface);
 
     InterfaceModel(const InterfaceModel &src) = delete;
     InterfaceModel &operator=(const InterfaceModel &rhs) = delete;
@@ -35,6 +37,7 @@ namespace ve {
     void createGameMap();
     void createDisplayInterface();
     void createStartInterface();
+    void exitGame();
     static bool isInside(float x, float y, float i, float j) {
       return (i * 0.05 - 1.0F > x && x < (i + 1) * 0.05 - 1.0F) && j * 0.05 - 1.0F > y
              && y < (j + 1) * 0.05 - 1.0F;
@@ -57,7 +60,9 @@ namespace ve {
     std::vector<GameObject> &displayInterface_;
     std::vector<GameObject> &timeInterface_;
     std::vector<GameObject> &menuStartInterface_;
+    std::vector<GameObject> &exitInterface_;
     std::vector<std::shared_ptr<Texture>> &texture_;
+    std::vector<std::shared_ptr<Texture>> &exit_;
 
     playerCoordinate playerStart_;
     GameObject *playerPointer_;

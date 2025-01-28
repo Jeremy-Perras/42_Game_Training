@@ -45,7 +45,7 @@ namespace ve {
     void updateTimeScreen();
     void menuStart();
 
-    GameState gameState_ = {GameState::MENU};
+    GameState gameState_ = {GameState::EXITGAME};
 
     Window window_{WIDTH, HEIGHT, "GameEngine"};
     Device device_{window_};
@@ -71,6 +71,8 @@ namespace ve {
     std::vector<GameObject> gameInterface_;
     std::vector<GameObject> timeInterface_;
     std::vector<GameObject> menuStartInterface_;
+    std::vector<GameObject> exitInterface_;
+
     GameObject startLoadingScreen_;
 
     float timeUpdateGame_ = 0.2;

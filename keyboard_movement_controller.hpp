@@ -1,7 +1,9 @@
 #pragma once
 
+#include <string>
+#include <utility>
+
 #include "game_object.hpp"
-#include "keyboard_movement_controller.hpp"
 
 namespace ve {
   class KeyboardMovementController {
@@ -14,7 +16,27 @@ namespace ve {
     };
     void moveInPlaneXY(GLFWwindow* window, float dt, std::vector<GameObject>& gameInterface) const;
     void moveInGameInterface(GLFWwindow* window, std::vector<GameObject>& menuInterface) const;
+    void static keyCharPressExitGame(GLFWwindow* /*window*/, unsigned int codepoint);
+    void static keyPressExitGame(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static KeyboardMovementController& getInstance();
+    void getKeyPressCharExitGame(unsigned int codepoint);
+    void setExitGameInterface();
+    void getKeyPressExitGame(int key, int action);
+    void setExitInterface(std::vector<GameObject>* exitInterface) {
+      exitInterface_ = exitInterface;
+    }
+    void deleteKeyPress();
+
     KeyMappings keys_{};
     float moveSpeed_{0.5F};
+    std::string press_{};
+
+  private:
+    std::vector<GameObject>* exitInterface_;
+
+    KeyboardMovementController(){};
+    KeyboardMovementController(const KeyboardMovementController& src) = delete;
+    KeyboardMovementController& operator=(const KeyboardMovementController& rhs) = delete;
+    ~KeyboardMovementController(){};
   };
 }  // namespace ve

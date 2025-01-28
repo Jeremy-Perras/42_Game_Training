@@ -34,9 +34,11 @@ namespace ve {
       std::vector<uint32_t> indices{};
     };
 
+    void logicExitGame(std::string &press);
+
     ExitRenderSystem(Device &device, Renderer &renderer,
                      std::vector<std::shared_ptr<Texture>> &texture, Builder &builder,
-                     TextureIndex textureIndex);
+                     ExitIndex exitIndex);
     ExitRenderSystem(const ExitRenderSystem &src) = delete;
     ExitRenderSystem &operator=(const ExitRenderSystem &rhs) = delete;
     ~ExitRenderSystem();
@@ -45,6 +47,7 @@ namespace ve {
     void draw(FrameInfo &frameInfo) const;
     void createVertexBuffer(const std::vector<Vertex> &vertices);
     void createIndexBuffers(const std::vector<uint32_t> &indices);
+    void homeState(std::string &press);
 
     void render(FrameInfo &info);
 
@@ -71,7 +74,7 @@ namespace ve {
     bool hasIndexBuffer_ = false;
     std::unique_ptr<Buffer> indexBuffer_;
     uint32_t indexCount_;
-    TextureIndex textureIndex_;
+    ExitIndex exitIndex_;
     float playerCountOffsetX_ = 0;
     float playerCountOffsetY_ = 0;
     std::vector<std::shared_ptr<Texture>> &texture_;

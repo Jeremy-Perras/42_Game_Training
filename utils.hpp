@@ -5,7 +5,17 @@ namespace ve {
   static constexpr float HEIGHTVERTEX = 0.05F;
   static constexpr float WIDTHVERTEX = 0.05F;
 
-  enum GameState { STARTLOADINGSCREEN, PLAYING, MENU, GAMELOOP, SBYS, WAIT, TEST, LOADINGSCREEN };
+  enum GameState {
+    STARTLOADINGSCREEN,
+    PLAYING,
+    MENU,
+    GAMELOOP,
+    SBYS,
+    WAIT,
+    TEST,
+    LOADINGSCREEN,
+    EXITGAME
+  };
   struct playerCoordinate {
     float x;
     float y;
@@ -43,6 +53,19 @@ namespace ve {
     DONOTSHOW,
   };
 
-  constexpr int textureSize = 16;
-  // constexpr int textureSize2 = 2;
+  enum ExitIndex {
+    HOME,
+    FIRSTLEVEL,
+    SECONDLEVELA,
+    THIRDLEVELA,
+    FOURTHLEVELA,
+    FIFTHLEVELA,
+    SIXTHLEVELA,
+    FINALLEVELA,
+    SECONDLEVELB,
+    THIRDLEVELB,
+    FINALLEVELB,
+    HELLOFRIEND,
+  };
+
 }  // namespace ve
