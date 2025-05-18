@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <utility>
 
 #include "game_object.hpp"
 
@@ -34,9 +33,9 @@ namespace ve {
   private:
     std::vector<GameObject>* exitInterface_;
 
-    KeyboardMovementController(){};
+    KeyboardMovementController() {};
     KeyboardMovementController(const KeyboardMovementController& src) = delete;
     KeyboardMovementController& operator=(const KeyboardMovementController& rhs) = delete;
-    ~KeyboardMovementController(){};
+    ~KeyboardMovementController() {};
   };
 }  // namespace ve

@@ -1,5 +1,6 @@
 #include "pipeline.hpp"
 
+#include <fstream>
 namespace ve {
 
   Pipeline::Pipeline(Device &device, const std::string &vertFilepath,

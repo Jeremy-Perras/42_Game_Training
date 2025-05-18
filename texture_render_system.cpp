@@ -1,8 +1,5 @@
 #include "texture_render_system.hpp"
 
-#include <iostream>
-#include <utility>
-
 #include "texture.hpp"
 
 namespace ve {

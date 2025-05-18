@@ -1,13 +1,11 @@
 #pragma once
 
-#include <fstream>
-
 #include "device.hpp"
 
 namespace ve {
 
   struct PipelineConfigInfo {
-    PipelineConfigInfo(const PipelineConfigInfo &) = delete;
+    // PipelineConfigInfo(const PipelineConfigInfo &) = delete;
     PipelineConfigInfo &operator=(const PipelineConfigInfo &rhs) = delete;
 
     std::vector<VkVertexInputBindingDescription> bindingDescriptions{};

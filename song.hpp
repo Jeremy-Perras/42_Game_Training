@@ -6,20 +6,20 @@
 
 #include <string>
 
-#define NUM_BUFFERS 1
-#define NUM_SOURCES 1
+#define NUM_BUFFERS 2
+#define NUM_SOURCES 2
 #define NUM_ENVIRONMENTS 1
 
 namespace ve {
   class Song {
   public:
-    Song() {
-      init();
-      play();
-    }
+    Song() { init(); }
     Song(const Song &src) = delete;
     Song &operator=(const Song &rhs) = delete;
     ~Song() {}
+    void playFile(void);
+    void playMrRobot(void);
+    void StopMrRobot(void);
 
   private:
     ALfloat listenerPos[3] = {0.0, 0.0, 4.0};
@@ -38,7 +38,7 @@ namespace ve {
     ALvoid *data;
 
     std::string filename = "test2.wav";
+    std::string file = "Mr.Robot.wav";
     void init(void);
-    void play(void);
   };
 }  // namespace ve

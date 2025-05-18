@@ -1,7 +1,6 @@
 #include "exit_render_system.hpp"
 
 #include <iostream>
-#include <utility>
 
 #include "texture.hpp"
 #include "utils.hpp"
@@ -214,7 +213,7 @@ namespace ve {
     }
   }
 
-  void ExitRenderSystem::logicExitGame(std::string& press) {
+  void ExitRenderSystem::logicExitGame(std::string& press, GameState& gameState) {
     switch (exitIndex_) {
       case ExitIndex::FIRSTLEVEL:
         if (press == "Move the barrel") {
@@ -269,17 +268,30 @@ namespace ve {
         break;
       case ExitIndex::THIRDLEVELB:
         if (press == "Stay") {
-          exitIndex_ = ExitIndex::HELLOFRIEND;
+          exitIndex_ = ExitIndex::FINALLEVELB;
           press.clear();
         }
         break;
+      case FINALLEVELB:
+        if (press == "Y") {
+          exitIndex_ = ExitIndex::HELLOFRIEND;
+          press.clear();
+        }
+        std::cout << "Exit to final level b" << '\n';
+        helloFriendTiming_ = std::chrono::high_resolution_clock::now();
+        song_.playMrRobot();
+        break;
       case ExitIndex::HELLOFRIEND:
-        std::cout << "Exit to hello friend" << std::endl;
+        if (std::chrono::duration<float, std::chrono::seconds::period>(
+                std::chrono::high_resolution_clock::now() - helloFriendTiming_)
+                .count()
+            > 1000.F) {
+          song_.StopMrRobot();
+          gameState = GameState::MENU;
+          press.clear();
+        }
         break;
       case HOME:
-        break;
-      case FINALLEVELB:
-        std::cout << "Exit to final level b" << std::endl;
         break;
     }
   }

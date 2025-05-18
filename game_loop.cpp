@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "game_object.hpp"
-#include "texture_render_system.hpp"
 #include "utils.hpp"
 namespace ve {
   GameLoop::GameLoop(Device &device, Renderer &renderer, GameState &gameState,

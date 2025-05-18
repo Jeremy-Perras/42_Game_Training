@@ -1,6 +1,7 @@
 #pragma once
 
-#include "game_object.hpp"
+#include <string>
+#include <vector>
 namespace ve {
 
   class Parsing {
@@ -8,7 +9,7 @@ namespace ve {
     Parsing(const std::string &filepatht);
     Parsing(const Parsing &src) = delete;
     Parsing &operator=(const Parsing &rhs) = delete;
-    ~Parsing(){};
+    ~Parsing() {};
 
     void initParsing(const std::string &filepath);
     // Getter

@@ -8,6 +8,7 @@
 #include "frame_info.hpp"
 #include "pipeline.hpp"
 #include "renderer.hpp"
+#include "song.hpp"
 #include "texture.hpp"
 #include "utils.hpp"
 #include "vulkan/vulkan_core.h"
@@ -30,11 +31,13 @@ namespace ve {
     };
 
     struct Builder {
-      std::vector<Vertex> vertices{};
-      std::vector<uint32_t> indices{};
+      std::vector<Vertex> vertices;
+      std::vector<uint32_t> indices;
     };
 
-    void logicExitGame(std::string &press);
+    void logicExitGame(std::string &press, GameState &gameState);
+
+    ExitIndex getLogicIndex() { return exitIndex_; }
 
     ExitRenderSystem(Device &device, Renderer &renderer,
                      std::vector<std::shared_ptr<Texture>> &texture, Builder &builder,
@@ -82,5 +85,8 @@ namespace ve {
     std::array<VkWriteDescriptorSet, 1> writeDescriptorSets_{};
     PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR_;
     VkDescriptorImageInfo imageInfo_{};
+
+    std::chrono::steady_clock::time_point helloFriendTiming_;
+    Song song_;
   };
 }  // namespace ve

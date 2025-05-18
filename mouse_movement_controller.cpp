@@ -3,7 +3,6 @@
 #include <iostream>
 #include <vector>
 
-#include "app.hpp"
 #include "game_object.hpp"
 #include "utils.hpp"
 

@@ -3,15 +3,11 @@
 #include <_types/_uint32_t.h>
 
 // std
-#include <algorithm>
 #include <iostream>
-#include <limits>
-#include <utility>
 #include <vector>
 
 #include "game_object.hpp"
 #include "utils.hpp"
-#include "window.hpp"
 namespace ve {
 
   void KeyboardMovementController::keyCharPressExitGame(GLFWwindow* /*window*/,
@@ -29,7 +25,7 @@ namespace ve {
          || codepoint == 32)) {
       press_.push_back(static_cast<char>(codepoint));
     }
-    std::cout << press_ << std::endl;
+    std::cout << press_ << '\n';
   }
 
   void KeyboardMovementController::getKeyPressExitGame(int key, int action) {
@@ -43,10 +39,6 @@ namespace ve {
     if (!press_.empty()) {
       press_.clear();
     }
-  }
-
-  void KeyboardMovementController::setExitGameInterface() {
-    (*exitInterface_)[0].exitRenderSystem->logicExitGame(press_);
   }
 
   KeyboardMovementController& KeyboardMovementController::getInstance() {

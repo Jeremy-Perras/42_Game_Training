@@ -2,13 +2,11 @@
 
 #include <chrono>
 #include <memory>
-#include <thread>
 #include <vector>
 
 #include "device.hpp"
 #include "game_loop.hpp"
 #include "game_object.hpp"
-#include "interface_model.hpp"
 #include "mouse_movement_controller.hpp"
 #include "renderer.hpp"
 #include "star_nest.hpp"
@@ -45,7 +43,7 @@ namespace ve {
     void updateTimeScreen();
     void menuStart();
 
-    GameState gameState_ = {GameState::EXITGAME};
+    GameState gameState_ = {GameState::MENU};
 
     Window window_{WIDTH, HEIGHT, "GameEngine"};
     Device device_{window_};

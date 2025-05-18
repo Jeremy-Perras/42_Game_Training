@@ -1,21 +1,13 @@
 #include "app.hpp"
 
 #include <chrono>
-#include <iostream>
 #include <memory>
-#include <string>
-#include <thread>
 #include <vector>
 
 #include "device.hpp"
 #include "game_loop.hpp"
 #include "game_object.hpp"
-#include "interface_model.hpp"
 #include "keyboard_movement_controller.hpp"
-#include "parsing.hpp"
-#include "song.hpp"
-#include "star_nest.hpp"
-#include "texture.hpp"
 #include "texture_render_system.hpp"
 #include "utils.hpp"
 namespace ve {
@@ -102,8 +94,9 @@ namespace ve {
         }
 
         case GameState::EXITGAME: {
-          if (static_cast<int>(glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ENTER)) == GLFW_PRESS) {
-            exitInterface_[0].exitRenderSystem->logicExitGame(cameraController.press_);
+          if (static_cast<int>(glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ENTER)) == GLFW_PRESS
+              || exitInterface_[0].exitRenderSystem->getLogicIndex() == ExitIndex::HELLOFRIEND) {
+            exitInterface_[0].exitRenderSystem->logicExitGame(cameraController.press_, gameState_);
           }
           if (auto *commandBuffer = renderer_.beginFrame(false)) {
             renderer_.beginSwapChainRenderPass(commandBuffer);

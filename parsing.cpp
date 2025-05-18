@@ -1,5 +1,6 @@
 #include "parsing.hpp"
 
+#include <fstream>
 namespace ve {
   Parsing::Parsing(const std ::string &filepath) { initParsing(filepath); }
 

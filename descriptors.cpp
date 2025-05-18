@@ -6,7 +6,6 @@
 #include <cassert>
 #include <stdexcept>
 
-#include "utils.hpp"
 #include "vulkan/vulkan_core.h"
 
 namespace ve {

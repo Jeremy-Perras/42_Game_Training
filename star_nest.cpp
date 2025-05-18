@@ -1,8 +1,5 @@
 #include "star_nest.hpp"
 
-#include "utils.hpp"
-#include "window.hpp"
-
 namespace ve {
 
   StarNest::StarNest(Device &device, Renderer &renderer, const StarNest::Builder &builder)

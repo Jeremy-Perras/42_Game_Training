@@ -21,7 +21,7 @@ namespace ve {
 
     private:
       Device &device_;
-      std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings_{};
+      std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings_;
     };
 
     DescriptorSetLayout(Device &device,
@@ -52,7 +52,7 @@ namespace ve {
 
     private:
       Device &device_;
-      std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings_{};
+      std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings_;
     };
 
     DescriptorSetLayoutPush(Device &device,
@@ -84,7 +84,7 @@ namespace ve {
 
     private:
       Device &device_;
-      std::vector<VkDescriptorPoolSize> poolSizes_{};
+      std::vector<VkDescriptorPoolSize> poolSizes_;
       uint32_t maxSets_ = 1000;
       VkDescriptorPoolCreateFlags poolFlags_ = 0;
     };
