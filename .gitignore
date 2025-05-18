@@ -39,3 +39,4 @@ library_debug
 *.debug
 Sounds/*.out
 Sounds/*.debug
+Mr.Robot.wav
