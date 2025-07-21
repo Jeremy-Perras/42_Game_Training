@@ -1,4 +1,7 @@
 #pragma once
+#include <iomanip>
+#include <sstream>
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -6,10 +9,12 @@
 #include "frame_info.hpp"
 #include "pipeline.hpp"
 #include "renderer.hpp"
+#include "texture/stb_font_consolas_24_latin1.inl"
 #include "vulkan/vulkan_core.h"
+#define TEXTOVERLAY_MAX_CHAR_COUNT 2048
 
 namespace ve {
-  class StarNest {
+  class TextOverlay {
   public:
     struct Vertex {
       glm::vec2 pos;
@@ -28,18 +33,21 @@ namespace ve {
       std::vector<uint32_t> indices;
     };
 
-    StarNest(Device &device, Renderer &renderer, const StarNest::Builder &builder);
-    StarNest(const StarNest &src) = delete;
-    StarNest &operator=(const StarNest &rhs) = delete;
-    ~StarNest();
-
+    TextOverlay(Device &device, Renderer &renderer, const TextOverlay::Builder &builder);
+    TextOverlay(const TextOverlay &src) = delete;
+    TextOverlay &operator=(const TextOverlay &rhs) = delete;
+    ~TextOverlay();
     void bind(VkCommandBuffer commandBuffer);
     void draw(VkCommandBuffer commandBuffer) const;
     void renderGameObjects(FrameInfo &frameInfo);
 
+    enum TextAlign { alignLeft, alignCenter, alignRight };
+    uint32_t numLetters;
+    // Getter
   private:
-    const std::vector<StarNest::Vertex> vertices_;
-    void createVertexBuffer(const std::vector<StarNest::Vertex> &vertices);
+    const std::vector<TextOverlay::Vertex> vertices_;
+    void createVertexBuffer(const std::vector<TextOverlay::Vertex> &vertices);
+    VkImageView createImageView(VkImage image, VkFormat format);
     void createIndexBuffers(const std::vector<uint32_t> &indices);
     void createPipelineLayout();
     void createPipeline();
@@ -56,5 +64,6 @@ namespace ve {
     uint32_t indexCount_;
 
     uint32_t vertexCount_;
+    stb_fontchar stbFontData[STB_FONT_consolas_24_latin1_NUM_CHARS];
   };
 }  // namespace ve

@@ -65,9 +65,6 @@ namespace ve {
     KeyboardMovementController &cameraController = KeyboardMovementController::getInstance();
     cameraController.setExitInterface(&exitInterface_);
 
-    frameInfo_.Time = 0.0F;
-    glfwSetCharCallback(window_.getGLFWwindow(), KeyboardMovementController::keyCharPressExitGame);
-    glfwSetKeyCallback(window_.getGLFWwindow(), KeyboardMovementController::keyPressExitGame);
     // Song test;
     while (static_cast<int>(window_.shouldClose()) == 0
            && static_cast<int>(glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -87,14 +84,20 @@ namespace ve {
       updateFrameInfo();
 
       switch (gameState_) {
-        case GameState::LOADINGSCREEN:
         case GameState::STARTLOADINGSCREEN: {
           stateLoadingsScreen();
           break;
         }
 
+        case GameState::LOADINGSCREEN: {
+          break;
+        }
+
         case GameState::EXITGAME: {
-          if (static_cast<int>(glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ENTER)) == GLFW_PRESS
+          glfwSetCharCallback(window_.getGLFWwindow(),
+                              KeyboardMovementController::keyCharPressExitGame);
+          glfwSetKeyCallback(window_.getGLFWwindow(), KeyboardMovementController::keyPressExitGame);
+          if (glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS
               || exitInterface_[0].exitRenderSystem->getLogicIndex() == ExitIndex::HELLOFRIEND) {
             exitInterface_[0].exitRenderSystem->logicExitGame(cameraController.press_, gameState_);
           }

@@ -282,6 +282,7 @@ namespace ve {
     const char **glfwExtensions;
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
     std::vector<const char *> requiredExtensions;
+    requiredExtensions.reserve(glfwExtensionCount);
     for (uint32_t i = 0; i < glfwExtensionCount; i++) {
       requiredExtensions.emplace_back(glfwExtensions[i]);
     }

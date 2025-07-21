@@ -28,7 +28,7 @@ namespace ve {
 
     KeyMappings keys_{};
     float moveSpeed_{0.5F};
-    std::string press_{};
+    std::string press_;
 
   private:
     std::vector<GameObject>* exitInterface_;

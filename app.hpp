@@ -43,7 +43,7 @@ namespace ve {
     void updateTimeScreen();
     void menuStart();
 
-    GameState gameState_ = {GameState::MENU};
+    GameState gameState_ = {GameState::EXITGAME};
 
     Window window_{WIDTH, HEIGHT, "GameEngine"};
     Device device_{window_};
