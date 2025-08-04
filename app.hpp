@@ -7,9 +7,10 @@
 #include "device.hpp"
 #include "game_loop.hpp"
 #include "game_object.hpp"
+#include "keyboard_movement_controller.hpp"
 #include "mouse_movement_controller.hpp"
 #include "renderer.hpp"
-#include "star_nest.hpp"
+#include "star_nest_render_system.hpp"
 #include "vulkan/vulkan_core.h"
 #include "window.hpp"
 #include "window_display.hpp"
@@ -42,8 +43,9 @@ namespace ve {
     void StepByStep();
     void updateTimeScreen();
     void menuStart();
+    void logicGame();
 
-    GameState gameState_ = {GameState::EXITGAME};
+    GameState gameState_ = {GameState::MENU};
 
     Window window_{WIDTH, HEIGHT, "GameEngine"};
     Device device_{window_};
@@ -54,6 +56,7 @@ namespace ve {
     std::chrono::steady_clock::time_point fpsTime_;
     std::chrono::steady_clock::time_point startGameLoop_;
     std::chrono::steady_clock::time_point passTime_;
+    std::chrono::steady_clock::time_point currentTime_;
 
     bool isAlreadyDone_ = false;
 
@@ -70,6 +73,7 @@ namespace ve {
     std::vector<GameObject> timeInterface_;
     std::vector<GameObject> menuStartInterface_;
     std::vector<GameObject> exitInterface_;
+    KeyboardMovementController cameraController_;
 
     GameObject startLoadingScreen_;
 

@@ -1,4 +1,4 @@
-#include "star_nest.hpp"
+#include "star_nest_render_system.hpp"
 
 namespace ve {
 
@@ -131,9 +131,8 @@ namespace ve {
     pipelineConfig.pipelineLayout = pipelineLayout_;
     pipelineConfig.attributeDescriptions = StarNest::Vertex::getAttributeDescriptions();
     pipelineConfig.bindingDescriptions = StarNest::Vertex::getBindingDescriptions();
-
-    pipeline_ = std::make_unique<Pipeline>(device_, "shaders/starNest.vert.spv",
-                                           "shaders/starNest.frag.spv", pipelineConfig);
+    pipeline_ = std::make_unique<Pipeline>(device_, "shaders/Menu.vert.spv",
+                                           "shaders/Menu.frag.spv", pipelineConfig);
   }
 
   void StarNest::renderGameObjects(FrameInfo &frameInfo) {

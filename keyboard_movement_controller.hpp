@@ -30,12 +30,12 @@ namespace ve {
     float moveSpeed_{0.5F};
     std::string press_;
 
-  private:
-    std::vector<GameObject>* exitInterface_;
-
     KeyboardMovementController() {};
     KeyboardMovementController(const KeyboardMovementController& src) = delete;
     KeyboardMovementController& operator=(const KeyboardMovementController& rhs) = delete;
     ~KeyboardMovementController() {};
+
+  private:
+    std::vector<GameObject>* exitInterface_;
   };
 }  // namespace ve

@@ -275,71 +275,71 @@ namespace ve {
     // create menu
     for (int j = 0; j < squareNumbers; j++) {
       for (int i = 0; i < squareNumbers; i++) {
-        builder = {{{{xStart + static_cast<float>(i) * WIDTHVERTEX,
-                      yStart + static_cast<float>(j) * HEIGHTVERTEX},
+        builder = {{{{xStart + (static_cast<float>(i) * WIDTHVERTEX),
+                      yStart + (static_cast<float>(j) * HEIGHTVERTEX)},
 
                      {0.0F, 0.0F}},
-                    {{xStart + WIDTHVERTEX + static_cast<float>(i) * WIDTHVERTEX,
-                      yStart + static_cast<float>(j) * HEIGHTVERTEX},
+                    {{xStart + WIDTHVERTEX + (static_cast<float>(i) * WIDTHVERTEX),
+                      yStart + (static_cast<float>(j) * HEIGHTVERTEX)},
 
                      {1.0F, 0.0F}},
-                    {{xStart + WIDTHVERTEX + static_cast<float>(i) * WIDTHVERTEX,
-                      yStart + HEIGHTVERTEX + static_cast<float>(j) * HEIGHTVERTEX},
+                    {{xStart + WIDTHVERTEX + (static_cast<float>(i) * WIDTHVERTEX),
+                      yStart + HEIGHTVERTEX + (static_cast<float>(j) * HEIGHTVERTEX)},
 
                      {1.0F, 1.0F}},
-                    {{xStart + static_cast<float>(i) * WIDTHVERTEX,
-                      yStart + HEIGHTVERTEX + static_cast<float>(j) * HEIGHTVERTEX},
+                    {{xStart + (static_cast<float>(i) * WIDTHVERTEX),
+                      yStart + HEIGHTVERTEX + (static_cast<float>(j) * HEIGHTVERTEX)},
 
                      {0.0F, 1.0F}}},
                    {0, 1, 2, 2, 3, 0}};
         auto object = GameObject::createGameObject();
         object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
             device_, renderer_, texture_, builder,
-            static_cast<TextureIndex>(i + j * squareNumbers));
-        setAlphaColor(object, i + j * (mapLineSize + 1));
+            static_cast<TextureIndex>(i + (j * squareNumbers)));
+        setAlphaColor(object, i + (j * (mapLineSize + 1)));
         menuInterface_.push_back(std::move(object));
       }
     }
     // create color square
     for (int j = 0; j < squareNumbers; j++) {
-      builder
-          = {{{{xStart + 0.01F + 3 * WIDTHVERTEX, yStart + static_cast<float>(j) * HEIGHTVERTEX},
+      builder = {
+          {{{xStart + 0.01F + (3 * WIDTHVERTEX), yStart + (static_cast<float>(j) * HEIGHTVERTEX)},
 
-               {1.0F, 0.0F}},
-              {{xStart + WIDTHVERTEX + 0.01F + 3 * WIDTHVERTEX,
-                yStart + static_cast<float>(j) * HEIGHTVERTEX},
+            {1.0F, 0.0F}},
+           {{xStart + WIDTHVERTEX + 0.01F + (3 * WIDTHVERTEX),
+             yStart + (static_cast<float>(j) * HEIGHTVERTEX)},
 
-               {0.0F, 0.0F}},
-              {{xStart + WIDTHVERTEX + 0.01F + 3 * WIDTHVERTEX,
-                yStart + HEIGHTVERTEX + static_cast<float>(j) * HEIGHTVERTEX},
+            {0.0F, 0.0F}},
+           {{xStart + WIDTHVERTEX + 0.01F + (3 * WIDTHVERTEX),
+             yStart + HEIGHTVERTEX + (static_cast<float>(j) * HEIGHTVERTEX)},
 
-               {0.0F, 1.0F}},
-              {{xStart + 0.01F + 3 * WIDTHVERTEX,
-                yStart + HEIGHTVERTEX + static_cast<float>(j) * HEIGHTVERTEX},
+            {0.0F, 1.0F}},
+           {{xStart + 0.01F + (3 * WIDTHVERTEX),
+             yStart + HEIGHTVERTEX + (static_cast<float>(j) * HEIGHTVERTEX)},
 
-               {1.0F, 1.0F}}},
-             {0, 1, 2, 2, 3, 0}};
+            {1.0F, 1.0F}}},
+          {0, 1, 2, 2, 3, 0}};
       auto object = GameObject::createGameObject();
       object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
           device_, renderer_, texture_, builder,
-          static_cast<TextureIndex>(j + squareNumbers * squareNumbers));
-      setAlphaColor(object, mapLineSize + (mapLineSize + 1) * j);
+          static_cast<TextureIndex>(j + (squareNumbers * squareNumbers)));
+      setAlphaColor(object, mapLineSize + ((mapLineSize + 1) * j));
       menuInterface_.push_back(std::move(object));
     }
     // create Button play stop and pause
     for (int i = 0; i < squareNumbers; i++) {
-      builder = {{{{xStart + static_cast<float>(i) * WIDTHVERTEX, yStart - 0.06},
+      builder = {{{{xStart + (static_cast<float>(i) * WIDTHVERTEX), yStart - 0.06},
 
                    {0.0F, 0.0F}},
                   {
-                      {xStart + static_cast<float>(i) * WIDTHVERTEX + WIDTHVERTEX, yStart - 0.06},
+                      {xStart + (static_cast<float>(i) * WIDTHVERTEX) + WIDTHVERTEX, yStart - 0.06},
 
                       {1.0F, 0.0F},
                   },
-                  {{xStart + static_cast<float>(i) * WIDTHVERTEX + WIDTHVERTEX, yStart - 0.01},
+                  {{xStart + (static_cast<float>(i) * WIDTHVERTEX) + WIDTHVERTEX, yStart - 0.01},
 
                    {1.0F, 1.0F}},
-                  {{xStart + static_cast<float>(i) * WIDTHVERTEX, yStart - 0.01},
+                  {{xStart + (static_cast<float>(i) * WIDTHVERTEX), yStart - 0.01},
 
                    {0.0F, 1.0F}}},
                  {0, 1, 2, 2, 3, 0}};
@@ -358,18 +358,18 @@ namespace ve {
     int displayNumbers = 100;
 
     for (int i = 0; i < displayNumbers; i++) {
-      builder = {{{{xStart + static_cast<float>(i) * 0.02, yStart - 0.03},
+      builder = {{{{xStart + (static_cast<float>(i) * 0.02), yStart - 0.03},
 
                    {0.0F, 0.0F}},
                   {
-                      {xStart + static_cast<float>(i) * 0.02 + 0.02, yStart - 0.03},
+                      {xStart + (static_cast<float>(i) * 0.02) + 0.02, yStart - 0.03},
 
                       {1.0F, 0.0F},
                   },
-                  {{xStart + static_cast<float>(i) * 0.02 + 0.02, yStart - 0.01},
+                  {{xStart + (static_cast<float>(i) * 0.02) + 0.02, yStart - 0.01},
 
                    {1.0F, 1.0F}},
-                  {{xStart + static_cast<float>(i) * 0.02, yStart - 0.01},
+                  {{xStart + (static_cast<float>(i) * 0.02), yStart - 0.01},
 
                    {0.0F, 1.0F}}},
                  {0, 1, 2, 2, 3, 0}};
@@ -387,18 +387,18 @@ namespace ve {
     float yStart = 0.72F;
     TextureRenderSystem::Builder builder;
     for (int i = 0; i < displayNumbers; i++) {
-      builder = {{{{xStart + static_cast<float>(i) * WIDTHVERTEX, yStart - 0.06},
+      builder = {{{{xStart + (static_cast<float>(i) * WIDTHVERTEX), yStart - 0.06},
 
                    {0.0F, 0.0F}},
                   {
-                      {xStart + static_cast<float>(i) * WIDTHVERTEX + WIDTHVERTEX, yStart - 0.06},
+                      {xStart + (static_cast<float>(i) * WIDTHVERTEX) + WIDTHVERTEX, yStart - 0.06},
 
                       {1.0F, 0.0F},
                   },
-                  {{xStart + static_cast<float>(i) * WIDTHVERTEX + WIDTHVERTEX, yStart - 0.01},
+                  {{xStart + (static_cast<float>(i) * WIDTHVERTEX) + WIDTHVERTEX, yStart - 0.01},
 
                    {1.0F, 1.0F}},
-                  {{xStart + static_cast<float>(i) * WIDTHVERTEX, yStart - 0.01},
+                  {{xStart + (static_cast<float>(i) * WIDTHVERTEX), yStart - 0.01},
 
                    {0.0F, 1.0F}}},
                  {0, 1, 2, 2, 3, 0}};
@@ -420,19 +420,19 @@ namespace ve {
     for (int j = 0; j < 3; j++) {
       for (int i = 0; i < sizeF[j]; i++) {
         builder.push_back(
-            {{{{xStart + static_cast<float>(i) * 0.05F, yStart + static_cast<float>(j) * 0.05},
+            {{{{xStart + (static_cast<float>(i) * 0.05F), yStart + (static_cast<float>(j) * 0.05)},
 
                {0.0F, 0.0F}},
-              {{xStart + 0.05F + static_cast<float>(i) * 0.05F,
-                yStart + static_cast<float>(j) * 0.05},
+              {{xStart + 0.05F + (static_cast<float>(i) * 0.05F),
+                yStart + (static_cast<float>(j) * 0.05)},
 
                {1.0F, 0.0F}},
-              {{xStart + 0.05F + static_cast<float>(i) * 0.05F,
-                yStart + 0.05F + static_cast<float>(j) * 0.05},
+              {{xStart + 0.05F + (static_cast<float>(i) * 0.05F),
+                yStart + 0.05F + (static_cast<float>(j) * 0.05)},
 
                {1.0F, 1.0F}},
-              {{xStart + static_cast<float>(i) * 0.05F,
-                yStart + 0.05F + static_cast<float>(j) * 0.05},
+              {{xStart + (static_cast<float>(i) * 0.05F),
+                yStart + 0.05F + (static_cast<float>(j) * 0.05)},
 
                {0.0F, 1.0F}}},
              {0, 1, 2, 2, 3, 0}});
@@ -473,33 +473,33 @@ namespace ve {
     TextureRenderSystem::Builder builder;
     for (int j = 0; j < coloneSize_; j++) {
       for (int i = 0; i < lineSize_; i++) {
-        builder = {
-            {{
-                 {xStart_ + static_cast<float>(i) * 0.05F, yStart_ + static_cast<float>(j) * 0.05},
+        builder = {{{
+                        {xStart_ + (static_cast<float>(i) * 0.05F),
+                         yStart_ + (static_cast<float>(j) * 0.05)},
 
-                 {0.0F, 0.0F},
-             },
-             {
-                 {xStart_ + 0.05F + static_cast<float>(i) * 0.05F,
-                  yStart_ + static_cast<float>(j) * 0.05},
+                        {0.0F, 0.0F},
+                    },
+                    {
+                        {xStart_ + 0.05F + (static_cast<float>(i) * 0.05F),
+                         yStart_ + (static_cast<float>(j) * 0.05)},
 
-                 {1.0F, 0.0F},
-             },
-             {
-                 {xStart_ + 0.05F + static_cast<float>(i) * 0.05F,
-                  yStart_ + 0.05F + static_cast<float>(j) * 0.05},
+                        {1.0F, 0.0F},
+                    },
+                    {
+                        {xStart_ + 0.05F + (static_cast<float>(i) * 0.05F),
+                         yStart_ + 0.05F + (static_cast<float>(j) * 0.05)},
 
-                 {1.0F, 1.0F},
-             },
-             {
-                 {xStart_ + static_cast<float>(i) * 0.05F,
-                  yStart_ + 0.05F + static_cast<float>(j) * 0.05},
+                        {1.0F, 1.0F},
+                    },
+                    {
+                        {xStart_ + (static_cast<float>(i) * 0.05F),
+                         yStart_ + 0.05F + (static_cast<float>(j) * 0.05)},
 
-                 {0.0F, 1.0F},
-             }},
-            {0, 1, 2, 2, 3, 0}};
-        if (map_[0][i + j * static_cast<int>(lineSize_)] != 1) {
-          switch (map_[1][i + j * static_cast<int>(lineSize_)]) {
+                        {0.0F, 1.0F},
+                    }},
+                   {0, 1, 2, 2, 3, 0}};
+        if (map_[0][i + (j * lineSize_)] != 1) {
+          switch (map_[1][i + (j * lineSize_)]) {
             case 'V': {
               auto object2 = GameObject::createGameObject();
               object2.textureRenderSystem = std::make_unique<TextureRenderSystem>(
@@ -528,7 +528,7 @@ namespace ve {
               break;
           }
 
-          switch (map_[0][i + j * static_cast<int>(lineSize_)]) {
+          switch (map_[0][i + (j * lineSize_)]) {
             case 'R': {
               auto object = GameObject::createGameObject();
               object.textureRenderSystem = std::make_unique<TextureRenderSystem>(

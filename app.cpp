@@ -29,6 +29,7 @@ namespace ve {
     startGameLoop_ = std::chrono::high_resolution_clock::now();
     fpsTime_ = std::chrono::high_resolution_clock::now();
     passTime_ = std::chrono::high_resolution_clock::now();
+    currentTime_ = std::chrono::high_resolution_clock::now();
   }
 
   Application::~Application() {}
@@ -59,11 +60,10 @@ namespace ve {
     startLoadingScreen_.textureRenderSystem = std::make_unique<TextureRenderSystem>(
         device_, renderer_, gameLoop_->texture_, builder, TextureIndex::BACKGROUND);
 
-    std::chrono::steady_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
     std::chrono::steady_clock::time_point newTime = std::chrono::high_resolution_clock::now();
 
-    KeyboardMovementController &cameraController = KeyboardMovementController::getInstance();
-    cameraController.setExitInterface(&exitInterface_);
+    KeyboardMovementController &cameraController_ = KeyboardMovementController::getInstance();
+    cameraController_.setExitInterface(&exitInterface_);
 
     // Song test;
     while (static_cast<int>(window_.shouldClose()) == 0
@@ -75,80 +75,14 @@ namespace ve {
         mouse_.getInput((menuInterface_)[i], (playerInterface_));
       }
 
-      resetTime(&currentTime);
+      resetTime(&currentTime_);
       float frameTime
-          = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - newTime)
+          = std::chrono::duration<float, std::chrono::seconds::period>(currentTime_ - newTime)
                 .count();
-      cameraController.moveInPlaneXY(window_.getGLFWwindow(), frameTime, gameInterface_);
-      newTime = currentTime;
+      cameraController_.moveInPlaneXY(window_.getGLFWwindow(), frameTime, gameInterface_);
+      newTime = currentTime_;
       updateFrameInfo();
-
-      switch (gameState_) {
-        case GameState::STARTLOADINGSCREEN: {
-          stateLoadingsScreen();
-          break;
-        }
-
-        case GameState::LOADINGSCREEN: {
-          break;
-        }
-
-        case GameState::EXITGAME: {
-          glfwSetCharCallback(window_.getGLFWwindow(),
-                              KeyboardMovementController::keyCharPressExitGame);
-          glfwSetKeyCallback(window_.getGLFWwindow(), KeyboardMovementController::keyPressExitGame);
-          if (glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS
-              || exitInterface_[0].exitRenderSystem->getLogicIndex() == ExitIndex::HELLOFRIEND) {
-            exitInterface_[0].exitRenderSystem->logicExitGame(cameraController.press_, gameState_);
-          }
-          if (auto *commandBuffer = renderer_.beginFrame(false)) {
-            renderer_.beginSwapChainRenderPass(commandBuffer);
-            frameInfo_.commandBuffer = commandBuffer;
-            for (auto &obj : exitInterface_) {
-              obj.exitRenderSystem->render(frameInfo_);
-            }
-            renderer_.endSwapChainRenderPass(commandBuffer);
-            renderer_.endFrame(false);
-          }
-          break;
-        }
-
-        case GameState::MENU: {
-          menuStart();
-          for (std::vector<GameObject>::iterator it = menuStartInterface_.begin();
-               it != menuStartInterface_.end(); ++it) {
-            if (it->textureRenderSystem->getIndexTexture() == TextureIndex::STARTBUTTON) {
-              mouse_.getUserClickMenu(*it);
-            }
-          }
-          cameraController.moveInGameInterface(window_.getGLFWwindow(), menuStartInterface_);
-          break;
-        }
-
-        case GameState::PLAYING: {
-          statePlaying();
-          break;
-        }
-
-        case GameState::GAMELOOP: {
-          stateGameLoop(currentTime);
-          break;
-        }
-
-        case GameState::SBYS: {
-          StepByStep();
-          break;
-        }
-
-        case GameState::WAIT: {
-          windowDisplay_->render(frameInfo_);
-          break;
-        }
-
-        default: {
-          break;
-        }
-      }
+      logicGame();
 
       if ((std::chrono::duration<float, std::chrono::seconds::period>(newTime - passTime_).count())
           >= 2) {
@@ -156,7 +90,7 @@ namespace ve {
         resetTime(&passTime_);
       }
       fpscount_++;
-      updateFPS(currentTime);
+      updateFPS(currentTime_);
     }
 
     vkDeviceWaitIdle(device_.getDevice());
@@ -282,6 +216,75 @@ namespace ve {
       indexLvl = 0;
       counterTime = 0;
     }
+  }
+
+  void Application::logicGame() {
+    switch (gameState_) {
+      case GameState::STARTLOADINGSCREEN: {
+        stateLoadingsScreen();
+        break;
+      }
+
+      case GameState::LOADINGSCREEN: {
+        break;
+      }
+
+      case GameState::EXITGAME: {
+        glfwSetCharCallback(window_.getGLFWwindow(),
+                            KeyboardMovementController::keyCharPressExitGame);
+        glfwSetKeyCallback(window_.getGLFWwindow(), KeyboardMovementController::keyPressExitGame);
+        if (glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS
+            || exitInterface_[0].exitRenderSystem->getLogicIndex() == ExitIndex::HELLOFRIEND) {
+          exitInterface_[0].exitRenderSystem->logicExitGame(cameraController_.press_, gameState_);
+        }
+        if (auto *commandBuffer = renderer_.beginFrame(false)) {
+          renderer_.beginSwapChainRenderPass(commandBuffer);
+          frameInfo_.commandBuffer = commandBuffer;
+          for (auto &obj : exitInterface_) {
+            obj.exitRenderSystem->render(frameInfo_);
+          }
+          renderer_.endSwapChainRenderPass(commandBuffer);
+          renderer_.endFrame(false);
+        }
+        break;
+      }
+
+      case GameState::MENU: {
+        menuStart();
+        for (std::vector<GameObject>::iterator it = menuStartInterface_.begin();
+             it != menuStartInterface_.end(); ++it) {
+          if (it->textureRenderSystem->getIndexTexture() == TextureIndex::STARTBUTTON) {
+            mouse_.getUserClickMenu(*it);
+          }
+        }
+        cameraController_.moveInGameInterface(window_.getGLFWwindow(), menuStartInterface_);
+        break;
+      }
+
+      case GameState::PLAYING: {
+        statePlaying();
+        break;
+      }
+
+      case GameState::GAMELOOP: {
+        stateGameLoop(currentTime_);
+        break;
+      }
+
+      case GameState::SBYS: {
+        StepByStep();
+        break;
+      }
+
+      case GameState::WAIT: {
+        windowDisplay_->render(frameInfo_);
+        break;
+      }
+
+      default: {
+        break;
+      }
+    };
   }
 
 }  // namespace ve

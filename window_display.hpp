@@ -1,6 +1,6 @@
 #pragma once
 #include "game_object.hpp"
-#include "star_nest.hpp"
+#include "star_nest_render_system.hpp"
 namespace ve {
   class WindowDisplay {
   public:
