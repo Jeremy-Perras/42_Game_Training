@@ -218,6 +218,18 @@ namespace ve {
     }
   }
 
+  void Application::chooseLevel() {
+    if (auto *commandBuffer = renderer_.beginFrame(false)) {
+      renderer_.beginSwapChainRenderPass(commandBuffer);
+      frameInfo_.commandBuffer = commandBuffer;
+      for (auto &obj : menuStartInterface_) {
+        obj.textureRenderSystem->render(frameInfo_);
+      }
+      renderer_.endSwapChainRenderPass(commandBuffer);
+      renderer_.endFrame(false);
+    }
+  }
+
   void Application::logicGame() {
     switch (gameState_) {
       case GameState::STARTLOADINGSCREEN: {
@@ -278,6 +290,11 @@ namespace ve {
 
       case GameState::WAIT: {
         windowDisplay_->render(frameInfo_);
+        break;
+      }
+
+      case GameState::CHOOSELEVEL: {
+        chooseLevel();
         break;
       }
 

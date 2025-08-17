@@ -9,7 +9,7 @@
 #include "vulkan/vulkan_core.h"
 
 namespace ve {
-  class StarNest {
+  class ChooseLevel {
   public:
     struct Vertex {
       glm::vec2 pos;
@@ -28,18 +28,18 @@ namespace ve {
       std::vector<uint32_t> indices;
     };
 
-    StarNest(Device &device, Renderer &renderer, const StarNest::Builder &builder);
-    StarNest(const StarNest &src) = delete;
-    StarNest &operator=(const StarNest &rhs) = delete;
-    ~StarNest();
+    ChooseLevel(Device &device, Renderer &renderer, const ChooseLevel::Builder &builder);
+    ChooseLevel(const ChooseLevel &src) = delete;
+    ChooseLevel &operator=(const ChooseLevel &rhs) = delete;
+    ~ChooseLevel();
 
     void bind(VkCommandBuffer commandBuffer);
     void draw(VkCommandBuffer commandBuffer) const;
     void renderGameObjects(FrameInfo &frameInfo);
 
   private:
-    const std::vector<StarNest::Vertex> vertices_;
-    void createVertexBuffer(const std::vector<StarNest::Vertex> &vertices);
+    const std::vector<ChooseLevel::Vertex> vertices_;
+    void createVertexBuffer(const std::vector<ChooseLevel::Vertex> &vertices);
     void createIndexBuffers(const std::vector<uint32_t> &indices);
     void createPipelineLayout();
     void createPipeline();

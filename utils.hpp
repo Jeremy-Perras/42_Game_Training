@@ -15,7 +15,8 @@ namespace ve {
     WAIT,
     TEST,
     LOADINGSCREEN,
-    EXITGAME
+    EXITGAME,
+    CHOOSELEVEL,
   };
   struct playerCoordinate {
     float x;

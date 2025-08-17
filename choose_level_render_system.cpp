@@ -1,8 +1,8 @@
-#include "star_nest_render_system.hpp"
+#include "choose_level_render_system.hpp"
 
 namespace ve {
 
-  StarNest::StarNest(Device &device, Renderer &renderer, const StarNest::Builder &builder)
+  ChooseLevel::ChooseLevel(Device &device, Renderer &renderer, const ChooseLevel::Builder &builder)
       : device_(device), renderer_(renderer) {
     createPipelineLayout();
     createPipeline();
@@ -10,9 +10,11 @@ namespace ve {
     createIndexBuffers(builder.indices);
   }
 
-  StarNest::~StarNest() { vkDestroyPipelineLayout(device_.getDevice(), pipelineLayout_, nullptr); }
+  ChooseLevel::~ChooseLevel() {
+    vkDestroyPipelineLayout(device_.getDevice(), pipelineLayout_, nullptr);
+  }
 
-  void StarNest::createVertexBuffer(const std::vector<Vertex> &vertices) {
+  void ChooseLevel::createVertexBuffer(const std::vector<Vertex> &vertices) {
     vertexCount_ = static_cast<uint32_t>(vertices.size());
     assert(vertexCount_ >= 3 && "Vertex count must be at least 3");
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount_;
@@ -37,7 +39,7 @@ namespace ve {
     device_.copyBuffer(stagingBuffer.getBuffer(), vertexBuffer_->getBuffer(), bufferSize);
   }
 
-  void StarNest::createIndexBuffers(const std::vector<uint32_t> &indices) {
+  void ChooseLevel::createIndexBuffers(const std::vector<uint32_t> &indices) {
     indexCount_ = static_cast<uint32_t>(indices.size());
     hasIndexBuffer_ = indexCount_ > 0;
 
@@ -67,7 +69,7 @@ namespace ve {
     device_.copyBuffer(stagingBuffer.getBuffer(), indexBuffer_->getBuffer(), bufferSize);
   }
 
-  void StarNest::bind(VkCommandBuffer commandBuffer) {
+  void ChooseLevel::bind(VkCommandBuffer commandBuffer) {
     VkBuffer buffers[] = {vertexBuffer_->getBuffer()};
     VkDeviceSize offsets[] = {0};
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
@@ -76,7 +78,7 @@ namespace ve {
     }
   }
 
-  void StarNest::draw(VkCommandBuffer commandBuffer) const {
+  void ChooseLevel::draw(VkCommandBuffer commandBuffer) const {
     if (hasIndexBuffer_) {
       vkCmdDrawIndexed(commandBuffer, indexCount_, 1, 0, 0, 0);
     } else {
@@ -84,7 +86,7 @@ namespace ve {
     }
   }
 
-  std::vector<VkVertexInputBindingDescription> StarNest::Vertex::getBindingDescriptions() {
+  std::vector<VkVertexInputBindingDescription> ChooseLevel::Vertex::getBindingDescriptions() {
     std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
     bindingDescriptions[0].binding = 0;
     bindingDescriptions[0].stride = sizeof(Vertex);
@@ -92,7 +94,7 @@ namespace ve {
     return bindingDescriptions;
   }
 
-  std::vector<VkVertexInputAttributeDescription> StarNest::Vertex::getAttributeDescriptions() {
+  std::vector<VkVertexInputAttributeDescription> ChooseLevel::Vertex::getAttributeDescriptions() {
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions(1);
     attributeDescriptions[0].binding = 0;
     attributeDescriptions[0].location = 0;
@@ -102,7 +104,7 @@ namespace ve {
     return attributeDescriptions;
   }
 
-  void StarNest::createPipelineLayout() {
+  void ChooseLevel::createPipelineLayout() {
     VkPushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstantRange.offset = 0;
@@ -121,7 +123,7 @@ namespace ve {
     }
   }
 
-  void StarNest::createPipeline() {
+  void ChooseLevel::createPipeline() {
     assert(pipelineLayout_ != nullptr && "Cannot create pipeline before pipeline layout");
 
     PipelineConfigInfo pipelineConfig{};
@@ -129,13 +131,13 @@ namespace ve {
     Pipeline::enableAlphaBlending(pipelineConfig);
     pipelineConfig.renderPass = renderer_.getSwapChainRenderPass();
     pipelineConfig.pipelineLayout = pipelineLayout_;
-    pipelineConfig.attributeDescriptions = StarNest::Vertex::getAttributeDescriptions();
-    pipelineConfig.bindingDescriptions = StarNest::Vertex::getBindingDescriptions();
+    pipelineConfig.attributeDescriptions = ChooseLevel::Vertex::getAttributeDescriptions();
+    pipelineConfig.bindingDescriptions = ChooseLevel::Vertex::getBindingDescriptions();
     pipeline_ = std::make_unique<Pipeline>(device_, "shaders/Menu.vert.spv",
                                            "shaders/Menu.frag.spv", pipelineConfig);
   }
 
-  void StarNest::renderGameObjects(FrameInfo &frameInfo) {
+  void ChooseLevel::renderGameObjects(FrameInfo &frameInfo) {
     pipeline_->bind(frameInfo.commandBuffer);
 
     PushConstants pushConstants;
@@ -149,8 +151,8 @@ namespace ve {
     vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout_, VK_SHADER_STAGE_FRAGMENT_BIT, 0,
                        sizeof(PushConstants), &pushConstants);
 
-    StarNest::bind(frameInfo.commandBuffer);
-    StarNest::draw(frameInfo.commandBuffer);
+    ChooseLevel::bind(frameInfo.commandBuffer);
+    ChooseLevel::draw(frameInfo.commandBuffer);
   }
 
 }  // namespace ve

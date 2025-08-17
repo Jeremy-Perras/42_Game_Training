@@ -44,6 +44,7 @@ namespace ve {
     void updateTimeScreen();
     void menuStart();
     void logicGame();
+    void chooseLevel();
 
     GameState gameState_ = {GameState::MENU};
 
