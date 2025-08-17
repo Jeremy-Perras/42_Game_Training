@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#include "choose_level_render_system.hpp"
 #include "device.hpp"
 #include "game_loop.hpp"
 #include "game_object.hpp"
@@ -64,6 +65,7 @@ namespace ve {
     std::unique_ptr<WindowDisplay> windowDisplay_;
     std::unique_ptr<GameLoop> gameLoop_;
     std::unique_ptr<StarNest> render_system_;
+    std::unique_ptr<ChooseLevel> chooseLevel_;
 
     FrameInfo frameInfo_{};
 

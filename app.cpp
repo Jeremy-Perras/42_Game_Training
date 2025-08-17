@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#include "choose_level_render_system.hpp"
 #include "device.hpp"
 #include "game_loop.hpp"
 #include "game_object.hpp"
@@ -21,10 +22,14 @@ namespace ve {
         device_, renderer_,
         StarNest::Builder{{{{-1.0F, -1.0F}}, {{1.0F, -1.0F}}, {{1.0F, 1.0F}}, {{-1.0F, 1.0F}}},
                           {0, 1, 2, 0, 2, 3}});
+    chooseLevel_ = std::make_unique<ChooseLevel>(
+        device_, renderer_,
+        ChooseLevel::Builder{{{{-1.0F, -1.0F}}, {{1.0F, -1.0F}}, {{1.0F, 1.0F}}, {{-1.0F, 1.0F}}},
+                             {0, 1, 2, 0, 2, 3}});
 
     windowDisplay_ = std::make_unique<WindowDisplay>(
         device_, renderer_, menuInterface_, playerInterface_, gameInterface_, displayInterface_,
-        timeInterface_, *render_system_);
+        timeInterface_, *render_system_, *chooseLevel_);
 
     startGameLoop_ = std::chrono::high_resolution_clock::now();
     fpsTime_ = std::chrono::high_resolution_clock::now();

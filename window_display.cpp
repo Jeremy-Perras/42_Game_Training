@@ -6,8 +6,10 @@ namespace ve {
                                std::vector<std::vector<GameObject>>& playerInterface,
                                std::vector<GameObject>& gameInterface,
                                std::vector<GameObject>& displayInterface,
-                               std::vector<GameObject>& timeInterface, StarNest& StarNest)
+                               std::vector<GameObject>& timeInterface, StarNest& StarNest,
+                               ChooseLevel& chooseLevel)
       : render_system_(StarNest),
+        chooseLevel_(chooseLevel),
         device_(device),
         renderer_(renderer),
         menuInterface_(menuInterface),
@@ -48,7 +50,7 @@ namespace ve {
     for (auto& obj : timeInterface_) {
       obj.textureRenderSystem->render(frameInfo);
     }
-
+    // chooseLevel_.renderGameObjects(frameInfo);
     render_system_.renderGameObjects(frameInfo);
 
     renderer_.endSwapChainRenderPass(commandBuffer);
