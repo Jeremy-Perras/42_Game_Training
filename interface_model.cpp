@@ -611,6 +611,10 @@ namespace ve {
         gameInterface_.emplace(gameInterface_.begin(), std::move(object2));
         break;
       }
+      default: {
+        std::cerr << "Error: Invalid player orientation character '" << c << "'." << '\n';
+        return;
+      }
     }
   }
 
