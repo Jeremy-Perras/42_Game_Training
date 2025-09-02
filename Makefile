@@ -1,10 +1,10 @@
 NAME = game
 
 
-SRCS = main.cpp window.cpp app.cpp pipeline.cpp device.cpp swap_chain.cpp interface_model.cpp renderer.cpp \
-keyboard_movement_controller.cpp buffer.cpp descriptors.cpp texture_render_system.cpp texture.cpp \
-mouse_movement_controller.cpp parsing.cpp game_loop.cpp  window_display.cpp\
- song.cpp star_nest_render_system.cpp exit_render_system.cpp  choose_level_render_system.cpp \
+SRCS = main.cpp system/window.cpp app.cpp system/pipeline.cpp system/device.cpp system/swap_chain.cpp gamestructure/interface_model.cpp system/renderer.cpp \
+controler/keyboard_movement_controller.cpp system/buffer.cpp system/descriptors.cpp renderer/texture_render_system.cpp gamestructure/texture.cpp \
+controler/mouse_movement_controller.cpp parsing/parsing.cpp gamestructure/game_loop.cpp  renderer/window_display.cpp\
+song/song.cpp renderer/star_nest_render_system.cpp renderer/exit_render_system.cpp  renderer/choose_level_render_system.cpp \
 
 INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi -I/opt/homebrew/include -framework OpenGL -framework GLUT -framework OpenAL  -I./libs
 

@@ -4,17 +4,17 @@
 #include <memory>
 #include <vector>
 
-#include "choose_level_render_system.hpp"
-#include "device.hpp"
-#include "game_loop.hpp"
-#include "game_object.hpp"
-#include "keyboard_movement_controller.hpp"
-#include "mouse_movement_controller.hpp"
-#include "renderer.hpp"
-#include "star_nest_render_system.hpp"
+#include "controler/keyboard_movement_controller.hpp"
+#include "controler/mouse_movement_controller.hpp"
+#include "gamestructure/game_loop.hpp"
+#include "gamestructure/game_object.hpp"
+#include "renderer/choose_level_render_system.hpp"
+#include "renderer/star_nest_render_system.hpp"
+#include "renderer/window_display.hpp"
+#include "system/device.hpp"
+#include "system/renderer.hpp"
+#include "system/window.hpp"
 #include "vulkan/vulkan_core.h"
-#include "window.hpp"
-#include "window_display.hpp"
 
 namespace ve {
 
