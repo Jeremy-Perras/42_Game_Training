@@ -108,7 +108,7 @@ namespace ve {
       createInfo.ppEnabledLayerNames = validationLayers.data();
 
       populateDebugMessengerCreateInfo(debugCreateInfo);
-      createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCreateInfo;
+      createInfo.pNext = (&debugCreateInfo);
     } else {
       createInfo.enabledLayerCount = 0;
       createInfo.pNext = nullptr;
@@ -127,7 +127,7 @@ namespace ve {
     if (deviceCount == 0) {
       throw std::runtime_error("failed to find GPUs with Vulkan support!");
     }
-    std::cout << "Device count: " << deviceCount << std::endl;
+    std::cout << "Device count: " << deviceCount << '\n';
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(instance_, &deviceCount, devices.data());
 
@@ -143,7 +143,7 @@ namespace ve {
     }
 
     vkGetPhysicalDeviceProperties(physicalDevice_, &properties);
-    std::cout << "physical device: " << properties.deviceName << std::endl;
+    std::cout << "physical device: " << properties.deviceName << '\n';
   }
 
   void Device::createLogicalDevice() {
@@ -304,17 +304,17 @@ namespace ve {
     std::vector<VkExtensionProperties> extensions(extensionCount);
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
 
-    std::cout << "available extensions:" << std::endl;
+    std::cout << "available extensions:" << '\n';
     std::unordered_set<std::string> available;
     for (const auto &extension : extensions) {
-      std::cout << "\t" << extension.extensionName << std::endl;
+      std::cout << "\t" << extension.extensionName << '\n';
       available.insert(extension.extensionName);
     }
 
-    std::cout << "required extensions:" << std::endl;
+    std::cout << "required extensions:" << '\n';
     auto requiredExtensions = getRequiredExtensions();
     for (const auto &required : requiredExtensions) {
-      std::cout << "\t" << required << std::endl;
+      std::cout << "\t" << required << '\n';
       if (available.find(required) == available.end()) {
         throw std::runtime_error("Missing required glfw extension");
       }
