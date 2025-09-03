@@ -39,6 +39,8 @@ namespace ve {
     TextureRenderSystem(Device &device, Renderer &renderer,
                         std::vector<std::shared_ptr<Texture>> &texture,
                         TextureRenderSystem::Builder &builder, TextureIndex textureIndex);
+    TextureRenderSystem(Device &device, Renderer &renderer,
+                        std::vector<std::shared_ptr<Texture>> &texture, TextureIndex textureIndex);
     TextureRenderSystem(const TextureRenderSystem &src) = delete;
     TextureRenderSystem &operator=(const TextureRenderSystem &rhs) = delete;
     ~TextureRenderSystem();

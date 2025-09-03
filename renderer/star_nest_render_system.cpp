@@ -2,12 +2,11 @@
 
 namespace ve {
 
-  StarNest::StarNest(Device &device, Renderer &renderer, const StarNest::Builder &builder)
-      : device_(device), renderer_(renderer) {
+  StarNest::StarNest(Device &device, Renderer &renderer) : device_(device), renderer_(renderer) {
     createPipelineLayout();
     createPipeline();
-    createVertexBuffer(builder.vertices);
-    createIndexBuffers(builder.indices);
+    createVertexBuffer(builder_.vertices);
+    createIndexBuffers(builder_.indices);
   }
 
   StarNest::~StarNest() { vkDestroyPipelineLayout(device_.getDevice(), pipelineLayout_, nullptr); }

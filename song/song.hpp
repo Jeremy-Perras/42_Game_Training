@@ -37,8 +37,8 @@ namespace ve {
     ALenum format;
     ALvoid *data;
 
-    std::string filename = "test2.wav";
-    std::string file = "Mr.Robot.wav";
+    std::string filename = "song/test2.wav";
+    std::string file = "song/Mr.Robot.wav";
     void init(void);
   };
 }  // namespace ve

@@ -18,14 +18,8 @@ namespace ve {
                                            playerInterface_, gameInterface_, displayInterface_,
                                            timeInterface_, menuStartInterface_, exitInterface_);
 
-    render_system_ = std::make_unique<StarNest>(
-        device_, renderer_,
-        StarNest::Builder{{{{-1.0F, -1.0F}}, {{1.0F, -1.0F}}, {{1.0F, 1.0F}}, {{-1.0F, 1.0F}}},
-                          {0, 1, 2, 0, 2, 3}});
-    chooseLevel_ = std::make_unique<ChooseLevel>(
-        device_, renderer_,
-        ChooseLevel::Builder{{{{-1.0F, -1.0F}}, {{1.0F, -1.0F}}, {{1.0F, 1.0F}}, {{-1.0F, 1.0F}}},
-                             {0, 1, 2, 0, 2, 3}});
+    render_system_ = std::make_unique<StarNest>(device_, renderer_);
+    chooseLevel_ = std::make_unique<ChooseLevel>(device_, renderer_);
 
     windowDisplay_ = std::make_unique<WindowDisplay>(
         device_, renderer_, menuInterface_, playerInterface_, gameInterface_, displayInterface_,
@@ -40,30 +34,8 @@ namespace ve {
   Application::~Application() {}
 
   void Application::mainLoop() {
-    TextureRenderSystem::Builder builder;
-    builder = {{{
-                    {-1, -1},
-
-                    {0.0F, 0.0F},
-                },
-                {
-                    {1, -1},
-
-                    {1.0F, 0.0F},
-                },
-                {
-                    {1, 1},
-
-                    {1.0F, 1.0F},
-                },
-                {
-                    {-1, 1},
-
-                    {0.0F, 1.0F},
-                }},
-               {0, 1, 2, 2, 3, 0}};
     startLoadingScreen_.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-        device_, renderer_, gameLoop_->texture_, builder, TextureIndex::BACKGROUND);
+        device_, renderer_, gameLoop_->texture_, TextureIndex::BACKGROUND);
 
     std::chrono::steady_clock::time_point newTime = std::chrono::high_resolution_clock::now();
 
@@ -71,6 +43,7 @@ namespace ve {
     cameraController_.setExitInterface(&exitInterface_);
 
     // Song test;
+    // test.playMrRobot();
     while (static_cast<int>(window_.shouldClose()) == 0
            && static_cast<int>(glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
                   == 0) {

@@ -2,12 +2,12 @@
 
 namespace ve {
 
-  ChooseLevel::ChooseLevel(Device &device, Renderer &renderer, const ChooseLevel::Builder &builder)
+  ChooseLevel::ChooseLevel(Device &device, Renderer &renderer)
       : device_(device), renderer_(renderer) {
     createPipelineLayout();
     createPipeline();
-    createVertexBuffer(builder.vertices);
-    createIndexBuffers(builder.indices);
+    createVertexBuffer(builder_.vertices);
+    createIndexBuffers(builder_.indices);
   }
 
   ChooseLevel::~ChooseLevel() {

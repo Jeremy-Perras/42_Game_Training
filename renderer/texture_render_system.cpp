@@ -33,6 +33,45 @@ namespace ve {
     vkCmdPushDescriptorSetKHR_ = device_.getPushCommand();
     createWriteDescriptorSet();
   }
+  TextureRenderSystem::TextureRenderSystem(Device& device, Renderer& renderer,
+                                           std::vector<std::shared_ptr<Texture>>& texture,
+                                           TextureIndex textureIndex)
+      : device_(device), renderer_(renderer), textureIndex_(textureIndex), texture_(texture) {
+    color_ = glm::vec4(1.0, 1.0, 1.0, 1.0);
+    textureDescriptorSetLayout_ = DescriptorSetLayoutPush::Builder(device_)
+                                      .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+                                                  VK_SHADER_STAGE_FRAGMENT_BIT)
+                                      .build();
+    TextureRenderSystem::Builder builder;
+    builder = {{{
+                    {-1, -1},
+
+                    {0.0F, 0.0F},
+                },
+                {
+                    {1, -1},
+
+                    {1.0F, 0.0F},
+                },
+                {
+                    {1, 1},
+
+                    {1.0F, 1.0F},
+                },
+                {
+                    {-1, 1},
+
+                    {0.0F, 1.0F},
+                }},
+               {0, 1, 2, 2, 3, 0}};
+    createPipelineLayout();
+    createPipeline();
+    createVertexBuffer(builder.vertices);
+    createIndexBuffers(builder.indices);
+
+    vkCmdPushDescriptorSetKHR_ = device_.getPushCommand();
+    createWriteDescriptorSet();
+  }
 
   TextureRenderSystem::~TextureRenderSystem() {
     vkDestroyPipelineLayout(device_.getDevice(), pipelineLayout_, nullptr);

@@ -50,7 +50,7 @@ namespace ve {
     for (auto& obj : timeInterface_) {
       obj.textureRenderSystem->render(frameInfo);
     }
-    chooseLevel_.renderGameObjects(frameInfo);
+
     render_system_.renderGameObjects(frameInfo);
 
     renderer_.endSwapChainRenderPass(commandBuffer);

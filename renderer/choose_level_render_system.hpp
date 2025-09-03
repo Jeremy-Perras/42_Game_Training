@@ -28,7 +28,7 @@ namespace ve {
       std::vector<uint32_t> indices;
     };
 
-    ChooseLevel(Device &device, Renderer &renderer, const ChooseLevel::Builder &builder);
+    ChooseLevel(Device &device, Renderer &renderer);
     ChooseLevel(const ChooseLevel &src) = delete;
     ChooseLevel &operator=(const ChooseLevel &rhs) = delete;
     ~ChooseLevel();
@@ -50,7 +50,8 @@ namespace ve {
     VkPipelineLayout pipelineLayout_;
 
     std::unique_ptr<Buffer> vertexBuffer_;
-
+    Builder builder_ = {{{{-1.0F, -1.0F}}, {{1.0F, -1.0F}}, {{1.0F, 1.0F}}, {{-1.0F, 1.0F}}},
+                        {0, 1, 2, 0, 2, 3}};
     bool hasIndexBuffer_ = false;
     std::unique_ptr<Buffer> indexBuffer_;
     uint32_t indexCount_;
