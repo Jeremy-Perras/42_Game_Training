@@ -1,3 +1,4 @@
 {
-  "makefile.configureOnOpen": false
+  "makefile.configureOnOpen": false,
+  "codechecker.backend.compilationDatabasePath": "/Users/jeremyperras/Desktop/42_Game_Training/compile_commands.json"
 }

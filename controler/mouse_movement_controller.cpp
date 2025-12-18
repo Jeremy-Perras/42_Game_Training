@@ -84,6 +84,19 @@ namespace ve {
     }
   }
 
+  void MouseMovementController::getUserClickChooseLevel(GameObject &chooseLevelInterface) {
+    coordinatesMouse();
+    if (chooseLevelInterface.textureRenderSystem
+        && chooseLevelInterface.textureRenderSystem->isInside(xposWindow_, yposWindow_)) {
+      chooseLevelInterface.textureRenderSystem->setColor(glm::vec4(0.7, 0.04, 0.0, 1));
+      glfwGetMouseButton(window_.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS
+          ? gameState_ = GameState::STARTLOADINGSCREEN
+          : gameState_ = GameState::MENU;
+    } else {
+      chooseLevelInterface.textureRenderSystem->setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));
+    }
+  }
+
   void MouseMovementController::coordinatesMouse() {
     glfwGetCursorPos(window_.getGLFWwindow(), &xpos_, &ypos_);
     xposWindow_ = ((xpos_ / window_.getExtent().width) - 0.5F) * 2;   // -1.0F to 1.0F;

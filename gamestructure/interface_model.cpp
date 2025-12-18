@@ -13,12 +13,12 @@
 namespace ve {
 
   InterfaceModel::InterfaceModel(
-      Device &device, Renderer &renderer, std::string &lvlPath,
-      std::vector<std::shared_ptr<Texture>> &texture, std::vector<std::shared_ptr<Texture>> &exit,
-      std::vector<GameObject> &menuInterface, std::vector<std::vector<GameObject>> &playerInterface,
-      std::vector<GameObject> &gameInterface, std::vector<GameObject> &displayInterface,
-      std::vector<GameObject> &timeInterface, std::vector<GameObject> &menuStartInterface,
-      std::vector<GameObject> &exitInterface)
+      Device& device, Renderer& renderer, std::string& lvlPath,
+      std::vector<std::shared_ptr<Texture>>& texture, std::vector<std::shared_ptr<Texture>>& exit,
+      std::vector<GameObject>& menuInterface, std::vector<std::vector<GameObject>>& playerInterface,
+      std::vector<GameObject>& gameInterface, std::vector<GameObject>& displayInterface,
+      std::vector<GameObject>& timeInterface, std::vector<GameObject>& menuStartInterface,
+      std::vector<GameObject>& exitInterface, std::vector<GameObject>& chooseLevelInterface)
       : device_(device),
         renderer_(renderer),
         gameInterface_(gameInterface),
@@ -28,6 +28,7 @@ namespace ve {
         timeInterface_(timeInterface),
         menuStartInterface_(menuStartInterface),
         exitInterface_(exitInterface),
+        chooseLevelInterface_(chooseLevelInterface),
         texture_(texture),
         exit_(exit) {
     Parsing parsing(lvlPath);
@@ -564,7 +565,7 @@ namespace ve {
   }
 
   void InterfaceModel::saveInitialState() {
-    for (const auto &obj : gameInterface_) {
+    for (const auto& obj : gameInterface_) {
       initialState_.push_back(std::make_pair(obj.textureRenderSystem->getIndexTexture(),
                                              obj.textureRenderSystem->getColor()));
     }
@@ -618,7 +619,7 @@ namespace ve {
     }
   }
 
-  void InterfaceModel::uptateGameLvl(std::string &lvlPath) {
+  void InterfaceModel::uptateGameLvl(std::string& lvlPath) {
     initialState_.clear();
     countStarStart_ = 0;
     Parsing parsing(lvlPath);
@@ -629,7 +630,7 @@ namespace ve {
     map_ = parsing.getMap();
   }
 
-  void InterfaceModel::setAlphaColor(GameObject &obj, int indexMap) {
+  void InterfaceModel::setAlphaColor(GameObject& obj, int indexMap) {
     if (map_[2][indexMap] == '0') {
       obj.textureRenderSystem->setColor(glm::vec4(1.0, 1.0, 1.0, 0.4));
     }

@@ -16,7 +16,8 @@ namespace ve {
   Application::Application() : fpscount_(0), startLoadingScreen_(GameObject::createGameObject()) {
     gameLoop_ = std::make_unique<GameLoop>(device_, renderer_, gameState_, menuInterface_,
                                            playerInterface_, gameInterface_, displayInterface_,
-                                           timeInterface_, menuStartInterface_, exitInterface_);
+                                           timeInterface_, menuStartInterface_, exitInterface_,
+                                           chooseLevelInterface_);
 
     render_system_ = std::make_unique<StarNest>(device_, renderer_);
     chooseLevel_ = std::make_unique<ChooseLevel>(device_, renderer_);
@@ -39,7 +40,7 @@ namespace ve {
 
     std::chrono::steady_clock::time_point newTime = std::chrono::high_resolution_clock::now();
 
-    KeyboardMovementController &cameraController_ = KeyboardMovementController::getInstance();
+    KeyboardMovementController& cameraController_ = KeyboardMovementController::getInstance();
     cameraController_.setExitInterface(&exitInterface_);
 
     // Song test;
@@ -83,11 +84,15 @@ namespace ve {
     }
   }
 
+  void Application::resetTime(std::chrono::steady_clock::time_point* time) {
+    *time = std::chrono::high_resolution_clock::now();
+  }
+
   void Application::menuStart() {
-    if (auto *commandBuffer = renderer_.beginFrame(false)) {
+    if (auto* commandBuffer = renderer_.beginFrame(false)) {
       renderer_.beginSwapChainRenderPass(commandBuffer);
       frameInfo_.commandBuffer = commandBuffer;
-      for (auto &obj : menuStartInterface_) {
+      for (auto& obj : menuStartInterface_) {
         obj.textureRenderSystem->render(frameInfo_);
       }
       renderer_.endSwapChainRenderPass(commandBuffer);
@@ -129,17 +134,13 @@ namespace ve {
     }
   }
 
-  void Application::resetTime(std::chrono::steady_clock::time_point *time) {
-    *time = std::chrono::high_resolution_clock::now();
-  }
-
   void Application::updateFrameInfo() {
     frameInfo_.frameIndex = renderer_.getComputeCurrentFrame();
     frameInfo_.commandBuffer = 0;
   }
 
   void Application::stateLoadingsScreen() {
-    if (auto *commandBuffer = renderer_.beginFrame(false)) {
+    if (auto* commandBuffer = renderer_.beginFrame(false)) {
       renderer_.beginSwapChainRenderPass(commandBuffer);
       frameInfo_.commandBuffer = commandBuffer;
       startLoadingScreen_.textureRenderSystem->render(frameInfo_);
@@ -155,7 +156,7 @@ namespace ve {
       indexLvl++;
     }
     gameLoop_->setTexturePath(indexLvl);
-    for (auto &obj : playerInterface_) {
+    for (auto& obj : playerInterface_) {
       obj.clear();
     }
     playerInterface_.clear();
@@ -197,10 +198,10 @@ namespace ve {
   }
 
   void Application::chooseLevel() {
-    if (auto *commandBuffer = renderer_.beginFrame(false)) {
+    if (auto* commandBuffer = renderer_.beginFrame(false)) {
       renderer_.beginSwapChainRenderPass(commandBuffer);
       frameInfo_.commandBuffer = commandBuffer;
-      for (auto &obj : menuStartInterface_) {
+      for (auto& obj : menuStartInterface_) {
         obj.textureRenderSystem->render(frameInfo_);
       }
       renderer_.endSwapChainRenderPass(commandBuffer);
@@ -227,10 +228,10 @@ namespace ve {
             || exitInterface_[0].exitRenderSystem->getLogicIndex() == ExitIndex::HELLOFRIEND) {
           exitInterface_[0].exitRenderSystem->logicExitGame(cameraController_.press_, gameState_);
         }
-        if (auto *commandBuffer = renderer_.beginFrame(false)) {
+        if (auto* commandBuffer = renderer_.beginFrame(false)) {
           renderer_.beginSwapChainRenderPass(commandBuffer);
           frameInfo_.commandBuffer = commandBuffer;
-          for (auto &obj : exitInterface_) {
+          for (auto& obj : exitInterface_) {
             obj.exitRenderSystem->render(frameInfo_);
           }
           renderer_.endSwapChainRenderPass(commandBuffer);

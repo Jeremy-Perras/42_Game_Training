@@ -6,14 +6,12 @@
 #include "game_object.hpp"
 #include "utils.hpp"
 namespace ve {
-  GameLoop::GameLoop(Device &device, Renderer &renderer, GameState &gameState,
-                     std::vector<GameObject> &menuInterface,
-                     std::vector<std::vector<GameObject>> &playerInterface,
-                     std::vector<GameObject> &gameInterface,
-                     std::vector<GameObject> &displayInterface,
-                     std::vector<GameObject> &timeInterface,
-                     std::vector<GameObject> &menuStartInterface,
-                     std::vector<GameObject> &exitInterface)
+  GameLoop::GameLoop(
+      Device& device, Renderer& renderer, GameState& gameState,
+      std::vector<GameObject>& menuInterface, std::vector<std::vector<GameObject>>& playerInterface,
+      std::vector<GameObject>& gameInterface, std::vector<GameObject>& displayInterface,
+      std::vector<GameObject>& timeInterface, std::vector<GameObject>& menuStartInterface,
+      std::vector<GameObject>& exitInterface, std::vector<GameObject>& chooseLevelInterface)
       : gameState_(gameState),
         gameInterface_(gameInterface),
         menuInterface_(menuInterface),
@@ -22,6 +20,7 @@ namespace ve {
         timeInterface_(timeInterface),
         menuStartInterface_(menuStartInterface),
         exitInterface_(exitInterface),
+        chooseLevelInterface_(chooseLevelInterface),
         device_(device),
         renderer_(renderer) {
     gameInit();
@@ -30,7 +29,8 @@ namespace ve {
   void GameLoop::gameInit() {
     model_ = std::make_unique<InterfaceModel>(
         device_, renderer_, lvlPath_, texture_, exit_, menuInterface_, playerInterface_,
-        gameInterface_, displayInterface_, timeInterface_, menuStartInterface_, exitInterface_);
+        gameInterface_, displayInterface_, timeInterface_, menuStartInterface_, exitInterface_,
+        chooseLevelInterface_);
     model_->loadTexture();
     model_->createMenuInterface();
     model_->createPlayerInterface();
@@ -49,7 +49,7 @@ namespace ve {
     if (!function_) {
       checkArrow();
       checkBrush();
-      for (const auto &obj : gameInterface_) {
+      for (const auto& obj : gameInterface_) {
         if (checkIsNotPlayerAndIsInside(obj)) {
           if (obj.textureRenderSystem->getIndexTexture() == TextureIndex::STAR) {
             obj.textureRenderSystem->setIndexTexture(TextureIndex::DISCARD);
@@ -68,7 +68,7 @@ namespace ve {
   }
 
   void GameLoop::playerDead() {
-    for (const auto &obj : gameInterface_) {
+    for (const auto& obj : gameInterface_) {
       if (&obj != playerPointer_) {
         if (checkIsPlayerDead()) {
           resetStatePlaying();
@@ -83,7 +83,7 @@ namespace ve {
     playerCoordinate_ = model_->getStartCoordinate();
     playerPointer_->textureRenderSystem->resetPushCoordinate();
     countStar_ = model_->getCountStarStart();
-    for (auto &obj : displayInterface_) {
+    for (auto& obj : displayInterface_) {
       obj.textureRenderSystem->setIndexTexture(TextureIndex::WHITE);
       obj.textureRenderSystem->setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));
     }
@@ -92,7 +92,7 @@ namespace ve {
 
   void GameLoop::checkFunction() {
     std::pair<TextureIndex, glm::vec4> playerInput = playerInput_[0];
-    for (const auto &obj : gameInterface_) {
+    for (const auto& obj : gameInterface_) {
       checkIsTextureFunction(playerInput.first, obj, playerInput);
     }
   }
@@ -100,7 +100,7 @@ namespace ve {
   void GameLoop::checkArrow() {
     std::pair<TextureIndex, glm::vec4> playerInput = playerInput_[0];
     if (checkIsTextureIsArrow(playerInput)) {
-      for (const auto &obj : gameInterface_) {
+      for (const auto& obj : gameInterface_) {
         if (checkIsNotPlayerAndNotStarAndIsInside(obj)) {
           if (checkColor(playerInput, obj)) {
             if (playerInput.first == TextureIndex::ARROWUP) {
@@ -127,7 +127,7 @@ namespace ve {
   void GameLoop::checkBrush() {
     std::pair<TextureIndex, glm::vec4> playerInput = playerInput_[0];
     if (checkIsTextureIsBrush(playerInput)) {
-      for (const auto &obj : gameInterface_) {
+      for (const auto& obj : gameInterface_) {
         if (checkIsNotPlayerAndNotStarAndIsInside(obj)) {
           if (checkColor(playerInput, obj)) {
             if (playerInput.first == TextureIndex::BRUSHRED) {
@@ -151,7 +151,7 @@ namespace ve {
     }
   }
 
-  bool GameLoop::checkIsNotPlayerAndNotStarAndIsInside(GameObject const &obj) {
+  bool GameLoop::checkIsNotPlayerAndNotStarAndIsInside(GameObject const& obj) {
     if (&obj != playerPointer_
         && obj.textureRenderSystem->isInside(playerCoordinate_.x, playerCoordinate_.y)
         && obj.textureRenderSystem->getIndexTexture() != STAR
@@ -161,7 +161,7 @@ namespace ve {
     return false;
   }
 
-  bool GameLoop::checkIsNotPlayerAndIsInside(GameObject const &obj) {
+  bool GameLoop::checkIsNotPlayerAndIsInside(GameObject const& obj) {
     if (&obj != playerPointer_
         && obj.textureRenderSystem->isInside(playerCoordinate_.x, playerCoordinate_.y)) {
       return true;
@@ -185,7 +185,7 @@ namespace ve {
     return false;
   }
 
-  bool GameLoop::checkColor(std::pair<TextureIndex, glm::vec4> playerInput, GameObject const &obj) {
+  bool GameLoop::checkColor(std::pair<TextureIndex, glm::vec4> playerInput, GameObject const& obj) {
     if (obj.textureRenderSystem->getColor() == playerInput.second
         || (playerInput.second == glm::vec4(1.0, 1.0, 1.0, 1.0)
             && playerInput.first != TextureIndex::WHITE)) {
@@ -199,7 +199,7 @@ namespace ve {
       playerCoordinate_.Angle = 0.0F;
     }
   }
-  void GameLoop::checkIsTextureFunction(TextureIndex functionTexture, GameObject const &obj,
+  void GameLoop::checkIsTextureFunction(TextureIndex functionTexture, GameObject const& obj,
                                         std::pair<TextureIndex, glm::vec4> playerInput) {
     {
       if (checkIsNotPlayerAndNotStarAndIsInside(obj)) {
@@ -281,7 +281,7 @@ namespace ve {
     model_->createMenuInterface();
     model_->createPlayerInterface();
     model_->createGameMap();
-    for (auto &obj : displayInterface_) {
+    for (auto& obj : displayInterface_) {
       obj.textureRenderSystem->setIndexTexture(TextureIndex::WHITE);
       obj.textureRenderSystem->setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));
     }
@@ -293,7 +293,7 @@ namespace ve {
 
   bool GameLoop::checkIsPlayerDead() {
     if (std::any_of(gameInterface_.begin(), gameInterface_.end(),
-                    [this](GameObject &obj) { return (checkIsNotPlayerAndIsInside(obj)); })) {
+                    [this](GameObject& obj) { return (checkIsNotPlayerAndIsInside(obj)); })) {
       return false;
     }
 
@@ -303,7 +303,7 @@ namespace ve {
   void GameLoop::updateDisplay() {
     int i = 0;
 
-    for (auto &obj : displayInterface_) {
+    for (auto& obj : displayInterface_) {
       obj.textureRenderSystem->setIndexTexture(TextureIndex::WHITE);
       obj.textureRenderSystem->setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));
       if (i < static_cast<int>(playerInput_.size())) {

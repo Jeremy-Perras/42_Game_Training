@@ -6,15 +6,14 @@ controler/keyboard_movement_controller.cpp system/buffer.cpp system/descriptors.
 controler/mouse_movement_controller.cpp parsing/parsing.cpp gamestructure/game_loop.cpp  renderer/window_display.cpp\
 song/song.cpp renderer/star_nest_render_system.cpp renderer/exit_render_system.cpp  renderer/choose_level_render_system.cpp \
 
-INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi -I/opt/homebrew/include -framework OpenGL -framework GLUT -framework OpenAL  -I./libs
+INCLUDES = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi -I/opt/homebrew/include -framework OpenGL -framework GLUT -framework OpenAL  -I./libs 
 
 
 CXXFLAGS = -O3
 
 CC = g++
 
-FLAGS =  -std=c++17 -pthread -ferror-limit=0 -g 
-
+FLAGS =  -std=c++17 -pthread -ferror-limit=0 -g  -std=c++17 
 MKDIR = mkdir -p
 OUT_DIR := out
 DEBUG_DIR := debug

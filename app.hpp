@@ -27,8 +27,8 @@ namespace ve {
   class Application {
   public:
     Application();
-    Application(const Application &src) = delete;
-    Application &operator=(const Application &rhs) = delete;
+    Application(const Application& src) = delete;
+    Application& operator=(const Application& rhs) = delete;
     ~Application();
     void mainLoop();
 
@@ -38,7 +38,7 @@ namespace ve {
     void statePlaying();
     void stateLoadingsScreen();
     void stateGameLoop(std::chrono::steady_clock::time_point currentTime);
-    static void resetTime(std::chrono::steady_clock::time_point *time);
+    static void resetTime(std::chrono::steady_clock::time_point* time);
     void updateFrameInfo();
     void updateGameLvl();
     void StepByStep();
@@ -76,6 +76,7 @@ namespace ve {
     std::vector<GameObject> timeInterface_;
     std::vector<GameObject> menuStartInterface_;
     std::vector<GameObject> exitInterface_;
+    std::vector<GameObject> chooseLevelInterface_;
     KeyboardMovementController cameraController_;
 
     GameObject startLoadingScreen_;

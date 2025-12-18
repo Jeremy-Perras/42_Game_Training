@@ -12,7 +12,7 @@ namespace ve {
     void getUserClick(GameObject &menuInterface);
     void getUserClickMenu(GameObject &menuStartInterface);
     void changeUserInterface(std::vector<std::vector<GameObject>> &playerInterface_);
-
+    void getUserClickChooseLevel(GameObject &chooseLevelInterface);
     // getter
     void getInput(GameObject &menuInterface,
                   std::vector<std::vector<GameObject>> &playerInterface_);

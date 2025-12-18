@@ -40,3 +40,4 @@ library_debug
 Sounds/*.out
 Sounds/*.debug
 Mr.Robot.wav
+*.codechecker

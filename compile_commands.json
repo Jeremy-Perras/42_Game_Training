@@ -8,6 +8,7 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
@@ -27,15 +28,16 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
-      "out/window.o",
-      "window.cpp"
+      "out/system/window.o",
+      "system/window.cpp"
     ],
     "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
-    "file": "/Users/jeremyperras/Desktop/42_Game_Training/window.cpp",
-    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/window.o"
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/system/window.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/system/window.o"
   },
   {
     "arguments": [
@@ -46,6 +48,7 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
@@ -65,15 +68,16 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
-      "out/pipeline.o",
-      "pipeline.cpp"
+      "out/system/pipeline.o",
+      "system/pipeline.cpp"
     ],
     "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
-    "file": "/Users/jeremyperras/Desktop/42_Game_Training/pipeline.cpp",
-    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/pipeline.o"
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/system/pipeline.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/system/pipeline.o"
   },
   {
     "arguments": [
@@ -84,15 +88,16 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
-      "out/device.o",
-      "device.cpp"
+      "out/system/device.o",
+      "system/device.cpp"
     ],
     "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
-    "file": "/Users/jeremyperras/Desktop/42_Game_Training/device.cpp",
-    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/device.o"
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/system/device.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/system/device.o"
   },
   {
     "arguments": [
@@ -103,15 +108,16 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
-      "out/swap_chain.o",
-      "swap_chain.cpp"
+      "out/system/swap_chain.o",
+      "system/swap_chain.cpp"
     ],
     "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
-    "file": "/Users/jeremyperras/Desktop/42_Game_Training/swap_chain.cpp",
-    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/swap_chain.o"
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/system/swap_chain.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/system/swap_chain.o"
   },
   {
     "arguments": [
@@ -122,15 +128,16 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
-      "out/interface_model.o",
-      "interface_model.cpp"
+      "out/gamestructure/interface_model.o",
+      "gamestructure/interface_model.cpp"
     ],
     "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
-    "file": "/Users/jeremyperras/Desktop/42_Game_Training/interface_model.cpp",
-    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/interface_model.o"
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/gamestructure/interface_model.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/gamestructure/interface_model.o"
   },
   {
     "arguments": [
@@ -141,15 +148,16 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
-      "out/renderer.o",
-      "renderer.cpp"
+      "out/system/renderer.o",
+      "system/renderer.cpp"
     ],
     "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
-    "file": "/Users/jeremyperras/Desktop/42_Game_Training/renderer.cpp",
-    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/renderer.o"
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/system/renderer.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/system/renderer.o"
   },
   {
     "arguments": [
@@ -160,15 +168,16 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
-      "out/keyboard_movement_controller.o",
-      "keyboard_movement_controller.cpp"
+      "out/controler/keyboard_movement_controller.o",
+      "controler/keyboard_movement_controller.cpp"
     ],
     "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
-    "file": "/Users/jeremyperras/Desktop/42_Game_Training/keyboard_movement_controller.cpp",
-    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/keyboard_movement_controller.o"
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/controler/keyboard_movement_controller.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/controler/keyboard_movement_controller.o"
   },
   {
     "arguments": [
@@ -179,15 +188,16 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
-      "out/buffer.o",
-      "buffer.cpp"
+      "out/system/buffer.o",
+      "system/buffer.cpp"
     ],
     "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
-    "file": "/Users/jeremyperras/Desktop/42_Game_Training/buffer.cpp",
-    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/buffer.o"
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/system/buffer.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/system/buffer.o"
   },
   {
     "arguments": [
@@ -198,15 +208,16 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
-      "out/descriptors.o",
-      "descriptors.cpp"
+      "out/system/descriptors.o",
+      "system/descriptors.cpp"
     ],
     "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
-    "file": "/Users/jeremyperras/Desktop/42_Game_Training/descriptors.cpp",
-    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/descriptors.o"
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/system/descriptors.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/system/descriptors.o"
   },
   {
     "arguments": [
@@ -217,15 +228,16 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
-      "out/texture_render_system.o",
-      "texture_render_system.cpp"
+      "out/renderer/texture_render_system.o",
+      "renderer/texture_render_system.cpp"
     ],
     "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
-    "file": "/Users/jeremyperras/Desktop/42_Game_Training/texture_render_system.cpp",
-    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/texture_render_system.o"
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/renderer/texture_render_system.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/renderer/texture_render_system.o"
   },
   {
     "arguments": [
@@ -236,15 +248,16 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
-      "out/texture.o",
-      "texture.cpp"
+      "out/gamestructure/texture.o",
+      "gamestructure/texture.cpp"
     ],
     "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
-    "file": "/Users/jeremyperras/Desktop/42_Game_Training/texture.cpp",
-    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/texture.o"
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/gamestructure/texture.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/gamestructure/texture.o"
   },
   {
     "arguments": [
@@ -255,15 +268,16 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
-      "out/mouse_movement_controller.o",
-      "mouse_movement_controller.cpp"
+      "out/controler/mouse_movement_controller.o",
+      "controler/mouse_movement_controller.cpp"
     ],
     "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
-    "file": "/Users/jeremyperras/Desktop/42_Game_Training/mouse_movement_controller.cpp",
-    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/mouse_movement_controller.o"
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/controler/mouse_movement_controller.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/controler/mouse_movement_controller.o"
   },
   {
     "arguments": [
@@ -274,15 +288,16 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
-      "out/parsing.o",
-      "parsing.cpp"
+      "out/parsing/parsing.o",
+      "parsing/parsing.cpp"
     ],
     "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
-    "file": "/Users/jeremyperras/Desktop/42_Game_Training/parsing.cpp",
-    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/parsing.o"
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/parsing/parsing.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/parsing/parsing.o"
   },
   {
     "arguments": [
@@ -293,15 +308,16 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
-      "out/game_loop.o",
-      "game_loop.cpp"
+      "out/gamestructure/game_loop.o",
+      "gamestructure/game_loop.cpp"
     ],
     "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
-    "file": "/Users/jeremyperras/Desktop/42_Game_Training/game_loop.cpp",
-    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/game_loop.o"
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/gamestructure/game_loop.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/gamestructure/game_loop.o"
   },
   {
     "arguments": [
@@ -312,15 +328,16 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
-      "out/window_display.o",
-      "window_display.cpp"
+      "out/renderer/window_display.o",
+      "renderer/window_display.cpp"
     ],
     "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
-    "file": "/Users/jeremyperras/Desktop/42_Game_Training/window_display.cpp",
-    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/window_display.o"
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/renderer/window_display.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/renderer/window_display.o"
   },
   {
     "arguments": [
@@ -331,15 +348,16 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
-      "out/song.o",
-      "song.cpp"
+      "out/song/song.o",
+      "song/song.cpp"
     ],
     "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
-    "file": "/Users/jeremyperras/Desktop/42_Game_Training/song.cpp",
-    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/song.o"
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/song/song.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/song/song.o"
   },
   {
     "arguments": [
@@ -350,15 +368,16 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
-      "out/star_nest.o",
-      "star_nest.cpp"
+      "out/renderer/star_nest_render_system.o",
+      "renderer/star_nest_render_system.cpp"
     ],
     "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
-    "file": "/Users/jeremyperras/Desktop/42_Game_Training/star_nest.cpp",
-    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/star_nest.o"
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/renderer/star_nest_render_system.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/renderer/star_nest_render_system.o"
   },
   {
     "arguments": [
@@ -369,14 +388,35 @@
       "-pthread",
       "-ferror-limit=0",
       "-g",
+      "-std=c++17",
       "-I",
       "/opt/homebrew/include",
       "-o",
-      "out/exit_render_system.o",
-      "exit_render_system.cpp"
+      "out/renderer/exit_render_system.o",
+      "renderer/exit_render_system.cpp"
     ],
     "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
-    "file": "/Users/jeremyperras/Desktop/42_Game_Training/exit_render_system.cpp",
-    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/exit_render_system.o"
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/renderer/exit_render_system.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/renderer/exit_render_system.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/c++",
+      "-O3",
+      "-c",
+      "-std=c++17",
+      "-pthread",
+      "-ferror-limit=0",
+      "-g",
+      "-std=c++17",
+      "-I",
+      "/opt/homebrew/include",
+      "-o",
+      "out/renderer/choose_level_render_system.o",
+      "renderer/choose_level_render_system.cpp"
+    ],
+    "directory": "/Users/jeremyperras/Desktop/42_Game_Training",
+    "file": "/Users/jeremyperras/Desktop/42_Game_Training/renderer/choose_level_render_system.cpp",
+    "output": "/Users/jeremyperras/Desktop/42_Game_Training/out/renderer/choose_level_render_system.o"
   }
 ]
