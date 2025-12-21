@@ -244,7 +244,10 @@ namespace ve {
         menuStart();
         for (std::vector<GameObject>::iterator it = menuStartInterface_.begin();
              it != menuStartInterface_.end(); ++it) {
-          if (it->textureRenderSystem->getIndexTexture() == TextureIndex::STARTBUTTON) {
+          if (it->textureRenderSystem->getIndexTexture() == TextureIndex::STARTBUTTON
+              or it->textureRenderSystem->getIndexTexture() == TextureIndex::SETTINGS
+              or it->textureRenderSystem->getIndexTexture() == TextureIndex::CREDITS
+              or it->textureRenderSystem->getIndexTexture() == TextureIndex::EXIT) {
             mouse_.getUserClickMenu(*it);
           }
         }

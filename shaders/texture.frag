@@ -20,7 +20,7 @@ bool discardAlpha(float w) {
 }
 
 void main() {
-    if (push.index == 27) {
+    if (push.index == 30) {
     discard;
   } 
     if (discardAlpha(texture(tex, fragTexCoord).r) && discardAlpha(texture(tex, fragTexCoord).g)
@@ -61,7 +61,19 @@ void main() {
         case 11:
           outColor = vec4(texture(tex, fragTexCoord).rgb, push.color.a);
           break;
-        case 23:
+        case 23 :
+          outColor = vec4(texelFetch(tex, ivec2(fragTexCoord), 0).rgb, push.color.a);
+          outColor.b = texture(tex, fragTexCoord).b;
+          break;
+        case 25 :
+          outColor = vec4(texelFetch(tex, ivec2(fragTexCoord), 0).rgb, push.color.a);
+          outColor.b = texture(tex, fragTexCoord).b;
+          break;
+        case 26 :
+          outColor = vec4(texelFetch(tex, ivec2(fragTexCoord), 0).rgb, push.color.a);
+          outColor.b = texture(tex, fragTexCoord).b;
+          break;
+        case 27 :
           outColor = vec4(texelFetch(tex, ivec2(fragTexCoord), 0).rgb, push.color.a);
           outColor.b = texture(tex, fragTexCoord).b;
           break;

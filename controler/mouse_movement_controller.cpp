@@ -5,7 +5,7 @@
 #include "../gamestructure/utils.hpp"
 
 namespace ve {
-  MouseMovementController::MouseMovementController(Window &window, GameState &gameState)
+  MouseMovementController::MouseMovementController(Window& window, GameState& gameState)
       : window_(window), gameState_(gameState) {}
 
   MouseMovementController::~MouseMovementController() {}
@@ -14,8 +14,8 @@ namespace ve {
     glfwGetCursorPos(window_.getGLFWwindow(), &xpos_, &ypos_);
   }
 
-  void MouseMovementController::getInput(GameObject &menuInterface,
-                                         std::vector<std::vector<GameObject>> &playerInterface_) {
+  void MouseMovementController::getInput(GameObject& menuInterface,
+                                         std::vector<std::vector<GameObject>>& playerInterface_) {
     if (glfwGetMouseButton(window_.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
       mouseSet_ = true;
       coordinatesMouse();
@@ -37,7 +37,7 @@ namespace ve {
     }
   }
 
-  void MouseMovementController::getUserClick(GameObject &menuInterface) {
+  void MouseMovementController::getUserClick(GameObject& menuInterface) {
     if (menuInterface.textureRenderSystem
         && menuInterface.textureRenderSystem->isInside(
             ((xpos_ / window_.getExtent().width) - 0.5F) * 2,
@@ -50,9 +50,9 @@ namespace ve {
   }
 
   void MouseMovementController::changeUserInterface(
-      std::vector<std::vector<GameObject>> &playerInterface_) {
-    for (const auto &obj : playerInterface_) {
-      for (const auto &playerInterface : obj) {
+      std::vector<std::vector<GameObject>>& playerInterface_) {
+    for (const auto& obj : playerInterface_) {
+      for (const auto& playerInterface : obj) {
         if (playerInterface.textureRenderSystem
             && playerInterface.textureRenderSystem->isInside(
                 ((xpos_ / window_.getExtent().width) - 0.5F) * 2,
@@ -71,20 +71,37 @@ namespace ve {
     }
   }
 
-  void MouseMovementController::getUserClickMenu(GameObject &menuStartInterface) {
+  void MouseMovementController::getUserClickMenu(GameObject& menuStartInterface) {
     coordinatesMouse();
     if (menuStartInterface.textureRenderSystem
-        && menuStartInterface.textureRenderSystem->isInside(xposWindow_, yposWindow_)) {
+        && menuStartInterface.textureRenderSystem->isInside(xposWindow_, yposWindow_)
+        && menuStartInterface.textureRenderSystem->getIndexTexture() == TextureIndex::STARTBUTTON) {
       menuStartInterface.textureRenderSystem->setColor(glm::vec4(0.7, 0.04, 0.0, 1));
       glfwGetMouseButton(window_.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS
           ? gameState_ = GameState::STARTLOADINGSCREEN
           : gameState_ = GameState::MENU;
-    } else {
+    } else if (menuStartInterface.textureRenderSystem
+               && menuStartInterface.textureRenderSystem->isInside(xposWindow_, yposWindow_)
+               && menuStartInterface.textureRenderSystem->getIndexTexture()
+                      == TextureIndex::SETTINGS) {
+      menuStartInterface.textureRenderSystem->setColor(glm::vec4(0.7, 0.04, 0.0, 1));
+    } else if (menuStartInterface.textureRenderSystem
+               && menuStartInterface.textureRenderSystem->isInside(xposWindow_, yposWindow_)
+               && menuStartInterface.textureRenderSystem->getIndexTexture()
+                      == TextureIndex::CREDITS) {
+      menuStartInterface.textureRenderSystem->setColor(glm::vec4(0.7, 0.04, 0.0, 1));
+    } else if (menuStartInterface.textureRenderSystem
+               && menuStartInterface.textureRenderSystem->isInside(xposWindow_, yposWindow_)
+               && menuStartInterface.textureRenderSystem->getIndexTexture() == TextureIndex::EXIT) {
+      menuStartInterface.textureRenderSystem->setColor(glm::vec4(0.7, 0.04, 0.0, 1));
+    }
+
+    else {
       menuStartInterface.textureRenderSystem->setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));
     }
   }
 
-  void MouseMovementController::getUserClickChooseLevel(GameObject &chooseLevelInterface) {
+  void MouseMovementController::getUserClickChooseLevel(GameObject& chooseLevelInterface) {
     coordinatesMouse();
     if (chooseLevelInterface.textureRenderSystem
         && chooseLevelInterface.textureRenderSystem->isInside(xposWindow_, yposWindow_)) {

@@ -66,7 +66,10 @@ namespace ve {
                 std::make_unique<Texture>(device_, "texture/42Game/PlayerLeft.png"),
                 std::make_unique<Texture>(device_, "texture/42Game/Sovietspaceposters.png"),
                 std::make_unique<Texture>(device_, "texture/42Game/Start3.png"),
-                std::make_unique<Texture>(device_, "texture/42Game/AGameBy.png")};
+                std::make_unique<Texture>(device_, "texture/42Game/AGameBy.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/Settings.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/Credits.png"),
+                std::make_unique<Texture>(device_, "texture/42Game/Exit.png")};
 
     exit_ = {std::make_unique<Texture>(device_, "texture/Exit/orig_assets/home.png"),
              std::make_unique<Texture>(device_, "texture/Exit/orig_assets/firstpage.png"),
@@ -111,28 +114,6 @@ namespace ve {
     menuStartInterface_.push_back(std::move(object));
 
     builder = {{{
-                    {-0.25, 0.85},
-                    {0.0F, 0.0F},
-                },
-                {
-                    {0.25, 0.85},
-                    {1.0F, 0.0F},
-                },
-                {
-                    {0.25, 1.10},
-                    {1.0F, 1.0F},
-                },
-                {
-                    {-0.25, 1.10},
-                    {0.0F, 1.0F},
-                }},
-               {0, 1, 2, 2, 3, 0}};
-    object = GameObject::createGameObject();
-    object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-        device_, renderer_, texture_, builder, TextureIndex::AGAMEBY);
-    menuStartInterface_.push_back(std::move(object));
-
-    builder = {{{
                     {-0.15, -0.075},
                     {0.0F, 0.0F},
                 },
@@ -151,7 +132,7 @@ namespace ve {
                {0, 1, 2, 2, 3, 0}};
     object = GameObject::createGameObject();
     object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-        device_, renderer_, texture_, builder, TextureIndex::STARTBUTTON);
+        device_, renderer_, texture_, builder, TextureIndex::SETTINGS);
     menuStartInterface_.push_back(std::move(object));
 
     builder = {{{
@@ -173,7 +154,7 @@ namespace ve {
                {0, 1, 2, 2, 3, 0}};
     object = GameObject::createGameObject();
     object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-        device_, renderer_, texture_, builder, TextureIndex::STARTBUTTON);
+        device_, renderer_, texture_, builder, TextureIndex::CREDITS);
     menuStartInterface_.push_back(std::move(object));
 
     builder = {{{
@@ -194,8 +175,8 @@ namespace ve {
                 }},
                {0, 1, 2, 2, 3, 0}};
     object = GameObject::createGameObject();
-    object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
-        device_, renderer_, texture_, builder, TextureIndex::STARTBUTTON);
+    object.textureRenderSystem = std::make_unique<TextureRenderSystem>(device_, renderer_, texture_,
+                                                                       builder, TextureIndex::EXIT);
     menuStartInterface_.push_back(std::move(object));
 
     builder = {{{
@@ -221,25 +202,90 @@ namespace ve {
     menuStartInterface_.push_back(std::move(object));
 
     builder = {{{
-                    {-0.22, -0.125},
+                    {-0.22, -0.050},
                     {0.0F, 0.0F},
                 },
                 {
-                    {-0.17, -0.125},
+                    {-0.17, -0.050},
                     {1.0F, 0.0F},
                 },
                 {
-                    {-0.17, -0.075},
+                    {-0.17, 0.0},
                     {1.0F, 1.0F},
                 },
                 {
-                    {-0.22, -0.075},
+                    {-0.22, 0.0},
                     {0.0F, 1.0F},
                 }},
                {0, 1, 2, 2, 3, 0}};
     object = GameObject::createGameObject();
     object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
         device_, renderer_, texture_, builder, TextureIndex::DONOTSHOW);
+    menuStartInterface_.push_back(std::move(object));
+    builder = {{{
+                    {-0.22, 0.075},
+                    {0.0F, 0.0F},
+                },
+                {
+                    {-0.17, 0.075},
+                    {1.0F, 0.0F},
+                },
+                {
+                    {-0.17, 0.125},
+                    {1.0F, 1.0F},
+                },
+                {
+                    {-0.22, 0.125},
+                    {0.0F, 1.0F},
+                }},
+               {0, 1, 2, 2, 3, 0}};
+    object = GameObject::createGameObject();
+    object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+        device_, renderer_, texture_, builder, TextureIndex::DONOTSHOW);
+    menuStartInterface_.push_back(std::move(object));
+
+    builder = {{{
+                    {-0.22, -0.050},
+                    {0.0F, 0.0F},
+                },
+                {
+                    {-0.17, -0.050},
+                    {1.0F, 0.0F},
+                },
+                {
+                    {-0.17, 0.0},
+                    {1.0F, 1.0F},
+                },
+                {
+                    {-0.22, 0.0},
+                    {0.0F, 1.0F},
+                }},
+               {0, 1, 2, 2, 3, 0}};
+    object = GameObject::createGameObject();
+    object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+        device_, renderer_, texture_, builder, TextureIndex::DONOTSHOW);
+    menuStartInterface_.push_back(std::move(object));
+
+    builder = {{{
+                    {-0.25, 0.85},
+                    {0.0F, 0.0F},
+                },
+                {
+                    {0.25, 0.85},
+                    {1.0F, 0.0F},
+                },
+                {
+                    {0.25, 1.10},
+                    {1.0F, 1.0F},
+                },
+                {
+                    {-0.25, 1.10},
+                    {0.0F, 1.0F},
+                }},
+               {0, 1, 2, 2, 3, 0}};
+    object = GameObject::createGameObject();
+    object.textureRenderSystem = std::make_unique<TextureRenderSystem>(
+        device_, renderer_, texture_, builder, TextureIndex::AGAMEBY);
     menuStartInterface_.push_back(std::move(object));
 
     builder = {{{
