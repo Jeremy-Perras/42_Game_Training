@@ -45,9 +45,13 @@ namespace ve {
 
     // Song test;
     // test.playMrRobot();
-    while (static_cast<int>(window_.shouldClose()) == 0
-           && static_cast<int>(glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
-                  == 0) {
+
+    while (
+        static_cast<int>(window_.shouldClose()) == 0
+        && static_cast<int>(glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS) == 0
+        && (static_cast<int>(glfwGetKey(window_.getGLFWwindow(), GLFW_KEY_ENTER) == GLFW_PRESS) == 0
+            || (menuStartInterface_[7].textureRenderSystem->getIndexTexture()
+                == TextureIndex::DONOTSHOW))) {
       glfwPollEvents();
 
       for (int i = 0; i < static_cast<int>((menuInterface_).size()); i++) {
@@ -252,6 +256,8 @@ namespace ve {
           }
         }
         cameraController_.moveInGameInterface(window_.getGLFWwindow(), menuStartInterface_);
+        ve::KeyboardMovementController::getKeyPressMenu(window_.getGLFWwindow(), gameState_,
+                                                        menuStartInterface_);
         break;
       }
 

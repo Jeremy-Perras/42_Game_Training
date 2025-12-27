@@ -71,27 +71,43 @@ namespace ve {
   void KeyboardMovementController::moveInGameInterface(
       GLFWwindow* window, std::vector<GameObject>& menuInterface) const {
     int i = 4;
-    if (glfwGetKey(window, keys_.moveDown) == GLFW_PRESS) {
+    static int oldStateUp = GLFW_RELEASE;
+    static int oldStateDown = GLFW_RELEASE;
+
+    int stateDown = glfwGetKey(window, keys_.moveDown);
+    int stateUp = glfwGetKey(window, keys_.moveUp);
+
+    if (stateDown == GLFW_RELEASE && oldStateDown == GLFW_PRESS) {
       while (menuInterface[i].textureRenderSystem->getIndexTexture() == TextureIndex::DONOTSHOW
              && i < 7) {
         i++;
       }
-      std::cout << "i down: " << i << '\n';
       if (i >= 4 && i < 7) {
         menuInterface[i].textureRenderSystem->setIndexTexture(TextureIndex::DONOTSHOW);
         menuInterface[i + 1].textureRenderSystem->setIndexTexture(TextureIndex::PLAYERRIGHT);
       }
-    } else if (glfwGetKey(window, keys_.moveUp) == GLFW_PRESS) {
+    }
+    oldStateDown = stateDown;
+
+    if (stateUp == GLFW_RELEASE && oldStateUp == GLFW_PRESS) {
       while (menuInterface[i].textureRenderSystem->getIndexTexture() == TextureIndex::DONOTSHOW
-             && i < 9) {
+             && i < 7) {
         i++;
       }
-      std::cout << "i up: " << i << '\n';
-      if (i > 4 && i < 9) {
+      if (i > 4 && i <= 7) {
         menuInterface[i - 1].textureRenderSystem->setIndexTexture(TextureIndex::PLAYERRIGHT);
         menuInterface[i].textureRenderSystem->setIndexTexture(TextureIndex::DONOTSHOW);
       }
     }
+    oldStateUp = stateUp;
   }
 
+  void KeyboardMovementController::getKeyPressMenu(GLFWwindow* window, GameState& gameState,
+                                                   std::vector<GameObject>& menuInterface) {
+    int enter = glfwGetKey(window, GLFW_KEY_ENTER);
+    if (enter != 0
+        && menuInterface[4].textureRenderSystem->getIndexTexture() == TextureIndex::PLAYERRIGHT) {
+      gameState = GameState::PLAYING;
+    }
+  }
 }  // namespace ve

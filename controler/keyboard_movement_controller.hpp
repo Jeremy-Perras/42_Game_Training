@@ -25,6 +25,8 @@ namespace ve {
       exitInterface_ = exitInterface;
     }
     void deleteKeyPress();
+    static void getKeyPressMenu(GLFWwindow* window, GameState& gameState,
+                                std::vector<GameObject>& menuInterface);
 
     KeyMappings keys_{};
     float moveSpeed_{0.5F};
